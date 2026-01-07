@@ -153,7 +153,7 @@ export const getLead = async (req: Request, res: Response) => {
 export const updateLead = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);
-        const data = leadSchema.parse(req.body);
+        const data = leadSchema.partial().parse(req.body);
 
         const currentLead = await prisma.lead.findUnique({ where: { id } });
         if (!currentLead) return res.status(404).json({ message: 'Lead not found' });

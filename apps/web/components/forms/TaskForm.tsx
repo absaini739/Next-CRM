@@ -65,7 +65,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
         try {
             const payload = {
                 ...formData,
-                assigned_to_id: parseInt(formData.assigned_to_id),
+                assigned_to_id: formData.assigned_to_id ? parseInt(formData.assigned_to_id) : undefined,
                 estimated_duration: formData.estimated_duration ? parseInt(formData.estimated_duration) : undefined,
                 person_id: formData.person_id ? parseInt(formData.person_id) : undefined,
                 organization_id: formData.organization_id ? parseInt(formData.organization_id) : undefined,

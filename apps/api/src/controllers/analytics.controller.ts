@@ -6,9 +6,14 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         // Get total leads
         const totalLeads = await prisma.lead.count();
 
-        // Get won/lost revenue
+        // Get won/lost revenue (checking both status and stage_id for robustness)
         const wonLeads = await prisma.lead.findMany({
-            where: { status: 1 }, // Won
+            where: {
+                OR: [
+                    { status: 1 },
+                    { stage_id: 5 } // Won stage
+                ]
+            },
             select: { lead_value: true }
         });
         const wonRevenue = wonLeads.reduce((sum, lead) => sum + (parseFloat(lead.lead_value?.toString() || '0')), 0);
@@ -29,6 +34,11 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         const totalPersons = await prisma.person.count();
         const totalOrganizations = await prisma.organization.count();
 
+        // Email Stats
+        const totalEmails = await prisma.email.count();
+        const totalEmailsSent = await prisma.email.count({ where: { folder: 'sent' } });
+        const totalEmailsReceived = await prisma.email.count({ where: { folder: 'inbox' } });
+
         // Average leads per day (last 30 days)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -47,7 +57,12 @@ export const getDashboardStats = async (req: Request, res: Response) => {
             avgLeadsPerDay,
             totalQuotes,
             totalPersons,
-            totalOrganizations
+            totalOrganizations,
+            emailStats: {
+                total: totalEmails,
+                sent: totalEmailsSent,
+                received: totalEmailsReceived
+            }
         });
     } catch (error) {
         console.error(error);
