@@ -30,7 +30,7 @@ export default function RevenueDonutChart({ data, title }: RevenueDonutChartProp
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value: any) => `$${Number(value || 0).toLocaleString()}`} />
                     <Legend />
                 </PieChart>
             </ResponsiveContainer>

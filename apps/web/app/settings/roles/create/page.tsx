@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -157,7 +157,7 @@ export default function CreateRolePage() {
         node: PermissionNode,
         level: number = 0,
         parentPath: string = ''
-    ): JSX.Element => {
+    ): React.ReactNode => {
         const fullPath = parentPath ? `${parentPath}.${key}` : key;
         const hasChildren = node.children && Object.keys(node.children).length > 0;
         const isExpanded = expandedNodes.has(fullPath);

@@ -37,7 +37,7 @@ export default function ProductsPage() {
             key: 'price',
             label: 'Price',
             sortable: true,
-            render: (price: string) => `$${parseFloat(price || 0).toLocaleString()}`,
+            render: (price: string) => `$${parseFloat(price || "0").toLocaleString()}`,
         },
         {
             key: 'quantity',

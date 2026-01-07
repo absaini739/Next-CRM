@@ -41,7 +41,7 @@ export default function QuotesPage() {
             key: 'grand_total',
             label: 'Total',
             sortable: true,
-            render: (total: string) => `$${parseFloat(total || 0).toLocaleString()}`,
+            render: (total: string) => `$${parseFloat(total || "0").toLocaleString()}`,
         },
         {
             key: 'created_at',
