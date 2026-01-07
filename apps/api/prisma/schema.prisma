@@ -321,6 +321,7 @@ model Email {
   is_read    Boolean   @default(false)
   is_starred Boolean   @default(false)
   sent_at    DateTime?
+  scheduled_at DateTime?
   user_id    Int
   person_id  Int?
   lead_id    Int?

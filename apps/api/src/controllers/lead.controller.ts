@@ -174,13 +174,13 @@ const handleLeadConversion = async (lead: any) => {
                 title: leadData.title,
                 description: leadData.description,
                 deal_value: leadData.lead_value,
-                status: 'open', // Deal status is open initially
+                status: 'won', // Auto-won based on Lead status
                 person_id: personId,
                 organization_id: organizationId,
                 user_id: leadData.user_id,
                 lead_id: leadData.id,
                 pipeline_id: 1, // Default Pipeline
-                stage_id: 1     // Default Stage
+                stage_id: 6     // Closed Won
             }
         });
 

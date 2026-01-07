@@ -13,6 +13,7 @@ const emailSchema = z.object({
     person_id: z.number().optional(),
     lead_id: z.number().optional(),
     deal_id: z.number().optional(),
+    scheduled_at: z.string().optional(),
 });
 
 // Get all emails with folder filter
@@ -138,6 +139,10 @@ export const createEmail = async (req: Request, res: Response) => {
         // @ts-ignore
         const userId = req.userId;
 
+        const isScheduled = !!data.scheduled_at;
+        const folder = isScheduled ? 'outbox' : (data.folder || 'sent');
+        const sentAt = isScheduled ? null : (data.folder === 'sent' || !data.folder ? new Date() : null);
+
         const email = await prisma.email.create({
             data: {
                 from: data.from,
@@ -146,12 +151,13 @@ export const createEmail = async (req: Request, res: Response) => {
                 bcc: data.bcc || [],
                 subject: data.subject,
                 body: data.body,
-                folder: data.folder || 'sent',
+                folder: folder,
                 user_id: userId,
                 person_id: data.person_id,
                 lead_id: data.lead_id,
                 deal_id: data.deal_id,
-                sent_at: data.folder === 'sent' ? new Date() : null
+                sent_at: sentAt,
+                scheduled_at: isScheduled ? new Date(data.scheduled_at!) : null
             }
         });
 

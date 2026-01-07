@@ -44,6 +44,8 @@ export default function EmailsPage() {
     const [to, setTo] = useState('');
     const [subject, setSubject] = useState('');
     const [body, setBody] = useState('');
+    const [scheduledAt, setScheduledAt] = useState('');
+    const [isScheduling, setIsScheduling] = useState(false);
     const [sending, setSending] = useState(false);
 
     useEffect(() => {
@@ -84,13 +86,16 @@ export default function EmailsPage() {
                 to: to.split(',').map(e => e.trim()),
                 subject,
                 body,
-                folder: 'sent'
+                folder: 'sent',
+                scheduled_at: isScheduling && scheduledAt ? scheduledAt : undefined
             });
-            toast.success('Email sent successfully');
+            toast.success(isScheduling ? 'Email scheduled successfully' : 'Email sent successfully');
             setShowCompose(false);
             setTo('');
             setSubject('');
             setBody('');
+            setScheduledAt('');
+            setIsScheduling(false);
             fetchEmails();
             fetchCounts();
         } catch (error) {
@@ -138,8 +143,8 @@ export default function EmailsPage() {
                                         key={f.id}
                                         onClick={() => setFolder(f.id)}
                                         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${folder === f.id
-                                                ? 'bg-blue-50 text-blue-700 font-medium'
-                                                : 'text-gray-700 hover:bg-gray-50'
+                                            ? 'bg-blue-50 text-blue-700 font-medium'
+                                            : 'text-gray-700 hover:bg-gray-50'
                                             }`}
                                     >
                                         <div className="flex items-center">
@@ -291,6 +296,30 @@ export default function EmailsPage() {
                                 onChange={(e) => setSubject(e.target.value)}
                                 placeholder="Email subject"
                             />
+
+                            {/* Schedule Option */}
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id="schedule-check"
+                                    checked={isScheduling}
+                                    onChange={(e) => setIsScheduling(e.target.checked)}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <label htmlFor="schedule-check" className="text-sm text-gray-700">
+                                    Schedule for later
+                                </label>
+                            </div>
+
+                            {isScheduling && (
+                                <Input
+                                    type="datetime-local"
+                                    label="Schedule Time"
+                                    value={scheduledAt}
+                                    onChange={(e) => setScheduledAt(e.target.value)}
+                                />
+                            )}
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Message
@@ -299,7 +328,7 @@ export default function EmailsPage() {
                                     value={body}
                                     onChange={(e) => setBody(e.target.value)}
                                     rows={10}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Write your message..."
                                 />
                             </div>
@@ -309,7 +338,7 @@ export default function EmailsPage() {
                                 Cancel
                             </Button>
                             <Button variant="primary" onClick={handleSendEmail} disabled={sending}>
-                                {sending ? 'Sending...' : 'Send Email'}
+                                {sending ? 'Sending...' : (isScheduling ? 'Schedule Email' : 'Send Email')}
                             </Button>
                         </div>
                     </div>

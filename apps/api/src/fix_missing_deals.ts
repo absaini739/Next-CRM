@@ -23,19 +23,36 @@ async function main() {
     let fixedCount = 0;
 
     for (const lead of wonLeads) {
-        // If lead already has deals, skip it (assume it's fine or handled manually)
+        // If lead already has deals, check if they are "open" and fix them
         if (lead.deals.length > 0) {
-            console.log(`Lead ${lead.id} already has a deal. Skipping.`);
+            const openDeals = lead.deals.filter(d => d.status === 'open');
+            if (openDeals.length > 0) {
+                console.log(`Fixing status for ${openDeals.length} existing deals of Lead ${lead.id}...`);
+                for (const deal of openDeals) {
+                    await prisma.deal.update({
+                        where: { id: deal.id },
+                        data: {
+                            status: 'won',
+                            stage_id: 6 // Closed Won
+                        }
+                    });
+                    console.log(`  -> Updated Deal ${deal.id} to Won.`);
+                    fixedCount++;
+                }
+            } else {
+                console.log(`Lead ${lead.id} already has won/lost deals. Skipping.`);
+            }
             continue;
         }
 
-        console.log(`Fixing Lead ${lead.id} (${lead.title})...`);
+        console.log(`Creating missing deal for Lead ${lead.id} (${lead.title})...`);
 
         try {
             await prisma.$transaction(async (tx) => {
                 const leadData = lead;
 
                 // 1. Create Organization if company_name exists and not linked
+                // ... (rest of logic same as before)
                 let organizationId = leadData.organization_id;
                 if (!organizationId && leadData.company_name) {
                     const org = await tx.organization.create({
@@ -71,16 +88,17 @@ async function main() {
                         title: leadData.title,
                         description: leadData.description,
                         deal_value: leadData.lead_value,
-                        status: 'open', // New deals start as open in the pipeline
+                        status: 'won', // Changed to Won
                         person_id: personId,
                         organization_id: organizationId,
                         user_id: leadData.user_id,
                         lead_id: leadData.id,
                         pipeline_id: 1, // Default Pipeline
-                        stage_id: 1     // Default Stage
+                        stage_id: 6     // Closed Won
                     }
                 });
                 console.log(`  -> Created Deal: ${deal.title}`);
+                // ...
 
                 // 4. Update lead with links
                 if (personId !== leadData.person_id || organizationId !== leadData.organization_id) {
