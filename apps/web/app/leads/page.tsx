@@ -89,7 +89,7 @@ export default function LeadsPage() {
                                 placeholder="Search by Title"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                         <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center">
