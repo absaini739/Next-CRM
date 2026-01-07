@@ -31,10 +31,23 @@ const navigation = [
     { name: 'Calendar', href: '/calendar', icon: CalendarIcon, permission: 'activities' },
     { name: 'Activities', href: '/activities', icon: CalendarIcon, permission: 'activities' },
     { name: 'Pipelines', href: '/pipelines', icon: FunnelIcon, permission: 'settings.lead.pipelines' },
-    { name: 'VoIP', href: '/voip', icon: PhoneIcon, permission: 'voip' },
+    {
+        name: 'VoIP',
+        href: '/voip',
+        icon: PhoneIcon,
+        permission: 'voip',
+        children: [
+            { name: 'Dashboard', href: '/voip' },
+            { name: 'Providers', href: '/voip/providers' },
+            { name: 'Trunks', href: '/voip/trunks' },
+            { name: 'Routes', href: '/voip/routes' },
+            { name: 'Recordings', href: '/voip/recordings' },
+        ]
+    },
     { name: 'Email', href: '/emails', icon: EnvelopeIcon, permission: 'mail' },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon }, // Always show settings, but content inside will be filtered
 ];
+
 
 export default function Sidebar() {
     const pathname = usePathname();
