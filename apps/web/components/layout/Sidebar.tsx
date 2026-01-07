@@ -91,6 +91,7 @@ export default function Sidebar() {
 
     return (
         <div
+            suppressHydrationWarning
             className={`flex flex-col bg-gray-900 min-h-screen transition-all duration-300 ease-in-out ${isExpanded ? 'w-64' : 'w-16'
                 }`}
             onMouseEnter={() => setIsExpanded(true)}
