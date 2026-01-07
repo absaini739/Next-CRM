@@ -94,7 +94,7 @@ export default function Header() {
                             leaveFrom="transform opacity-100 scale-100"
                             leaveTo="transform opacity-0 scale-95"
                         >
-                            <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                            <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none z-50">
                                 <div className="py-2">
                                     {quickCreateItems.map((item) => {
                                         const Icon = item.icon;
@@ -103,10 +103,10 @@ export default function Header() {
                                                 {({ active }) => (
                                                     <button
                                                         onClick={() => router.push(item.href)}
-                                                        className={`${active ? 'bg-gray-50' : ''
-                                                            } flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50`}
+                                                        className={`${active ? 'bg-gray-50 dark:bg-slate-700' : ''
+                                                            } flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700`}
                                                     >
-                                                        <Icon className="w-5 h-5 mr-3 text-gray-400" />
+                                                        <Icon className="w-5 h-5 mr-3 text-gray-400 dark:text-slate-500" />
                                                         {item.name}
                                                     </button>
                                                 )}
@@ -146,18 +146,18 @@ export default function Header() {
                             leaveFrom="transform opacity-100 scale-100"
                             leaveTo="transform opacity-0 scale-95"
                         >
-                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none z-50">
                                 <div className="py-2">
-                                    <div className="px-4 py-2 border-b border-gray-100">
-                                        <p className="text-sm font-medium text-gray-900">{user?.name || 'Admin'}</p>
-                                        <p className="text-xs text-gray-500">{user?.email || ''}</p>
+                                    <div className="px-4 py-2 border-b border-gray-100 dark:border-slate-700">
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || 'Admin'}</p>
+                                        <p className="text-xs text-gray-500 dark:text-slate-400">{user?.email || ''}</p>
                                     </div>
                                     <Menu.Item>
                                         {({ active }) => (
                                             <button
                                                 onClick={logout}
-                                                className={`${active ? 'bg-gray-50' : ''
-                                                    } flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50`}
+                                                className={`${active ? 'bg-gray-50 dark:bg-slate-700' : ''
+                                                    } flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700`}
                                             >
                                                 <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3" />
                                                 Logout
