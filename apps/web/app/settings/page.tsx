@@ -41,6 +41,7 @@ const settingSections: SettingSection[] = [
         description: 'Manage users, roles, and permissions',
         icon: UsersIcon,
         color: 'bg-blue-100 text-blue-600',
+        route: '/settings/users'
     },
     {
         id: 'roles',
@@ -48,6 +49,7 @@ const settingSections: SettingSection[] = [
         description: 'Configure access control and security',
         icon: ShieldCheckIcon,
         color: 'bg-green-100 text-green-600',
+        route: '/roles'
     },
     {
         id: 'pipelines',
@@ -63,6 +65,7 @@ const settingSections: SettingSection[] = [
         description: 'Connect your email accounts',
         icon: EnvelopeIcon,
         color: 'bg-orange-100 text-orange-600',
+        route: '/settings/email'
     },
     {
         id: 'data-transfer',
@@ -78,6 +81,7 @@ const settingSections: SettingSection[] = [
         description: 'Create automated workflows and triggers',
         icon: BoltIcon,
         color: 'bg-yellow-100 text-yellow-600',
+        route: '/settings/automation'
     },
     {
         id: 'notifications',
@@ -85,6 +89,7 @@ const settingSections: SettingSection[] = [
         description: 'Configure email and push notifications',
         icon: BellIcon,
         color: 'bg-red-100 text-red-600',
+        route: '/settings/notifications'
     },
     {
         id: 'custom-fields',
@@ -92,6 +97,7 @@ const settingSections: SettingSection[] = [
         description: 'Add custom fields to your CRM entities',
         icon: WrenchScrewdriverIcon,
         color: 'bg-pink-100 text-pink-600',
+        route: '/settings/custom-fields'
     },
     {
         id: 'integrations',
@@ -99,6 +105,7 @@ const settingSections: SettingSection[] = [
         description: 'Connect third-party apps and services',
         icon: CubeIcon,
         color: 'bg-teal-100 text-teal-600',
+        route: '/settings/integrations'
     },
     {
         id: 'security',
@@ -106,6 +113,7 @@ const settingSections: SettingSection[] = [
         description: 'Two-factor auth, IP restrictions, audit logs',
         icon: LockClosedIcon,
         color: 'bg-gray-100 text-gray-600',
+        route: '/settings/security'
     },
     {
         id: 'company',
@@ -113,6 +121,7 @@ const settingSections: SettingSection[] = [
         description: 'Update company information and branding',
         icon: BuildingOfficeIcon,
         color: 'bg-cyan-100 text-cyan-600',
+        route: '/settings/company'
     },
     {
         id: 'billing',
@@ -120,6 +129,7 @@ const settingSections: SettingSection[] = [
         description: 'Manage your subscription and invoices',
         icon: CurrencyDollarIcon,
         color: 'bg-emerald-100 text-emerald-600',
+        route: '/settings/billing'
     },
     {
         id: 'localization',
@@ -127,6 +137,7 @@ const settingSections: SettingSection[] = [
         description: 'Language, timezone, and currency settings',
         icon: GlobeAltIcon,
         color: 'bg-violet-100 text-violet-600',
+        route: '/settings/localization'
     },
     {
         id: 'reports',
@@ -134,6 +145,7 @@ const settingSections: SettingSection[] = [
         description: 'Configure dashboards and custom reports',
         icon: ChartBarIcon,
         color: 'bg-lime-100 text-lime-600',
+        route: '/settings/reports'
     },
     {
         id: 'templates',
@@ -141,6 +153,7 @@ const settingSections: SettingSection[] = [
         description: 'Create and manage email templates',
         icon: DocumentTextIcon,
         color: 'bg-amber-100 text-amber-600',
+        route: '/settings/templates'
     },
     {
         id: 'business-hours',
@@ -148,6 +161,7 @@ const settingSections: SettingSection[] = [
         description: 'Set working hours and holidays',
         icon: ClockIcon,
         color: 'bg-rose-100 text-rose-600',
+        route: '/settings/business-hours'
     },
     {
         id: 'tags',
@@ -155,6 +169,7 @@ const settingSections: SettingSection[] = [
         description: 'Manage tags and categorization',
         icon: TagIcon,
         color: 'bg-fuchsia-100 text-fuchsia-600',
+        route: '/settings/tags'
     },
     {
         id: 'advanced',
@@ -162,6 +177,7 @@ const settingSections: SettingSection[] = [
         description: 'Database, backups, and system configuration',
         icon: Cog6ToothIcon,
         color: 'bg-slate-100 text-slate-600',
+        route: '/settings/advanced'
     },
 ];
 
