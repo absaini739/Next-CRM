@@ -92,7 +92,7 @@ export default function Sidebar() {
     return (
         <div
             suppressHydrationWarning
-            className={`flex flex-col bg-gray-900 dark:bg-slate-800 min-h-screen transition-all duration-300 ease-in-out pt-16 border-r border-gray-800 dark:border-slate-700 ${isExpanded ? 'w-64' : 'w-16'
+            className={`flex flex-col bg-slate-900 dark:bg-slate-950 min-h-screen transition-all duration-300 ease-in-out pt-16 border-r border-slate-800 dark:border-slate-800 ${isExpanded ? 'w-64' : 'w-16'
                 }`}
             onMouseEnter={() => setIsExpanded(true)}
             onMouseLeave={() => setIsExpanded(false)}
@@ -107,8 +107,8 @@ export default function Sidebar() {
                             key={item.name}
                             href={item.href}
                             className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
-                                : 'text-gray-300 dark:text-slate-400 hover:bg-gray-800 dark:hover:bg-slate-800 hover:text-white dark:hover:text-slate-100'
+                                ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-lg shadow-blue-900/20'
+                                : 'text-slate-300 dark:text-slate-400 hover:bg-slate-800 dark:hover:bg-slate-900 hover:text-white dark:hover:text-slate-100'
                                 }`}
                             title={!isExpanded ? item.name : undefined}
                         >

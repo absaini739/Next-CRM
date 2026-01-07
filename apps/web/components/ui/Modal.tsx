@@ -32,7 +32,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    <div className="fixed inset-0 bg-black bg-opacity-25 dark:bg-opacity-60" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
@@ -46,15 +46,15 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className={`w-full ${sizes[size]} transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all`}>
+                            <Dialog.Panel className={`w-full ${sizes[size]} transform overflow-hidden rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-left align-middle shadow-xl transition-all`}>
                                 {title && (
-                                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                                        <Dialog.Title as="h3" className="text-lg font-medium text-gray-900">
+                                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                                        <Dialog.Title as="h3" className="text-lg font-medium text-gray-900 dark:text-white">
                                             {title}
                                         </Dialog.Title>
                                         <button
                                             type="button"
-                                            className="text-gray-400 hover:text-gray-500"
+                                            className="text-gray-400 dark:text-slate-400 hover:text-gray-500 dark:hover:text-slate-300"
                                             onClick={onClose}
                                         >
                                             <XMarkIcon className="h-6 w-6" />
