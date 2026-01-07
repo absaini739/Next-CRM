@@ -30,15 +30,60 @@ const leadSchema = z.object({
     stage_id: z.number().int().optional().nullable(),
 });
 
+// Helper function to auto-create Person from Lead data
+const createOrUpdatePersonFromLead = async (leadData: any, userId: number) => {
+    // Only create Person if we have contact info and no person_id provided
+    if (!leadData.person_id && leadData.first_name && (leadData.primary_email || leadData.phone || leadData.mobile)) {
+        const personName = `${leadData.first_name} ${leadData.last_name || ''}`.trim();
+
+        // Build emails array
+        const emails = [];
+        if (leadData.primary_email) {
+            emails.push({ value: leadData.primary_email, label: 'primary' });
+        }
+        if (leadData.secondary_email) {
+            emails.push({ value: leadData.secondary_email, label: 'secondary' });
+        }
+
+        // Build contact numbers array
+        const contactNumbers = [];
+        if (leadData.phone) {
+            contactNumbers.push({ value: leadData.phone, label: 'phone' });
+        }
+        if (leadData.mobile) {
+            contactNumbers.push({ value: leadData.mobile, label: 'mobile' });
+        }
+
+        // Create the Person
+        const person = await prisma.person.create({
+            data: {
+                name: personName,
+                emails: emails,
+                contact_numbers: contactNumbers.length > 0 ? contactNumbers : undefined,
+                organization_id: leadData.organization_id,
+                user_id: userId,
+            },
+        });
+
+        return person.id;
+    }
+
+    return leadData.person_id;
+};
+
 export const createLead = async (req: Request, res: Response) => {
     try {
         const data = leadSchema.parse(req.body);
         // @ts-ignore
         const authUserId = req.userId;
 
+        // Auto-create Person if contact info provided
+        const personId = await createOrUpdatePersonFromLead(data, authUserId);
+
         const lead = await prisma.lead.create({
             data: {
                 ...data,
+                person_id: personId,
                 user_id: data.user_id ?? authUserId, // Use provided owner or auth user
                 // @ts-ignore - Prisma Client update locked by running server
                 assigned_to_id: data.assigned_to_id,
