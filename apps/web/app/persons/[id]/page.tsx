@@ -20,6 +20,7 @@ export default function PersonDetailPage() {
         name: '',
         email: '',
         phone: '',
+        mobile: '',
     });
 
     useEffect(() => {
@@ -33,12 +34,14 @@ export default function PersonDetailPage() {
 
             // Pre-fill form data
             const primaryEmail = response.data.emails?.find((e: any) => e.label === 'primary')?.value || '';
-            const primaryPhone = response.data.contact_numbers?.find((n: any) => n.label === 'primary')?.value || '';
+            const phoneNumber = response.data.contact_numbers?.find((n: any) => n.label === 'phone')?.value || '';
+            const mobileNumber = response.data.contact_numbers?.find((n: any) => n.label === 'mobile')?.value || '';
 
             setFormData({
                 name: response.data.name,
                 email: primaryEmail,
-                phone: primaryPhone,
+                phone: phoneNumber,
+                mobile: mobileNumber,
             });
         } catch (error) {
             toast.error('Failed to load person');
@@ -56,7 +59,10 @@ export default function PersonDetailPage() {
             const payload = {
                 name: formData.name,
                 emails: formData.email ? [{ value: formData.email, label: 'primary' }] : [],
-                contact_numbers: formData.phone ? [{ value: formData.phone, label: 'primary' }] : [],
+                contact_numbers: [
+                    ...(formData.phone ? [{ value: formData.phone, label: 'phone' }] : []),
+                    ...(formData.mobile ? [{ value: formData.mobile, label: 'mobile' }] : []),
+                ],
             };
 
             await api.put(`/persons/${params.id}`, payload);
@@ -141,6 +147,12 @@ export default function PersonDetailPage() {
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
+                            <Input
+                                label="Mobile Number"
+                                type="tel"
+                                value={formData.mobile}
+                                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                            />
                             <div className="flex justify-end">
                                 <Button type="submit" variant="primary" disabled={loading}>
                                     {loading ? 'Saving...' : 'Save Changes'}
@@ -165,7 +177,13 @@ export default function PersonDetailPage() {
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Phone</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                        {person?.contact_numbers?.find((n: any) => n.label === 'primary')?.value || 'N/A'}
+                                        {person?.contact_numbers?.find((n: any) => n.label === 'phone')?.value || 'N/A'}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt className="text-sm font-medium text-gray-500">Mobile</dt>
+                                    <dd className="mt-1 text-sm text-gray-900">
+                                        {person?.contact_numbers?.find((n: any) => n.label === 'mobile')?.value || 'N/A'}
                                     </dd>
                                 </div>
                                 <div>

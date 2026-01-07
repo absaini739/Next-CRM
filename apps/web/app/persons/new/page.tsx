@@ -16,6 +16,7 @@ export default function NewPersonPage() {
         name: '',
         email: '',
         phone: '',
+        mobile: '',
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +27,10 @@ export default function NewPersonPage() {
             const payload = {
                 name: formData.name,
                 emails: formData.email ? [{ value: formData.email, label: 'primary' }] : [],
-                contact_numbers: formData.phone ? [{ value: formData.phone, label: 'primary' }] : [],
+                contact_numbers: [
+                    ...(formData.phone ? [{ value: formData.phone, label: 'phone' }] : []),
+                    ...(formData.mobile ? [{ value: formData.mobile, label: 'mobile' }] : []),
+                ],
             };
 
             await api.post('/persons', payload);
@@ -73,6 +77,14 @@ export default function NewPersonPage() {
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             placeholder="+1 (555) 123-4567"
+                        />
+
+                        <Input
+                            label="Mobile Number"
+                            type="tel"
+                            value={formData.mobile}
+                            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                            placeholder="+1 (555) 987-6543"
                         />
 
                         <div className="flex justify-end space-x-3">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
@@ -17,6 +17,8 @@ import {
 
 export default function VoIPPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [stats, setStats] = useState({
         providers: 0,
         trunks: 0,
@@ -26,7 +28,12 @@ export default function VoIPPage() {
 
     useEffect(() => {
         fetchStats();
-    }, []);
+        // Pre-fill phone number from URL parameter
+        const dialParam = searchParams.get('dial');
+        if (dialParam) {
+            setPhoneNumber(dialParam);
+        }
+    }, [searchParams]);
 
     const fetchStats = async () => {
         try {
@@ -102,6 +109,41 @@ export default function VoIPPage() {
                         Manage your VoIP infrastructure and call routing
                     </p>
                 </div>
+
+                {/* Quick Dialer */}
+                <Card title="Quick Dialer" className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                            <input
+                                type="tel"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                placeholder="Enter phone number to call"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+                        <button
+                            onClick={() => {
+                                if (phoneNumber) {
+                                    toast.success(`Initiating call to ${phoneNumber}`);
+                                    // TODO: Integrate with actual VoIP provider API
+                                } else {
+                                    toast.error('Please enter a phone number');
+                                }
+                            }}
+                            disabled={!phoneNumber}
+                            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                        >
+                            <PhoneIcon className="h-5 w-5" />
+                            Call
+                        </button>
+                    </div>
+                    {phoneNumber && (
+                        <p className="mt-2 text-sm text-gray-600">
+                            Ready to call: <span className="font-semibold text-gray-900">{phoneNumber}</span>
+                        </p>
+                    )}
+                </Card>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {sections.map((section) => {
