@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import {
@@ -23,7 +24,6 @@ import {
     TagIcon,
     Cog6ToothIcon
 } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
 
 interface SettingSection {
     id: string;
@@ -182,22 +182,12 @@ const settingSections: SettingSection[] = [
 ];
 
 export default function SettingsPage() {
-    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredSections = settingSections.filter(section =>
         section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         section.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    const handleSectionClick = (section: SettingSection) => {
-        if (section.route) {
-            router.push(section.route);
-        } else {
-            // For now, just show a message
-            console.log(`Navigate to ${section.id} settings`);
-        }
-    };
 
     return (
         <DashboardLayout>
@@ -230,12 +220,8 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredSections.map((section) => {
                         const Icon = section.icon;
-                        return (
-                            <Card
-                                key={section.id}
-                                className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
-                                onClick={() => handleSectionClick(section)}
-                            >
+                        const CardContent = (
+                            <Card className="p-6 cursor-pointer hover:shadow-lg transition-shadow h-full">
                                 <div className="flex items-start space-x-4">
                                     <div className={`p-3 rounded-lg ${section.color}`}>
                                         <Icon className="h-6 w-6" />
@@ -250,6 +236,16 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             </Card>
+                        );
+
+                        return section.route ? (
+                            <Link key={section.id} href={section.route}>
+                                {CardContent}
+                            </Link>
+                        ) : (
+                            <div key={section.id}>
+                                {CardContent}
+                            </div>
                         );
                     })}
                 </div>
