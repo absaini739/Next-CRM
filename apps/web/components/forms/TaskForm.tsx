@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Button from './Button';
+import Button from '@/components/ui/Button';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
