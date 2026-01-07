@@ -17,26 +17,63 @@ import {
     EnvelopeIcon,
     ArrowsRightLeftIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '@/context/AuthContext';
 
 const navigation = [
-    { name: 'Dashboard', href: '/', icon: HomeIcon },
-    { name: 'Persons', href: '/persons', icon: UsersIcon },
-    { name: 'Organizations', href: '/organizations', icon: BuildingOfficeIcon },
-    { name: 'Leads', href: '/leads', icon: FunnelIcon },
-    { name: 'Deals', href: '/deals', icon: CurrencyDollarIcon },
-    { name: 'Products', href: '/products', icon: ShoppingBagIcon },
-    { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon },
-    { name: 'Tasks', href: '/tasks', icon: CalendarIcon },
-    { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
-    { name: 'Activities', href: '/activities', icon: CalendarIcon },
-    { name: 'VoIP', href: '/voip', icon: PhoneIcon },
-    { name: 'Email', href: '/emails', icon: EnvelopeIcon },
-    { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
+    { name: 'Dashboard', href: '/', icon: HomeIcon, permission: 'dashboard' },
+    { name: 'Persons', href: '/persons', icon: UsersIcon, permission: 'contacts.persons' },
+    { name: 'Organizations', href: '/organizations', icon: BuildingOfficeIcon, permission: 'contacts.organizations' },
+    { name: 'Leads', href: '/leads', icon: FunnelIcon, permission: 'leads' },
+    { name: 'Deals', href: '/deals', icon: CurrencyDollarIcon, permission: 'deals' },
+    { name: 'Products', href: '/products', icon: ShoppingBagIcon, permission: 'products' },
+    { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon, permission: 'quotes' },
+    { name: 'Tasks', href: '/tasks', icon: CalendarIcon, permission: 'activities' },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon, permission: 'activities' },
+    { name: 'Activities', href: '/activities', icon: CalendarIcon, permission: 'activities' },
+    { name: 'VoIP', href: '/voip', icon: PhoneIcon, permission: 'voip' },
+    { name: 'Email', href: '/emails', icon: EnvelopeIcon, permission: 'mail' },
+    { name: 'Settings', href: '/settings', icon: Cog6ToothIcon }, // Always show settings, but content inside will be filtered
 ];
 
 export default function Sidebar() {
     const pathname = usePathname();
     const [isExpanded, setIsExpanded] = useState(false);
+    const { user } = useAuth();
+
+    const hasPermission = (permissionPath?: string) => {
+        if (!permissionPath) return true;
+        if (!user || !user.role) return false;
+
+        // Administrator has all permissions
+        if (user.role.name.toLowerCase() === 'administrator' || user.role.permissions?.all === true) {
+            return true;
+        }
+
+        const permissions = user.role.permissions;
+        if (!permissions) return false;
+
+        // Split path (e.g., 'contacts.persons')
+        const parts = permissionPath.split('.');
+
+        let current = permissions;
+        for (const part of parts) {
+            if (current[part]) {
+                // If it's the last part and it's an array of permissions (like ['view', 'create'])
+                if (Array.isArray(current[part])) {
+                    return current[part].includes('view');
+                }
+                // If it's an object, keep going
+                current = current[part];
+            } else {
+                return false;
+            }
+        }
+
+        // If we reached here, and it's an array or has 'view'
+        return true;
+    };
+
+    const filteredNavigation = navigation.filter(item => hasPermission(item.permission));
 
     return (
         <div
@@ -56,7 +93,7 @@ export default function Sidebar() {
 
             {/* Navigation */}
             <nav className="flex-1 px-2 py-4 space-y-1">
-                {navigation.map((item) => {
+                {filteredNavigation.map((item) => {
                     const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                     const Icon = item.icon;
                     return (
