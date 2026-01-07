@@ -92,20 +92,11 @@ export default function Sidebar() {
     return (
         <div
             suppressHydrationWarning
-            className={`flex flex-col bg-gray-900 min-h-screen transition-all duration-300 ease-in-out ${isExpanded ? 'w-64' : 'w-16'
+            className={`flex flex-col bg-gray-900 min-h-screen transition-all duration-300 ease-in-out pt-16 ${isExpanded ? 'w-64' : 'w-16'
                 }`}
             onMouseEnter={() => setIsExpanded(true)}
             onMouseLeave={() => setIsExpanded(false)}
         >
-            {/* Logo */}
-            <Link href="/" className="flex items-center justify-center h-16 px-2 bg-gray-800 hover:bg-gray-700 transition-colors w-full">
-                {isExpanded ? (
-                    <h1 className="text-xl font-bold text-white">ispecia</h1>
-                ) : (
-                    <span className="text-xl font-bold text-white">i</span>
-                )}
-            </Link>
-
             {/* Navigation */}
             <nav className="flex-1 px-2 py-4 space-y-1">
                 {filteredNavigation.map((item) => {

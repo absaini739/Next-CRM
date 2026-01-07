@@ -1,57 +1,173 @@
 'use client';
 
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { ChevronDownIcon, UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import {
+    MagnifyingGlassIcon,
+    PlusIcon,
+    MoonIcon,
+    SunIcon,
+    UserCircleIcon,
+    ArrowRightOnRectangleIcon,
+    FunnelIcon,
+    DocumentTextIcon,
+    EnvelopeIcon,
+    UsersIcon,
+    BuildingOfficeIcon,
+    ShoppingBagIcon,
+    Cog6ToothIcon,
+} from '@heroicons/react/24/outline';
 
 export default function Header() {
     const { user, logout } = useAuth();
+    const router = useRouter();
+    const [darkMode, setDarkMode] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const quickCreateItems = [
+        { name: 'Lead', icon: FunnelIcon, href: '/leads/new' },
+        { name: 'Quote', icon: DocumentTextIcon, href: '/quotes/new' },
+        { name: 'Email', icon: EnvelopeIcon, href: '/emails/new' },
+        { name: 'Person', icon: UsersIcon, href: '/persons/new' },
+        { name: 'Organization', icon: BuildingOfficeIcon, href: '/organizations/new' },
+        { name: 'Product', icon: ShoppingBagIcon, href: '/products/new' },
+        { name: 'Role', icon: Cog6ToothIcon, href: '/settings/roles/new' },
+        { name: 'User', icon: UserCircleIcon, href: '/settings/users/new' },
+    ];
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            // TODO: Implement global search
+            console.log('Searching for:', searchQuery);
+        }
+    };
+
+    const getUserInitial = () => {
+        return user?.name?.charAt(0).toUpperCase() || 'A';
+    };
 
     return (
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6">
-            {/* Breadcrumbs / Page Title - can be enhanced later */}
-            <div className="flex-1">
-                {/* Page Title removed as requested */}
-            </div>
+        <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-16 z-50">
+            <div className="flex items-center justify-between px-6 h-full">
+                {/* Left: Logo */}
+                <Link
+                    href="/"
+                    className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+                >
+                    ispecia
+                </Link>
 
-            {/* User Menu */}
-            <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">Welcome, {user?.name || 'Admin'}</span>
+                {/* Center: Search Bar */}
+                <div className="flex-1 max-w-2xl mx-8">
+                    <form onSubmit={handleSearch} className="relative">
+                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Mega Search"
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                    </form>
+                </div>
 
-                <Menu as="div" className="relative">
-                    <Menu.Button className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-                        <UserCircleIcon className="w-8 h-8 text-gray-400" />
-                        <ChevronDownIcon className="w-4 h-4" />
-                    </Menu.Button>
+                {/* Right: Action Buttons */}
+                <div className="flex items-center gap-3">
+                    {/* Quick Create Menu */}
+                    <Menu as="div" className="relative">
+                        <Menu.Button className="flex items-center justify-center w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors">
+                            <PlusIcon className="h-5 w-5" />
+                        </Menu.Button>
 
-                    <Transition
-                        as={Fragment}
-                        enter="transition ease-out duration-100"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
-                        leave="transition ease-in duration-75"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
+                        <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                        >
+                            <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                <div className="py-2">
+                                    {quickCreateItems.map((item) => {
+                                        const Icon = item.icon;
+                                        return (
+                                            <Menu.Item key={item.name}>
+                                                {({ active }) => (
+                                                    <button
+                                                        onClick={() => router.push(item.href)}
+                                                        className={`${active ? 'bg-gray-50' : ''
+                                                            } flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50`}
+                                                    >
+                                                        <Icon className="w-5 h-5 mr-3 text-gray-400" />
+                                                        {item.name}
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                        );
+                                    })}
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
+
+                    {/* Dark Mode Toggle */}
+                    <button
+                        onClick={() => setDarkMode(!darkMode)}
+                        className="flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                        title={darkMode ? 'Light Mode' : 'Dark Mode'}
                     >
-                        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                            <div className="py-1">
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <button
-                                            onClick={logout}
-                                            className={`${active ? 'bg-gray-100' : ''
-                                                } flex w-full items-center px-4 py-2 text-sm text-gray-700`}
-                                        >
-                                            <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3" />
-                                            Logout
-                                        </button>
-                                    )}
-                                </Menu.Item>
-                            </div>
-                        </Menu.Items>
-                    </Transition>
-                </Menu>
+                        {darkMode ? (
+                            <SunIcon className="h-5 w-5" />
+                        ) : (
+                            <MoonIcon className="h-5 w-5" />
+                        )}
+                    </button>
+
+                    {/* User Menu */}
+                    <Menu as="div" className="relative">
+                        <Menu.Button className="flex items-center justify-center w-10 h-10 bg-pink-500 text-white rounded-full font-semibold hover:bg-pink-600 transition-colors">
+                            {getUserInitial()}
+                        </Menu.Button>
+
+                        <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                        >
+                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                <div className="py-2">
+                                    <div className="px-4 py-2 border-b border-gray-100">
+                                        <p className="text-sm font-medium text-gray-900">{user?.name || 'Admin'}</p>
+                                        <p className="text-xs text-gray-500">{user?.email || ''}</p>
+                                    </div>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={logout}
+                                                className={`${active ? 'bg-gray-50' : ''
+                                                    } flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50`}
+                                            >
+                                                <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3" />
+                                                Logout
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
+                </div>
             </div>
         </header>
     );
