@@ -4,6 +4,8 @@ import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
 import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
 
 export default function CompanyPage() {
@@ -14,6 +16,15 @@ export default function CompanyPage() {
     const [address, setAddress] = useState('123 Business St, Suite 100');
     const [city, setCity] = useState('San Francisco');
     const [country, setCountry] = useState('United States');
+    const [primaryColor, setPrimaryColor] = useState('#3B82F6');
+
+    const industryOptions = [
+        { value: 'Technology', label: 'Technology' },
+        { value: 'Finance', label: 'Finance' },
+        { value: 'Healthcare', label: 'Healthcare' },
+        { value: 'Retail', label: 'Retail' },
+        { value: 'Manufacturing', label: 'Manufacturing' },
+    ];
 
     return (
         <DashboardLayout>
@@ -31,83 +42,67 @@ export default function CompanyPage() {
                 </div>
 
                 <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Company Information</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900">Company Information</h3>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-                            <input
-                                type="text"
+                            <Input
+                                label="Company Name"
                                 value={companyName}
                                 onChange={(e) => setCompanyName(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-                                <select
+                                <Select
+                                    label="Industry"
+                                    options={industryOptions}
                                     value={industry}
                                     onChange={(e) => setIndustry(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option>Technology</option>
-                                    <option>Finance</option>
-                                    <option>Healthcare</option>
-                                    <option>Retail</option>
-                                    <option>Manufacturing</option>
-                                </select>
+                                />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
-                                <input
+                                <Input
+                                    label="Website"
                                     type="url"
                                     value={website}
                                     onChange={(e) => setWebsite(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                            <input
+                            <Input
+                                label="Phone"
                                 type="tel"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                            <input
-                                type="text"
+                            <Input
+                                label="Address"
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                                <input
-                                    type="text"
+                                <Input
+                                    label="City"
                                     value={city}
                                     onChange={(e) => setCity(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                                <input
-                                    type="text"
+                                <Input
+                                    label="Country"
                                     value={country}
                                     onChange={(e) => setCountry(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                         </div>
@@ -119,10 +114,10 @@ export default function CompanyPage() {
                 </Card>
 
                 <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Branding</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900">Branding</h3>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-2">Company Logo</label>
                             <div className="flex items-center space-x-4">
                                 <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
                                     <BuildingOfficeIcon className="h-10 w-10 text-gray-400" />
@@ -132,14 +127,15 @@ export default function CompanyPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-2">Primary Color</label>
                             <div className="flex items-center space-x-2">
                                 <input
                                     type="color"
-                                    value="#3B82F6"
+                                    value={primaryColor}
+                                    onChange={(e) => setPrimaryColor(e.target.value)}
                                     className="h-10 w-20 border border-gray-300 rounded cursor-pointer"
                                 />
-                                <span className="text-sm text-gray-600">#3B82F6</span>
+                                <span className="text-sm text-gray-900">{primaryColor}</span>
                             </div>
                         </div>
                     </div>
