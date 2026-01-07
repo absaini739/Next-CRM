@@ -26,11 +26,12 @@ const navigation = [
     { name: 'Deals', href: '/deals', icon: CurrencyDollarIcon },
     { name: 'Products', href: '/products', icon: ShoppingBagIcon },
     { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon },
+    { name: 'Tasks', href: '/tasks', icon: CalendarIcon },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
     { name: 'Activities', href: '/activities', icon: CalendarIcon },
     { name: 'Pipelines', href: '/pipelines', icon: FunnelIcon },
     { name: 'VoIP', href: '/voip', icon: PhoneIcon },
     { name: 'Email', href: '/emails', icon: EnvelopeIcon },
-    { name: 'Data Transfer', href: '/data-transfer', icon: ArrowsRightLeftIcon },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];
 
@@ -64,8 +65,8 @@ export default function Sidebar() {
                             key={item.name}
                             href={item.href}
                             className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActive
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                                 }`}
                             title={!isExpanded ? item.name : undefined}
                         >
