@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import {
@@ -24,8 +25,8 @@ import {
 
 export default function Header() {
     const { user, logout } = useAuth();
+    const { darkMode, toggleDarkMode } = useTheme();
     const router = useRouter();
-    const [darkMode, setDarkMode] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
     const quickCreateItems = [
@@ -52,12 +53,12 @@ export default function Header() {
     };
 
     return (
-        <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-16 z-50">
+        <header className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 z-50">
             <div className="flex items-center justify-between px-6 h-full">
                 {/* Left: Logo */}
                 <Link
                     href="/"
-                    className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+                    className="text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                     ispecia
                 </Link>
@@ -65,13 +66,13 @@ export default function Header() {
                 {/* Center: Search Bar */}
                 <div className="flex-1 max-w-2xl mx-8">
                     <form onSubmit={handleSearch} className="relative">
-                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Mega Search"
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         />
                     </form>
                 </div>
@@ -119,8 +120,8 @@ export default function Header() {
 
                     {/* Dark Mode Toggle */}
                     <button
-                        onClick={() => setDarkMode(!darkMode)}
-                        className="flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                        onClick={toggleDarkMode}
+                        className="flex items-center justify-center w-10 h-10 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                         title={darkMode ? 'Light Mode' : 'Dark Mode'}
                     >
                         {darkMode ? (
