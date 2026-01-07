@@ -28,17 +28,18 @@ export const createQuote = async (req: Request, res: Response) => {
                 product_id: item.product_id,
                 quantity: item.quantity,
                 price: item.price,
-                total,
+                amount: total,
             };
         });
 
         const quote = await prisma.quote.create({
             data: {
+                quote_number: `QUO-${Date.now()}`,
                 subject: data.subject,
                 person_id: data.person_id,
                 user_id: userId,
                 sub_total: subTotal,
-                grand_total: subTotal, // Add tax logic later
+                grand_total: subTotal,
                 items: {
                     create: itemCreates
                 }

@@ -56,10 +56,10 @@ export const createPipeline = async (req: Request, res: Response) => {
         if (stages && Array.isArray(stages)) {
             await Promise.all(
                 stages.map((stage: any, index: number) =>
-                    prisma.leadPipelineStage.create({
+                    prisma.leadStage.create({
                         data: {
                             name: stage.name,
-                            lead_pipeline_id: pipeline.id,
+                            pipeline_id: pipeline.id,
                         }
                     })
                 )
@@ -132,10 +132,10 @@ export const addStage = async (req: Request, res: Response) => {
         const pipelineId = parseInt(req.params.id);
         const data = stageSchema.parse(req.body);
 
-        const stage = await prisma.leadPipelineStage.create({
+        const stage = await prisma.leadStage.create({
             data: {
                 name: data.name,
-                lead_pipeline_id: pipelineId,
+                pipeline_id: pipelineId,
             }
         });
 
@@ -152,7 +152,7 @@ export const updateStage = async (req: Request, res: Response) => {
         const id = parseInt(req.params.stageId);
         const data = stageSchema.partial().parse(req.body);
 
-        const stage = await prisma.leadPipelineStage.update({
+        const stage = await prisma.leadStage.update({
             where: { id },
             data: {
                 name: data.name,
@@ -170,7 +170,7 @@ export const updateStage = async (req: Request, res: Response) => {
 export const deleteStage = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.stageId);
-        await prisma.leadPipelineStage.delete({ where: { id } });
+        await prisma.leadStage.delete({ where: { id } });
         res.json({ message: 'Stage deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting stage' });

@@ -28,6 +28,8 @@ import importExportRoutes from './routes/import-export.routes';
 import pipelineRoutes from './routes/pipeline.routes';
 import roleRoutes from './routes/role.routes';
 import emailRoutes from './routes/email.routes';
+import taskRoutes from './routes/task.routes';
+import calendarRoutes from './routes/calendar.routes';
 
 app.use('/auth', authRoutes);
 app.use('/persons', personRoutes);
@@ -42,6 +44,8 @@ app.use('/data-transfer', importExportRoutes);
 app.use('/pipelines', pipelineRoutes);
 app.use('/roles', roleRoutes);
 app.use('/emails', emailRoutes);
+app.use('/tasks', taskRoutes);
+app.use('/calendar', calendarRoutes);
 
 app.get('/', (req, res) => {
     // Health check endpoint

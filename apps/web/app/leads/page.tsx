@@ -67,11 +67,7 @@ export default function LeadsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
-                            <span className="text-blue-600">Dashboard</span>
-                            <span className="mx-2">/</span>
-                            <span>Leads</span>
-                        </div>
+                        {/* Breadcrumbs removed as requested */}
                         <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
                     </div>
                     <Button

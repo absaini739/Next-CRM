@@ -68,13 +68,7 @@ export default function RolesPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
-                            <span>Dashboard</span>
-                            <span className="mx-2">/</span>
-                            <span>Settings</span>
-                            <span className="mx-2">/</span>
-                            <span className="text-gray-900">Roles</span>
-                        </div>
+                        {/* Breadcrumbs removed as requested */}
                         <h1 className="text-2xl font-bold text-gray-900">Roles & Permissions</h1>
                         <p className="mt-1 text-sm text-gray-600">
                             Manage user roles and their permissions

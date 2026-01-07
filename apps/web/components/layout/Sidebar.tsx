@@ -27,6 +27,8 @@ const navigation = [
     { name: 'Deals', href: '/deals', icon: CurrencyDollarIcon, permission: 'deals' },
     { name: 'Products', href: '/products', icon: ShoppingBagIcon, permission: 'products' },
     { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon, permission: 'quotes' },
+    { name: 'Tasks', href: '/tasks', icon: CalendarIcon, permission: 'activities' },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon, permission: 'activities' },
     { name: 'Activities', href: '/activities', icon: CalendarIcon, permission: 'activities' },
     { name: 'Pipelines', href: '/pipelines', icon: FunnelIcon, permission: 'settings.lead.pipelines' },
     { name: 'VoIP', href: '/voip', icon: PhoneIcon, permission: 'voip' },
@@ -83,13 +85,13 @@ export default function Sidebar() {
             onMouseLeave={() => setIsExpanded(false)}
         >
             {/* Logo */}
-            <div className="flex items-center justify-center h-16 px-2 bg-gray-800">
+            <Link href="/" className="flex items-center justify-center h-16 px-2 bg-gray-800 hover:bg-gray-700 transition-colors w-full">
                 {isExpanded ? (
                     <h1 className="text-xl font-bold text-white">ispecia</h1>
                 ) : (
                     <span className="text-xl font-bold text-white">i</span>
                 )}
-            </div>
+            </Link>
 
             {/* Navigation */}
             <nav className="flex-1 px-2 py-4 space-y-1">

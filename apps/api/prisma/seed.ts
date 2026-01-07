@@ -55,16 +55,21 @@ async function main() {
         await prisma.leadType.create({ data: type });
     }
 
+    // Create Default Lead Pipeline
+    const defaultPipeline = await prisma.leadPipeline.create({
+        data: {
+            name: 'Default Pipeline',
+            is_default: true,
+        },
+    });
+
     // Create Lead Stages
-    // Note: Schema has LeadStage model, but also LeadPipelineStage via LeadPipeline.
-    // We'll seed generic LeadStage for now as per schema if used, or PipelineStages.
-    // The schema has `model LeadStage`.
     const leadStages = [
-        { name: 'New' },
-        { name: 'Contacted' },
-        { name: 'Qualified' },
-        { name: 'Lost' },
-        { name: 'Won' },
+        { name: 'New', pipeline_id: defaultPipeline.id },
+        { name: 'Contacted', pipeline_id: defaultPipeline.id },
+        { name: 'Qualified', pipeline_id: defaultPipeline.id },
+        { name: 'Lost', pipeline_id: defaultPipeline.id },
+        { name: 'Won', pipeline_id: defaultPipeline.id },
     ];
 
     for (const stage of leadStages) {

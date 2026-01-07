@@ -12,7 +12,7 @@ export default function Header() {
         <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6">
             {/* Breadcrumbs / Page Title - can be enhanced later */}
             <div className="flex-1">
-                <h2 className="text-lg font-semibold text-gray-800">Dashboard</h2>
+                {/* Page Title removed as requested */}
             </div>
 
             {/* User Menu */}
