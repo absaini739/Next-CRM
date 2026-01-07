@@ -49,7 +49,7 @@ const settingSections: SettingSection[] = [
         description: 'Configure access control and security',
         icon: ShieldCheckIcon,
         color: 'bg-green-100 text-green-600',
-        route: '/roles'
+        route: '/settings/roles'
     },
     {
         id: 'pipelines',
