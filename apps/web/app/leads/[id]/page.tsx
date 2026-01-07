@@ -130,7 +130,7 @@ export default function LeadDetailPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -148,10 +148,10 @@ export default function LeadDetailPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center space-x-3">
-                            <h1 className="text-2xl font-bold text-gray-900">{lead?.title}</h1>
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{lead?.title}</h1>
                             {getStatusBadge()}
                         </div>
-                        <p className="mt-1 text-sm text-gray-600">Lead Details</p>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Lead Details</p>
                     </div>
                     <div className="flex space-x-2">
                         <Button
@@ -267,38 +267,38 @@ export default function LeadDetailPage() {
                             <Card title="Lead Information">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">First Name</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">First Name</dt>
                                         <dd className="mt-1 text-sm text-gray-900">{lead?.first_name || 'N/A'}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Last Name</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Last Name</dt>
                                         <dd className="mt-1 text-sm text-gray-900">{lead?.last_name || 'N/A'}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Company</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Company</dt>
                                         <dd className="mt-1 text-sm text-gray-900">{lead?.company_name || 'N/A'}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Job Title</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Job Title</dt>
                                         <dd className="mt-1 text-sm text-gray-900">{lead?.job_title || 'N/A'}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Email</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Email</dt>
                                         <dd className="mt-1 text-sm text-gray-900">{lead?.primary_email || 'N/A'}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Phone</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Phone</dt>
                                         <dd className="mt-1 text-sm text-gray-900">{lead?.phone || 'N/A'}</dd>
                                     </div>
                                     <div className="col-span-2">
-                                        <dt className="text-sm font-medium text-gray-500">Description</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Description</dt>
                                         <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{lead?.description || 'No description provided.'}</dd>
                                     </div>
                                 </div>
                             </Card>
 
                             <Card title="Activity Timeline">
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                                     <p>Activities related to this lead will appear here.</p>
                                 </div>
                             </Card>
@@ -308,13 +308,13 @@ export default function LeadDetailPage() {
                             <Card title="Sales Info">
                                 <dl className="space-y-4">
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Lead Value</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Lead Value</dt>
                                         <dd className="mt-1 text-lg font-bold text-blue-600">
                                             {lead?.lead_value ? `$${parseFloat(lead.lead_value).toLocaleString()}` : '$0.00'}
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Created</dt>
+                                        <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Created</dt>
                                         <dd className="mt-1 text-sm text-gray-900">
                                             {new Date(lead?.created_at).toLocaleDateString()}
                                         </dd>

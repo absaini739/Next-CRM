@@ -67,7 +67,7 @@ export default function OrganizationDetailPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -78,8 +78,8 @@ export default function OrganizationDetailPage() {
             <div className="max-w-4xl space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">{organization?.name}</h1>
-                        <p className="mt-1 text-sm text-gray-600">Organization Details</p>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{organization?.name}</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Organization Details</p>
                     </div>
                     <div className="flex space-x-2">
                         <Button
@@ -122,11 +122,11 @@ export default function OrganizationDetailPage() {
                         <Card title="Organization Information">
                             <dl className="space-y-4">
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Name</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Name</dt>
                                     <dd className="mt-1 text-sm text-gray-900">{organization?.name}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Created</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Created</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         {new Date(organization?.created_at).toLocaleDateString()}
                                     </dd>
@@ -135,7 +135,7 @@ export default function OrganizationDetailPage() {
                         </Card>
 
                         <Card title="Associated Contacts">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                                 <p>Contacts linked to this organization will appear here.</p>
                             </div>
                         </Card>

@@ -14,13 +14,13 @@ export default function SecurityPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                         <span className="text-blue-600">Settings</span>
                         <span className="mx-2">/</span>
                         <span>Security</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Security Settings</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Security Settings</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Two-factor auth, IP restrictions, and audit logs
                     </p>
                 </div>
@@ -31,7 +31,7 @@ export default function SecurityPage() {
                         <div className="flex items-center justify-between p-4 border rounded-lg">
                             <div>
                                 <p className="font-medium">Two-Factor Authentication</p>
-                                <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Add an extra layer of security to your account</p>
                             </div>
                             <Button
                                 variant={twoFactorEnabled ? "secondary" : "primary"}
@@ -44,7 +44,7 @@ export default function SecurityPage() {
                         <div className="flex items-center justify-between p-4 border rounded-lg">
                             <div>
                                 <p className="font-medium">IP Restriction</p>
-                                <p className="text-sm text-gray-500">Limit access to specific IP addresses</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Limit access to specific IP addresses</p>
                             </div>
                             <Button
                                 variant={ipRestriction ? "secondary" : "primary"}
@@ -80,7 +80,7 @@ export default function SecurityPage() {
 
                 <Card className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Audit Logs</h3>
-                    <p className="text-sm text-gray-600 mb-4">View recent security events and user activities</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 mb-4">View recent security events and user activities</p>
                     <Button variant="secondary">View Audit Logs</Button>
                 </Card>
             </div>

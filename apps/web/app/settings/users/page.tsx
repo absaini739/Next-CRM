@@ -120,7 +120,7 @@ export default function UsersPage() {
                         variant="ghost"
                         size="sm"
                         title="Edit User"
-                        className="text-gray-400 hover:text-blue-600"
+                        className="text-gray-400 dark:text-slate-400 hover:text-blue-600"
                     >
                         <PencilIcon className="h-4 w-4" />
                     </Button>
@@ -128,7 +128,7 @@ export default function UsersPage() {
                         variant="ghost"
                         size="sm"
                         title="Delete User"
-                        className="text-gray-400 hover:text-red-600"
+                        className="text-gray-400 dark:text-slate-400 hover:text-red-600"
                         onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteUser(user.id);
@@ -146,8 +146,8 @@ export default function UsersPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">User Management</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage system users and their access roles
                         </p>
                     </div>

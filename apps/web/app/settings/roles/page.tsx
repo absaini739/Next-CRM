@@ -56,7 +56,7 @@ export default function RolesPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading roles...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading roles...</div>
                 </div>
             </DashboardLayout>
         );
@@ -69,8 +69,8 @@ export default function RolesPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         {/* Breadcrumbs removed as requested */}
-                        <h1 className="text-2xl font-bold text-gray-900">Roles & Permissions</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Roles & Permissions</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage user roles and their permissions
                         </p>
                     </div>
@@ -91,8 +91,8 @@ export default function RolesPage() {
                             <div className="p-4">
                                 <div className="flex items-start justify-between mb-3">
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">{role.name}</h3>
-                                        <p className="text-sm text-gray-600 mt-1">{role.description}</p>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 dark:text-slate-100">{role.name}</h3>
+                                        <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 mt-1">{role.description}</p>
                                     </div>
                                     <Badge
                                         variant={role.permission_type === 'all' ? 'success' : 'info'}

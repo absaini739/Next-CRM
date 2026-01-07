@@ -17,13 +17,13 @@ export default function TemplatesPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
+                        <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                             <span className="text-blue-600">Settings</span>
                             <span className="mx-2">/</span>
                             <span>Email Templates</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-gray-900">Email Templates</h1>
-                        <p className="mt-1 text-sm text-gray-600">Create and manage email templates</p>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Email Templates</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Create and manage email templates</p>
                     </div>
                     <Button variant="primary" className="flex items-center">
                         <PlusIcon className="h-5 w-5 mr-2" />
@@ -37,7 +37,7 @@ export default function TemplatesPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="font-semibold">{template.name}</h3>
-                                    <p className="text-sm text-gray-600">{template.subject}</p>
+                                    <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">{template.subject}</p>
                                     <span className="inline-block mt-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">{template.category}</span>
                                 </div>
                                 <div className="flex space-x-2">

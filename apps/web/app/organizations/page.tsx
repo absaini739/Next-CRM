@@ -48,7 +48,7 @@ export default function OrganizationsPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -59,8 +59,8 @@ export default function OrganizationsPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Organizations</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Organizations</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage your company accounts
                         </p>
                     </div>

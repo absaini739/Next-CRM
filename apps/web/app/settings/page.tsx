@@ -195,8 +195,8 @@ export default function SettingsPage() {
                 {/* Header */}
                 <div>
                     {/* Breadcrumbs removed as requested */}
-                    <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Settings</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Manage your CRM configuration and preferences
                     </p>
                 </div>
@@ -223,10 +223,10 @@ export default function SettingsPage() {
                                         <Icon className="h-6 w-6" />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 dark:text-slate-100 mb-1">
                                             {section.title}
                                         </h3>
-                                        <p className="text-sm text-gray-600">
+                                        <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                                             {section.description}
                                         </p>
                                     </div>
@@ -248,7 +248,7 @@ export default function SettingsPage() {
 
                 {filteredSections.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-gray-500">No settings found matching your search.</p>
+                        <p className="text-gray-500 dark:text-slate-500">No settings found matching your search.</p>
                     </div>
                 )}
 

@@ -110,11 +110,11 @@ export default function NewLeadPage() {
                             onClick={() => router.back()}
                             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                         >
-                            <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+                            <ArrowLeftIcon className="h-6 w-6 text-gray-600 dark:text-slate-400" />
                         </button>
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create High-Value Lead</h1>
-                            <p className="text-gray-500 mt-1">Nurture your sales pipeline with detailed intelligence.</p>
+                            <p className="text-gray-500 dark:text-slate-500 mt-1">Nurture your sales pipeline with detailed intelligence.</p>
                         </div>
                     </div>
                     <div className="hidden md:block">
@@ -257,7 +257,7 @@ export default function NewLeadPage() {
                                                             />
                                                         </button>
                                                     ))}
-                                                    <span className="ml-2 text-sm text-gray-500 font-medium">
+                                                    <span className="ml-2 text-sm text-gray-500 dark:text-slate-500 font-medium">
                                                         {formData.lead_rating ? `${formData.lead_rating} Star${formData.lead_rating !== '1' ? 's' : ''}` : 'Rate Impact'}
                                                     </span>
                                                 </div>
@@ -341,7 +341,7 @@ export default function NewLeadPage() {
 
                         {/* Form Actions Footer */}
                         <div className="bg-gray-50/80 px-8 py-6 flex items-center justify-between border-t border-gray-100">
-                            <p className="text-sm text-gray-500 italic">
+                            <p className="text-sm text-gray-500 dark:text-slate-500 italic">
                                 * Lead Owner defaults to you. Status defaults to New.
                             </p>
                             <div className="flex space-x-4">

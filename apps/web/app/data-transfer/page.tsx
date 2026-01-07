@@ -96,8 +96,8 @@ export default function DataTransferPage() {
         <DashboardLayout>
             <div className="max-w-4xl space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Data Transfer</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Data Transfer</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Import and export your CRM data
                     </p>
                 </div>
@@ -124,10 +124,10 @@ export default function DataTransferPage() {
                                 type="file"
                                 accept=".csv,.xlsx,.xls"
                                 onChange={handleFileChange}
-                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                className="block w-full text-sm text-gray-500 dark:text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                             />
                             {file && (
-                                <p className="text-sm text-gray-600">Selected: {file.name}</p>
+                                <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Selected: {file.name}</p>
                             )}
                         </div>
 

@@ -99,7 +99,7 @@ export default function DealDetailPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -117,7 +117,7 @@ export default function DealDetailPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center space-x-3">
-                            <h1 className="text-2xl font-bold text-gray-900">{deal?.title}</h1>
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{deal?.title}</h1>
                             {getStatusBadge()}
                         </div>
                         <p className="mt-1 text-lg font-semibold text-blue-600">
@@ -198,21 +198,21 @@ export default function DealDetailPage() {
                         <Card title="Deal Information">
                             <dl className="space-y-4">
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Title</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Title</dt>
                                     <dd className="mt-1 text-sm text-gray-900">{deal?.title}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Description</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Description</dt>
                                     <dd className="mt-1 text-sm text-gray-900">{deal?.description || 'N/A'}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Value</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Value</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         ${parseFloat(deal?.deal_value || 0).toLocaleString()}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Expected Close Date</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Expected Close Date</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         {deal?.expected_close_date
                                             ? new Date(deal.expected_close_date).toLocaleDateString()
@@ -220,7 +220,7 @@ export default function DealDetailPage() {
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Created</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Created</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         {new Date(deal?.created_at).toLocaleDateString()}
                                     </dd>
@@ -229,7 +229,7 @@ export default function DealDetailPage() {
                         </Card>
 
                         <Card title="Activity Timeline">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                                 <p>Activities and notes related to this deal will appear here.</p>
                             </div>
                         </Card>

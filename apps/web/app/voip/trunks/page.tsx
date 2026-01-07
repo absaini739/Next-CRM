@@ -46,7 +46,7 @@ export default function VoIPTrunksPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -57,8 +57,8 @@ export default function VoIPTrunksPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">VoIP Trunks</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">VoIP Trunks</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Configure SIP trunks and connection details
                         </p>
                     </div>
@@ -77,28 +77,28 @@ export default function VoIPTrunksPage() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SIP Domain</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Port</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Protocol</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Provider</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">SIP Domain</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Port</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Protocol</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {trunks.map((trunk) => (
                                     <tr key={trunk.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4">
-                                            <div className="font-medium text-gray-900">{trunk.name}</div>
+                                            <div className="font-medium text-gray-900 dark:text-slate-100">{trunk.name}</div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {trunk.provider?.name || 'N/A'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {trunk.sip_domain}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {trunk.sip_port}
                                         </td>
                                         <td className="px-6 py-4">
@@ -129,7 +129,7 @@ export default function VoIPTrunksPage() {
                                 ))}
                                 {trunks.length === 0 && (
                                     <tr>
-                                        <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-slate-500">
                                             No VoIP trunks found. Create your first trunk to get started.
                                         </td>
                                     </tr>

@@ -10,13 +10,13 @@ export default function AdvancedPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                         <span className="text-blue-600">Settings</span>
                         <span className="mx-2">/</span>
                         <span>Advanced Settings</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Advanced Settings</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Advanced Settings</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Database, backups, and system configuration
                     </p>
                 </div>
@@ -27,7 +27,7 @@ export default function AdvancedPage() {
                         <div className="flex items-center justify-between p-4 border rounded-lg">
                             <div>
                                 <p className="font-medium">Database Backup</p>
-                                <p className="text-sm text-gray-500">Last backup: 2 hours ago</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Last backup: 2 hours ago</p>
                             </div>
                             <Button variant="primary">Backup Now</Button>
                         </div>
@@ -35,7 +35,7 @@ export default function AdvancedPage() {
                         <div className="flex items-center justify-between p-4 border rounded-lg">
                             <div>
                                 <p className="font-medium">Database Optimization</p>
-                                <p className="text-sm text-gray-500">Optimize database tables for better performance</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Optimize database tables for better performance</p>
                             </div>
                             <Button variant="secondary">Optimize</Button>
                         </div>
@@ -66,7 +66,7 @@ export default function AdvancedPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-medium">Maintenance Mode</p>
-                                <p className="text-sm text-gray-500">Temporarily disable access for maintenance</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Temporarily disable access for maintenance</p>
                             </div>
                             <input type="checkbox" className="h-4 w-4 text-blue-600 rounded" />
                         </div>

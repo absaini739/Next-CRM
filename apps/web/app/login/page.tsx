@@ -31,7 +31,7 @@ export default function LoginPage() {
             <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-slate-700">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Laravel CRM</h1>
-                    <p className="text-gray-600 dark:text-slate-400 mt-2">Sign in to your account</p>
+                    <p className="text-gray-600 dark:text-slate-400 dark:text-slate-400 mt-2">Sign in to your account</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -76,7 +76,7 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                <div className="mt-6 text-center text-sm text-gray-600 dark:text-slate-400">
+                <div className="mt-6 text-center text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                     <p>Default credentials: admin@example.com / admin123</p>
                 </div>
             </div>

@@ -26,8 +26,8 @@ export default function PipelinesPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Pipeline Configuration</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Pipeline Configuration</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Customize your lead and deal pipeline stages
                     </p>
                 </div>
@@ -36,7 +36,7 @@ export default function PipelinesPage() {
                     <div className="space-y-4">
                         {leadStages.map((stage, index) => (
                             <div key={stage.id} className="flex items-center space-x-4">
-                                <span className="text-sm text-gray-500 w-8">{index + 1}.</span>
+                                <span className="text-sm text-gray-500 dark:text-slate-500 w-8">{index + 1}.</span>
                                 <Input value={stage.name} className="flex-1" onChange={() => { }} />
                                 <Button variant="danger" size="sm">
                                     <TrashIcon className="h-4 w-4" />
@@ -54,7 +54,7 @@ export default function PipelinesPage() {
                     <div className="space-y-4">
                         {dealStages.map((stage, index) => (
                             <div key={stage.id} className="flex items-center space-x-4">
-                                <span className="text-sm text-gray-500 w-8">{index + 1}.</span>
+                                <span className="text-sm text-gray-500 dark:text-slate-500 w-8">{index + 1}.</span>
                                 <Input value={stage.name} className="flex-1" />
                                 <Button variant="danger" size="sm">
                                     <TrashIcon className="h-4 w-4" />

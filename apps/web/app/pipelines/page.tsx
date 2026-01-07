@@ -104,7 +104,7 @@ export default function PipelinesManagementPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading pipelines...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading pipelines...</div>
                 </div>
             </DashboardLayout>
         );
@@ -115,8 +115,8 @@ export default function PipelinesManagementPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Pipeline Management</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Pipeline Management</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage your sales pipelines and stages
                         </p>
                     </div>
@@ -139,7 +139,7 @@ export default function PipelinesManagementPage() {
                             <div className="space-y-4">
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-gray-900">{pipeline.name}</h3>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 dark:text-slate-100">{pipeline.name}</h3>
                                         {pipeline.is_default && (
                                             <Badge variant="info" size="sm" className="mt-1">
                                                 Default
@@ -168,8 +168,8 @@ export default function PipelinesManagementPage() {
                                     <p className="text-sm font-medium text-gray-700">Stages:</p>
                                     <div className="space-y-1">
                                         {pipeline.stages?.map((stage: any, index: number) => (
-                                            <div key={stage.id} className="flex items-center text-sm text-gray-600">
-                                                <span className="w-6 text-gray-400">{index + 1}.</span>
+                                            <div key={stage.id} className="flex items-center text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
+                                                <span className="w-6 text-gray-400 dark:text-slate-400">{index + 1}.</span>
                                                 <span>{stage.name}</span>
                                             </div>
                                         ))}
@@ -215,7 +215,7 @@ export default function PipelinesManagementPage() {
                             <label className="block text-sm font-medium text-gray-700">Stages</label>
                             {stages.map((stage, index) => (
                                 <div key={index} className="flex items-center space-x-2">
-                                    <span className="text-sm text-gray-500 w-8">{index + 1}.</span>
+                                    <span className="text-sm text-gray-500 dark:text-slate-500 w-8">{index + 1}.</span>
                                     <Input
                                         value={stage}
                                         onChange={(e) => updateStage(index, e.target.value)}

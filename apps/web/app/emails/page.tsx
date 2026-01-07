@@ -143,8 +143,8 @@ export default function EmailsPage() {
                                         key={f.id}
                                         onClick={() => setFolder(f.id)}
                                         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${folder === f.id
-                                            ? 'bg-blue-50 text-blue-700 font-medium'
-                                            : 'text-gray-700 hover:bg-gray-50'
+                                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium'
+                                            : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700'
                                             }`}
                                     >
                                         <div className="flex items-center">
@@ -152,7 +152,7 @@ export default function EmailsPage() {
                                             <span>{f.label}</span>
                                         </div>
                                         {f.count > 0 && (
-                                            <span className={`text-xs px-2 py-0.5 rounded-full ${folder === f.id ? 'bg-blue-100' : 'bg-gray-100'
+                                            <span className={`text-xs px-2 py-0.5 rounded-full ${folder === f.id ? 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
                                                 }`}>
                                                 {f.count}
                                             </span>
@@ -170,22 +170,22 @@ export default function EmailsPage() {
                     <Card className="p-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                                    <FunnelIcon className="h-5 w-5 text-gray-600" />
+                                <button className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg">
+                                    <FunnelIcon className="h-5 w-5 text-gray-600 dark:text-slate-400" />
                                 </button>
                                 <div className="relative">
-                                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                                     <input
                                         type="text"
                                         placeholder="Search emails..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                             </div>
-                            <div className="text-sm text-gray-600">
-                                Per Page: <select className="border rounded px-2 py-1">
+                            <div className="text-sm text-gray-600 dark:text-slate-400">
+                                Per Page: <select className="border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded px-2 py-1">
                                     <option>10</option>
                                     <option>25</option>
                                     <option>50</option>
@@ -198,29 +198,29 @@ export default function EmailsPage() {
                     <Card>
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-gray-50 border-b">
+                                <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
                                     <tr>
                                         <th className="px-4 py-3 text-left">
                                             <input type="checkbox" className="rounded" />
                                         </th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                                             Attachments / Tags / Subject / Content
                                         </th>
-                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                                             Date
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y">
+                                <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
+                                            <td colSpan={3} className="px-4 py-8 text-center text-gray-500 dark:text-slate-400">
                                                 Loading emails...
                                             </td>
                                         </tr>
                                     ) : emails.length === 0 ? (
                                         <tr>
-                                            <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
+                                            <td colSpan={3} className="px-4 py-8 text-center text-gray-500 dark:text-slate-400">
                                                 No emails found
                                             </td>
                                         </tr>
@@ -228,7 +228,7 @@ export default function EmailsPage() {
                                         emails.map((email) => (
                                             <tr
                                                 key={email.id}
-                                                className={`hover:bg-gray-50 cursor-pointer ${!email.is_read ? 'bg-blue-50/30' : ''
+                                                className={`hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer ${!email.is_read ? 'bg-blue-50/30 dark:bg-blue-900/20' : ''
                                                     }`}
                                             >
                                                 <td className="px-4 py-3">
@@ -243,18 +243,18 @@ export default function EmailsPage() {
                                                     <div className="flex items-start space-x-3">
                                                         <div className="flex-1">
                                                             <div className="flex items-center space-x-2">
-                                                                <span className={`text-sm ${!email.is_read ? 'font-semibold' : 'font-normal'}`}>
+                                                                <span className={`text-sm text-gray-900 dark:text-white ${!email.is_read ? 'font-semibold' : 'font-normal'}`}>
                                                                     {email.from}
                                                                 </span>
                                                                 {!email.is_read && (
-                                                                    <span className="h-2 w-2 bg-blue-600 rounded-full"></span>
+                                                                    <span className="h-2 w-2 bg-blue-600 dark:bg-blue-400 rounded-full"></span>
                                                                 )}
                                                             </div>
-                                                            <div className="text-sm text-gray-600 mt-1">{email.subject}</div>
+                                                            <div className="text-sm text-gray-600 dark:text-slate-400 mt-1">{email.subject}</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-right text-sm text-gray-500">
+                                                <td className="px-4 py-3 text-right text-sm text-gray-500 dark:text-slate-400">
                                                     {new Date(email.created_at).toLocaleDateString('en-US', {
                                                         month: 'short',
                                                         day: 'numeric'
@@ -273,12 +273,12 @@ export default function EmailsPage() {
             {/* Compose Modal */}
             {showCompose && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b flex items-center justify-between">
-                            <h2 className="text-xl font-semibold">Compose Email</h2>
+                    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Compose Email</h2>
                             <button
                                 onClick={() => setShowCompose(false)}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:text-slate-400"
                             >
                                 ✕
                             </button>
@@ -306,7 +306,7 @@ export default function EmailsPage() {
                                     onChange={(e) => setIsScheduling(e.target.checked)}
                                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
-                                <label htmlFor="schedule-check" className="text-sm text-gray-700">
+                                <label htmlFor="schedule-check" className="text-sm text-gray-700 dark:text-slate-300">
                                     Schedule for later
                                 </label>
                             </div>
@@ -321,19 +321,19 @@ export default function EmailsPage() {
                             )}
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                                     Message
                                 </label>
                                 <textarea
                                     value={body}
                                     onChange={(e) => setBody(e.target.value)}
                                     rows={10}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Write your message..."
                                 />
                             </div>
                         </div>
-                        <div className="p-6 border-t flex justify-end space-x-3">
+                        <div className="p-6 border-t border-gray-200 dark:border-slate-700 flex justify-end space-x-3">
                             <Button variant="secondary" onClick={() => setShowCompose(false)}>
                                 Cancel
                             </Button>

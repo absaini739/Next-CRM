@@ -19,13 +19,13 @@ export default function IntegrationsPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                         <span className="text-blue-600">Settings</span>
                         <span className="mx-2">/</span>
                         <span>API & Integrations</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">API & Integrations</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">API & Integrations</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Connect third-party apps and services
                     </p>
                 </div>
@@ -36,14 +36,14 @@ export default function IntegrationsPage() {
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                             <div>
                                 <p className="font-medium">Production API Key</p>
-                                <p className="text-sm text-gray-500 font-mono">pk_live_••••••••••••••••</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500 font-mono">pk_live_••••••••••••••••</p>
                             </div>
                             <Button variant="secondary">Regenerate</Button>
                         </div>
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                             <div>
                                 <p className="font-medium">Test API Key</p>
-                                <p className="text-sm text-gray-500 font-mono">pk_test_••••••••••••••••</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500 font-mono">pk_test_••••••••••••••••</p>
                             </div>
                             <Button variant="secondary">Regenerate</Button>
                         </div>
@@ -58,7 +58,7 @@ export default function IntegrationsPage() {
                                     <div className="text-3xl">{integration.logo}</div>
                                     <div>
                                         <h3 className="font-semibold">{integration.name}</h3>
-                                        <p className="text-sm text-gray-600">{integration.description}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">{integration.description}</p>
                                     </div>
                                 </div>
                                 <Button

@@ -104,14 +104,14 @@ export default function VoIPPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">VoIP Management</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 dark:text-slate-100">VoIP Management</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                         Manage your VoIP infrastructure and call routing
                     </p>
                 </div>
 
                 {/* Quick Dialer */}
-                <Card title="Quick Dialer" className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                <Card title="Quick Dialer" className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
                     <div className="flex items-center gap-4">
                         <div className="flex-1">
                             <input
@@ -119,7 +119,7 @@ export default function VoIPPage() {
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 placeholder="Enter phone number to call"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
                         <button
@@ -139,8 +139,8 @@ export default function VoIPPage() {
                         </button>
                     </div>
                     {phoneNumber && (
-                        <p className="mt-2 text-sm text-gray-600">
-                            Ready to call: <span className="font-semibold text-gray-900">{phoneNumber}</span>
+                        <p className="mt-2 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
+                            Ready to call: <span className="font-semibold text-gray-900 dark:text-slate-100 dark:text-slate-100">{phoneNumber}</span>
                         </p>
                     )}
                 </Card>
@@ -158,17 +158,17 @@ export default function VoIPPage() {
                                             <div className={`inline-flex p-3 rounded-lg ${getColorClasses(section.color)}`}>
                                                 <Icon className="h-6 w-6" />
                                             </div>
-                                            <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                                            <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-slate-100 dark:text-slate-100 dark:text-slate-100">
                                                 {section.title}
                                             </h3>
-                                            <p className="mt-2 text-sm text-gray-600">
+                                            <p className="mt-2 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                                                 {section.description}
                                             </p>
                                             <div className="mt-4 flex items-center justify-between">
-                                                <span className="text-2xl font-bold text-gray-900">
+                                                <span className="text-2xl font-bold text-gray-900 dark:text-slate-100 dark:text-slate-100">
                                                     {section.count}
                                                 </span>
-                                                <ArrowRightIcon className="h-5 w-5 text-gray-400" />
+                                                <ArrowRightIcon className="h-5 w-5 text-gray-400 dark:text-slate-400 dark:text-slate-500" />
                                             </div>
                                         </div>
                                     </div>
@@ -181,45 +181,45 @@ export default function VoIPPage() {
                 <Card title="Quick Start Guide">
                     <div className="space-y-4">
                         <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-semibold">
                                 1
                             </div>
                             <div>
-                                <h4 className="font-medium text-gray-900">Create a VoIP Provider</h4>
-                                <p className="text-sm text-gray-600">
+                                <h4 className="font-medium text-gray-900 dark:text-slate-100 dark:text-slate-100">Create a VoIP Provider</h4>
+                                <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                                     Set up your Twilio, Telnyx, or Generic SIP provider with credentials
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-semibold">
                                 2
                             </div>
                             <div>
-                                <h4 className="font-medium text-gray-900">Configure a Trunk</h4>
-                                <p className="text-sm text-gray-600">
+                                <h4 className="font-medium text-gray-900 dark:text-slate-100 dark:text-slate-100">Configure a Trunk</h4>
+                                <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                                     Create a SIP trunk linked to your provider for call handling
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-semibold">
                                 3
                             </div>
                             <div>
-                                <h4 className="font-medium text-gray-900">Set Up Inbound Routes</h4>
-                                <p className="text-sm text-gray-600">
+                                <h4 className="font-medium text-gray-900 dark:text-slate-100 dark:text-slate-100">Set Up Inbound Routes</h4>
+                                <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                                     Define how incoming calls should be routed based on phone numbers
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-semibold">
                                 4
                             </div>
                             <div>
-                                <h4 className="font-medium text-gray-900">Start Making Calls</h4>
-                                <p className="text-sm text-gray-600">
+                                <h4 className="font-medium text-gray-900 dark:text-slate-100 dark:text-slate-100">Start Making Calls</h4>
+                                <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                                     Your VoIP system is ready! View call recordings in the recordings section
                                 </p>
                             </div>

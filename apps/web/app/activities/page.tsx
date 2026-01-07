@@ -58,7 +58,7 @@ export default function ActivitiesPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -69,8 +69,8 @@ export default function ActivitiesPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Activities</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Activities</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Track tasks, calls, meetings, and notes
                         </p>
                     </div>
@@ -98,7 +98,7 @@ export default function ActivitiesPage() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center space-x-2 mb-1">
-                                        <h4 className="font-medium text-gray-900">{activity.title}</h4>
+                                        <h4 className="font-medium text-gray-900 dark:text-slate-100">{activity.title}</h4>
                                         <Badge variant={getActivityBadge(activity.type)}>
                                             {activity.type}
                                         </Badge>
@@ -107,9 +107,9 @@ export default function ActivitiesPage() {
                                         )}
                                     </div>
                                     {activity.description && (
-                                        <p className="text-sm text-gray-600">{activity.description}</p>
+                                        <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">{activity.description}</p>
                                     )}
-                                    <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                    <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500 dark:text-slate-500">
                                         {activity.start_at && (
                                             <span>{new Date(activity.start_at).toLocaleString()}</span>
                                         )}
@@ -119,7 +119,7 @@ export default function ActivitiesPage() {
                             </div>
                         ))}
                         {activities.length === 0 && (
-                            <div className="text-center py-12 text-gray-500">
+                            <div className="text-center py-12 text-gray-500 dark:text-slate-500">
                                 No activities yet
                             </div>
                         )}

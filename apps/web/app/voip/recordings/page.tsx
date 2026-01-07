@@ -37,7 +37,7 @@ export default function CallRecordingsPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -47,8 +47,8 @@ export default function CallRecordingsPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Call Recordings</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Call Recordings</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         View and manage recorded calls
                     </p>
                 </div>
@@ -58,20 +58,20 @@ export default function CallRecordingsPage() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recording SID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">From</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">To</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Direction</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Recording SID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">From</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">To</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Direction</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">User</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Duration</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Date</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {recordings.map((recording) => (
                                     <tr key={recording.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {recording.recording_sid}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-900">
@@ -92,13 +92,13 @@ export default function CallRecordingsPage() {
                                                 </Badge>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {recording.user?.name || 'N/A'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {formatDuration(recording.duration)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {new Date(recording.created_at).toLocaleString()}
                                         </td>
                                         <td className="px-6 py-4">
@@ -127,7 +127,7 @@ export default function CallRecordingsPage() {
                                 ))}
                                 {recordings.length === 0 && (
                                     <tr>
-                                        <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-slate-500">
                                             No call recordings found.
                                         </td>
                                     </tr>

@@ -30,13 +30,13 @@ export default function CompanyPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                         <span className="text-blue-600">Settings</span>
                         <span className="mx-2">/</span>
                         <span>Company Profile</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Company Profile</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Company Profile</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Update company information and branding
                     </p>
                 </div>
@@ -117,17 +117,17 @@ export default function CompanyPage() {
                     <h3 className="text-lg font-semibold mb-4 text-gray-900">Branding</h3>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">Company Logo</label>
+                            <label className="block text-sm font-medium text-gray-900 dark:text-slate-100 mb-2">Company Logo</label>
                             <div className="flex items-center space-x-4">
                                 <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <BuildingOfficeIcon className="h-10 w-10 text-gray-400" />
+                                    <BuildingOfficeIcon className="h-10 w-10 text-gray-400 dark:text-slate-400" />
                                 </div>
                                 <Button variant="secondary">Upload Logo</Button>
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">Primary Color</label>
+                            <label className="block text-sm font-medium text-gray-900 dark:text-slate-100 mb-2">Primary Color</label>
                             <div className="flex items-center space-x-2">
                                 <input
                                     type="color"

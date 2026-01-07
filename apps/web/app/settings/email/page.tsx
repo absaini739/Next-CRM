@@ -25,8 +25,8 @@ export default function EmailPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Email Integration</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Email Integration</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Connect your email accounts for seamless communication
                         </p>
                     </div>
@@ -55,8 +55,8 @@ export default function EmailPage() {
                                         )}
                                     </div>
                                     <div>
-                                        <h4 className="font-medium text-gray-900">{account.email}</h4>
-                                        <p className="text-sm text-gray-500">
+                                        <h4 className="font-medium text-gray-900 dark:text-slate-100">{account.email}</h4>
+                                        <p className="text-sm text-gray-500 dark:text-slate-500">
                                             {account.provider} • Last synced: {account.last_sync}
                                         </p>
                                     </div>

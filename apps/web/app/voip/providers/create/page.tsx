@@ -74,8 +74,8 @@ export default function CreateVoIPProviderPage() {
                         Back
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Create VoIP Provider</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create VoIP Provider</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Add a new VoIP service provider to your CRM
                         </p>
                     </div>
@@ -113,7 +113,7 @@ export default function CreateVoIPProviderPage() {
                             {formData.provider_type === 'twilio' && (
                                 <>
                                     <div className="border-t pt-6">
-                                        <h3 className="text-lg font-medium text-gray-900 mb-4">Twilio Configuration</h3>
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-4">Twilio Configuration</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <Input
                                                 label="Account SID"
@@ -171,7 +171,7 @@ export default function CreateVoIPProviderPage() {
                             {formData.provider_type === 'telnyx' && (
                                 <>
                                     <div className="border-t pt-6">
-                                        <h3 className="text-lg font-medium text-gray-900 mb-4">Telnyx Configuration</h3>
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-4">Telnyx Configuration</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <Input
                                                 label="API Key"
@@ -214,7 +214,7 @@ export default function CreateVoIPProviderPage() {
                             {formData.provider_type === 'sip' && (
                                 <>
                                     <div className="border-t pt-6">
-                                        <h3 className="text-lg font-medium text-gray-900 mb-4">SIP Configuration</h3>
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-4">SIP Configuration</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <Input
                                                 label="SIP Server"

@@ -16,13 +16,13 @@ export default function NotificationsPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                         <span className="text-blue-600">Settings</span>
                         <span className="mx-2">/</span>
                         <span>Notifications</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Notification Settings</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Notification Settings</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Configure email and push notifications
                     </p>
                 </div>
@@ -33,7 +33,7 @@ export default function NotificationsPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-medium">Email Notifications</p>
-                                <p className="text-sm text-gray-500">Receive email notifications for important events</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Receive email notifications for important events</p>
                             </div>
                             <input
                                 type="checkbox"
@@ -46,7 +46,7 @@ export default function NotificationsPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-medium">Push Notifications</p>
-                                <p className="text-sm text-gray-500">Receive browser push notifications</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Receive browser push notifications</p>
                             </div>
                             <input
                                 type="checkbox"
@@ -59,7 +59,7 @@ export default function NotificationsPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-medium">Task Reminders</p>
-                                <p className="text-sm text-gray-500">Get reminded about upcoming tasks</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Get reminded about upcoming tasks</p>
                             </div>
                             <input
                                 type="checkbox"
@@ -72,7 +72,7 @@ export default function NotificationsPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-medium">Deal Updates</p>
-                                <p className="text-sm text-gray-500">Notify when deals are updated</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-500">Notify when deals are updated</p>
                             </div>
                             <input
                                 type="checkbox"

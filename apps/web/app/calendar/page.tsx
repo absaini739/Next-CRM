@@ -136,7 +136,7 @@ export default function CalendarPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading calendar...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading calendar...</div>
                 </div>
             </DashboardLayout>
         );
@@ -151,8 +151,8 @@ export default function CalendarPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         {/* Breadcrumbs removed as requested */}
-                        <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Calendar</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
                             View and manage your schedule
                         </p>
                     </div>
@@ -172,22 +172,22 @@ export default function CalendarPage() {
                         <div className="flex items-center space-x-4">
                             <button
                                 onClick={previousMonth}
-                                className="p-2 hover:bg-gray-100 rounded-lg"
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg text-gray-900 dark:text-white"
                             >
                                 <ChevronLeftIcon className="h-5 w-5" />
                             </button>
-                            <h2 className="text-lg font-semibold">
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                                 {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
                             </h2>
                             <button
                                 onClick={nextMonth}
-                                className="p-2 hover:bg-gray-100 rounded-lg"
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg text-gray-900 dark:text-white"
                             >
                                 <ChevronRightIcon className="h-5 w-5" />
                             </button>
                             <button
                                 onClick={goToToday}
-                                className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
+                                className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
                             >
                                 Today
                             </button>
@@ -195,21 +195,21 @@ export default function CalendarPage() {
                         <div className="flex space-x-2">
                             <button
                                 onClick={() => setViewMode('month')}
-                                className={`px-4 py-2 text-sm font-medium rounded-lg ${viewMode === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                className={`px-4 py-2 text-sm font-medium rounded-lg ${viewMode === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                                     }`}
                             >
                                 Month
                             </button>
                             <button
                                 onClick={() => setViewMode('week')}
-                                className={`px-4 py-2 text-sm font-medium rounded-lg ${viewMode === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                className={`px-4 py-2 text-sm font-medium rounded-lg ${viewMode === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                                     }`}
                             >
                                 Week
                             </button>
                             <button
                                 onClick={() => setViewMode('day')}
-                                className={`px-4 py-2 text-sm font-medium rounded-lg ${viewMode === 'day' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                className={`px-4 py-2 text-sm font-medium rounded-lg ${viewMode === 'day' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                                     }`}
                             >
                                 Day
@@ -223,14 +223,14 @@ export default function CalendarPage() {
                     {/* Day Headers */}
                     <div className="grid grid-cols-7 gap-px mb-2">
                         {DAYS.map(day => (
-                            <div key={day} className="text-center text-sm font-semibold text-gray-600 py-2">
+                            <div key={day} className="text-center text-sm font-semibold text-gray-600 dark:text-slate-400 py-2">
                                 {day}
                             </div>
                         ))}
                     </div>
 
                     {/* Calendar Days */}
-                    <div className="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200">
+                    <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-slate-700 border border-gray-200 dark:border-slate-700">
                         {days.map((date, index) => {
                             const dayTasks = date ? getTasksForDate(date) : [];
                             const dayEvents = date ? getEventsForDate(date) : [];
@@ -239,13 +239,13 @@ export default function CalendarPage() {
                             return (
                                 <div
                                     key={index}
-                                    className={`bg-white min-h-[120px] p-2 ${date ? 'cursor-pointer hover:bg-gray-50' : 'bg-gray-50'
-                                        } ${isToday(date) ? 'ring-2 ring-blue-500' : ''}`}
+                                    className={`bg-white dark:bg-slate-800 min-h-[120px] p-2 ${date ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700' : 'bg-gray-50 dark:bg-slate-900'
+                                        } ${isToday(date) ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
                                     onClick={() => date && setSelectedDate(date)}
                                 >
                                     {date && (
                                         <>
-                                            <div className={`text-sm font-medium mb-2 ${isToday(date) ? 'text-blue-600' : 'text-gray-900'
+                                            <div className={`text-sm font-medium mb-2 ${isToday(date) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'
                                                 }`}>
                                                 {date.getDate()}
                                             </div>
@@ -267,7 +267,7 @@ export default function CalendarPage() {
                                                     </div>
                                                 ))}
                                                 {(dayTasks.length + dayEvents.length) > 2 && (
-                                                    <div className="text-xs text-gray-500 px-2">
+                                                    <div className="text-xs text-gray-500 dark:text-slate-500 px-2">
                                                         +{(dayTasks.length + dayEvents.length) - 2} more
                                                     </div>
                                                 )}
@@ -285,10 +285,10 @@ export default function CalendarPage() {
                     <h3 className="text-lg font-semibold mb-4">Upcoming Tasks</h3>
                     <div className="space-y-3">
                         {tasks.slice(0, 5).map(task => (
-                            <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
                                 <div className="flex-1">
-                                    <div className="font-medium text-gray-900">{task.title}</div>
-                                    <div className="text-sm text-gray-500">
+                                    <div className="font-medium text-gray-900 dark:text-white">{task.title}</div>
+                                    <div className="text-sm text-gray-500 dark:text-slate-400">
                                         {new Date(task.due_date).toLocaleDateString('en-US', {
                                             month: 'short',
                                             day: 'numeric',
@@ -303,7 +303,7 @@ export default function CalendarPage() {
                             </div>
                         ))}
                         {tasks.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
+                            <div className="text-center py-8 text-gray-500 dark:text-slate-400">
                                 No upcoming tasks
                             </div>
                         )}

@@ -58,7 +58,7 @@ export default function DashboardPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-gray-600 dark:text-slate-400">Loading dashboard...</div>
+          <div className="text-lg text-gray-600 dark:text-slate-400 dark:text-slate-400">Loading dashboard...</div>
         </div>
       </DashboardLayout>
     );
@@ -70,8 +70,8 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 dark:text-white">Dashboard</h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
               Welcome back! Here's what's happening with your CRM.
             </p>
           </div>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
             {leadsByStages.length > 0 ? (
               <LeadsByStagesChart data={leadsByStages} />
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-400">
+              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-500 dark:text-slate-400">
                 No data available
               </div>
             )}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
             {revenueBySource.length > 0 ? (
               <RevenueDonutChart data={revenueBySource} title="" />
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-400">
+              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-500 dark:text-slate-400">
                 No data available
               </div>
             )}
@@ -168,7 +168,7 @@ export default function DashboardPage() {
             {revenueByType.length > 0 ? (
               <RevenueDonutChart data={revenueByType} title="" />
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-400">
+              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-500 dark:text-slate-400">
                 No data available
               </div>
             )}
@@ -178,7 +178,7 @@ export default function DashboardPage() {
             {leadsOverTime.length > 0 ? (
               <LeadsOverTimeChart data={leadsOverTime} />
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-400">
+              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-slate-500 dark:text-slate-400">
                 No data available
               </div>
             )}
@@ -232,9 +232,9 @@ function MetricCard({
     <Card>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 dark:text-slate-400">{title}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-slate-400 dark:text-slate-400">{title}</p>
           <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
-          {subtitle && <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">{subtitle}</p>}
+          {subtitle && <p className="mt-1 text-xs text-gray-500 dark:text-slate-500 dark:text-slate-400">{subtitle}</p>}
           {trend && trendValue && (
             <div className="mt-2 flex items-center">
               {trend === 'up' ? (
@@ -260,7 +260,7 @@ function QuickActionButton({ label, onClick }: { label: string; onClick: () => v
       onClick={onClick}
       className="p-4 text-center border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 dark:hover:border-blue-400 transition-colors"
     >
-      <PlusIcon className="h-6 w-6 mx-auto text-gray-400 dark:text-slate-500 mb-2" />
+      <PlusIcon className="h-6 w-6 mx-auto text-gray-400 dark:text-slate-400 dark:text-slate-500 mb-2" />
       <span className="text-sm font-medium text-gray-700 dark:text-slate-300">{label}</span>
     </button>
   );

@@ -39,7 +39,7 @@ export default function DealsPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -52,8 +52,8 @@ export default function DealsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         {/* Breadcrumbs removed as requested */}
-                        <h1 className="text-2xl font-bold text-gray-900">Deals</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Deals</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage your sales pipeline and track deal progress
                         </p>
                     </div>
@@ -104,19 +104,19 @@ export default function DealsPage() {
                         <table className="w-full">
                             <thead className="bg-gray-50 border-b">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wider">
                                         Title
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wider">
                                         Value
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wider">
                                         Status
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wider">
                                         Close Date
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wider">
                                         Actions
                                     </th>
                                 </tr>
@@ -124,7 +124,7 @@ export default function DealsPage() {
                             <tbody className="divide-y divide-gray-200">
                                 {deals.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-slate-500">
                                             No deals found. Create your first deal to get started.
                                         </td>
                                     </tr>
@@ -136,13 +136,13 @@ export default function DealsPage() {
                                             className="hover:bg-gray-50 cursor-pointer"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="font-medium text-gray-900">{deal.title}</div>
+                                                <div className="font-medium text-gray-900 dark:text-slate-100">{deal.title}</div>
                                                 {deal.description && (
-                                                    <div className="text-sm text-gray-500 line-clamp-1">{deal.description}</div>
+                                                    <div className="text-sm text-gray-500 dark:text-slate-500 line-clamp-1">{deal.description}</div>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="text-sm font-semibold text-gray-900">
+                                                <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
                                                     ${parseFloat(deal.deal_value || 0).toLocaleString()}
                                                 </span>
                                             </td>
@@ -154,7 +154,7 @@ export default function DealsPage() {
                                                     {deal.status.charAt(0).toUpperCase() + deal.status.slice(1)}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-500">
                                                 {deal.expected_close_date
                                                     ? new Date(deal.expected_close_date).toLocaleDateString()
                                                     : '-'}
@@ -199,7 +199,7 @@ function SummaryCard({
         <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-sm font-medium text-gray-600">{title}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-slate-400">{title}</p>
                     <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
                 </div>
                 <div className={`p-3 rounded-full ${iconBg}`}>

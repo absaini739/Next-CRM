@@ -27,13 +27,13 @@ export default function TagsPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
+                        <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                             <span className="text-blue-600">Settings</span>
                             <span className="mx-2">/</span>
                             <span>Tags & Categories</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-gray-900">Tags & Categories</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Tags & Categories</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage tags and categorization
                         </p>
                     </div>
@@ -48,10 +48,10 @@ export default function TagsPage() {
                         <table className="w-full">
                             <thead className="bg-gray-50 border-b">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tag Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Color</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usage Count</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Tag Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Color</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Usage Count</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -59,7 +59,7 @@ export default function TagsPage() {
                                     <tr key={index} className="hover:bg-gray-50">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center">
-                                                <TagIcon className="h-4 w-4 mr-2 text-gray-400" />
+                                                <TagIcon className="h-4 w-4 mr-2 text-gray-400 dark:text-slate-400" />
                                                 <span className="font-medium">{tag.name}</span>
                                             </div>
                                         </td>
@@ -68,7 +68,7 @@ export default function TagsPage() {
                                                 {tag.color}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">{tag.count} items</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">{tag.count} items</td>
                                         <td className="px-6 py-4">
                                             <div className="flex space-x-2">
                                                 <Button variant="secondary" size="sm">Edit</Button>

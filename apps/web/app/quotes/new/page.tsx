@@ -104,8 +104,8 @@ export default function NewQuotePage() {
         <DashboardLayout>
             <div className="max-w-4xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">Create New Quote</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create New Quote</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Generate a quote for your customer
                     </p>
                 </div>
@@ -190,7 +190,7 @@ export default function NewQuotePage() {
                                         />
                                     </div>
                                     <div className="w-32">
-                                        <div className="text-sm text-gray-600">Total</div>
+                                        <div className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Total</div>
                                         <div className="font-semibold">${(item.quantity * item.price).toFixed(2)}</div>
                                     </div>
                                     {items.length > 1 && (
@@ -209,8 +209,8 @@ export default function NewQuotePage() {
                             <div className="border-t pt-4 mt-4">
                                 <div className="flex justify-end">
                                     <div className="text-right">
-                                        <div className="text-sm text-gray-600">Grand Total</div>
-                                        <div className="text-2xl font-bold text-gray-900">
+                                        <div className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Grand Total</div>
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                                             ${calculateTotal().toFixed(2)}
                                         </div>
                                     </div>

@@ -15,13 +15,13 @@ export default function LocalizationPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <div className="flex items-center text-sm text-gray-500 dark:text-slate-500 mb-2">
                         <span className="text-blue-600">Settings</span>
                         <span className="mx-2">/</span>
                         <span>Localization</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Localization</h1>
-                    <p className="mt-1 text-sm text-gray-600">Language, timezone, and currency settings</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Localization</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Language, timezone, and currency settings</p>
                 </div>
 
                 <Card className="p-6">

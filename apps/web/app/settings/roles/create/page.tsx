@@ -174,9 +174,9 @@ export default function CreateRolePage() {
                             className="p-1 hover:bg-gray-200 rounded mr-1"
                         >
                             {isExpanded ? (
-                                <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+                                <ChevronDownIcon className="h-4 w-4 text-gray-500 dark:text-slate-500" />
                             ) : (
-                                <ChevronRightIcon className="h-4 w-4 text-gray-500" />
+                                <ChevronRightIcon className="h-4 w-4 text-gray-500 dark:text-slate-500" />
                             )}
                         </button>
                     ) : (
@@ -187,7 +187,7 @@ export default function CreateRolePage() {
                     {hasChildren ? (
                         <FolderIcon className="h-5 w-5 text-yellow-500 mr-2" />
                     ) : (
-                        <DocumentIcon className="h-5 w-5 text-gray-400 mr-2" />
+                        <DocumentIcon className="h-5 w-5 text-gray-400 dark:text-slate-400 mr-2" />
                     )}
 
                     {/* Module checkbox (if has direct permissions) */}
@@ -208,8 +208,8 @@ export default function CreateRolePage() {
                 {node.permissions && node.permissions.length > 0 && (
                     <div className="ml-12 flex flex-wrap gap-x-4 gap-y-1 py-1">
                         {node.permissions.map(permission => (
-                            <label key={permission} className="flex items-center text-sm text-gray-600 cursor-pointer">
-                                <DocumentIcon className="h-4 w-4 text-gray-400 mr-1" />
+                            <label key={permission} className="flex items-center text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 cursor-pointer">
+                                <DocumentIcon className="h-4 w-4 text-gray-400 dark:text-slate-400 mr-1" />
                                 <input
                                     type="checkbox"
                                     checked={currentPermissions.includes(permission)}
@@ -241,7 +241,7 @@ export default function CreateRolePage() {
                 <div className="flex items-center justify-between">
                     <div>
                         {/* Breadcrumbs removed as requested */}
-                        <h1 className="text-2xl font-bold text-gray-900">Create Role</h1>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create Role</h1>
                     </div>
                     <Button
                         variant="primary"
@@ -276,9 +276,9 @@ export default function CreateRolePage() {
                     <div>
                         <Card>
                             <div className="p-4 space-y-4">
-                                <h3 className="text-lg font-medium text-gray-900 flex items-center justify-between">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 flex items-center justify-between">
                                     General
-                                    <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+                                    <ChevronDownIcon className="h-5 w-5 text-gray-400 dark:text-slate-400" />
                                 </h3>
 
                                 <Input

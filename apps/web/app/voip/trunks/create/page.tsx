@@ -80,8 +80,8 @@ export default function CreateVoIPTrunkPage() {
                         Back
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Create VoIP Trunk</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create VoIP Trunk</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Configure a new SIP trunk connection
                         </p>
                     </div>

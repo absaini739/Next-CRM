@@ -55,7 +55,7 @@ export default function VoIPProvidersPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -66,8 +66,8 @@ export default function VoIPProvidersPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">VoIP Providers</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">VoIP Providers</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage your VoIP service providers (Twilio, Telnyx, Generic SIP)
                         </p>
                     </div>
@@ -86,29 +86,29 @@ export default function VoIPProvidersPage() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">From Number</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trunks</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Type</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">From Number</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Trunks</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {providers.map((provider) => (
                                     <tr key={provider.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4">
-                                            <div className="font-medium text-gray-900">{provider.name}</div>
+                                            <div className="font-medium text-gray-900 dark:text-slate-100">{provider.name}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <Badge variant={getProviderTypeBadge(provider.provider_type)}>
                                                 {provider.provider_type.toUpperCase()}
                                             </Badge>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {provider.from_number}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {provider.trunks?.length || 0}
                                         </td>
                                         <td className="px-6 py-4">
@@ -136,7 +136,7 @@ export default function VoIPProvidersPage() {
                                 ))}
                                 {providers.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-slate-500">
                                             No VoIP providers found. Create your first provider to get started.
                                         </td>
                                     </tr>

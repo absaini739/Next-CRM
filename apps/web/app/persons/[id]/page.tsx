@@ -92,7 +92,7 @@ export default function PersonDetailPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -103,8 +103,8 @@ export default function PersonDetailPage() {
             <div className="max-w-4xl space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">{person?.name}</h1>
-                        <p className="mt-1 text-sm text-gray-600">Contact Details</p>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{person?.name}</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">Contact Details</p>
                     </div>
                     <div className="flex space-x-2">
                         <Button
@@ -165,29 +165,29 @@ export default function PersonDetailPage() {
                         <Card title="Contact Information">
                             <dl className="space-y-4">
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Name</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Name</dt>
                                     <dd className="mt-1 text-sm text-gray-900">{person?.name}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Email</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Email</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         {person?.emails?.find((e: any) => e.label === 'primary')?.value || 'N/A'}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Phone</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Phone</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         {person?.contact_numbers?.find((n: any) => n.label === 'phone')?.value || 'N/A'}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Mobile</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Mobile</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         {person?.contact_numbers?.find((n: any) => n.label === 'mobile')?.value || 'N/A'}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Created</dt>
+                                    <dt className="text-sm font-medium text-gray-500 dark:text-slate-500">Created</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
                                         {new Date(person?.created_at).toLocaleDateString()}
                                     </dd>
@@ -196,7 +196,7 @@ export default function PersonDetailPage() {
                         </Card>
 
                         <Card title="Related Records">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                                 <p>Related leads, deals, and activities will appear here.</p>
                             </div>
                         </Card>

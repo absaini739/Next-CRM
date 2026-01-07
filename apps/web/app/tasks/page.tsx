@@ -127,7 +127,7 @@ export default function TasksPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading tasks...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading tasks...</div>
                 </div>
             </DashboardLayout>
         );
@@ -140,8 +140,8 @@ export default function TasksPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         {/* Breadcrumbs removed as requested */}
-                        <h1 className="text-2xl font-bold text-gray-900">Task Management</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Task Management</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Organize and track your tasks efficiently
                         </p>
                     </div>
@@ -160,7 +160,7 @@ export default function TasksPage() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                             <div className="relative">
-                                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="text"
                                     placeholder="Search tasks..."
@@ -223,7 +223,7 @@ export default function TasksPage() {
                         {/* To Do Column */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-gray-900">
+                                <h3 className="font-semibold text-gray-900 dark:text-slate-100">
                                     To Do ({groupedTasks.to_do.length})
                                 </h3>
                             </div>
@@ -232,7 +232,7 @@ export default function TasksPage() {
                                     <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
                                 ))}
                                 {groupedTasks.to_do.length === 0 && (
-                                    <div className="text-center py-8 text-gray-500 text-sm">No tasks</div>
+                                    <div className="text-center py-8 text-gray-500 dark:text-slate-500 text-sm">No tasks</div>
                                 )}
                             </div>
                         </div>
@@ -240,7 +240,7 @@ export default function TasksPage() {
                         {/* In Progress Column */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-gray-900">
+                                <h3 className="font-semibold text-gray-900 dark:text-slate-100">
                                     In Progress ({groupedTasks.in_progress.length})
                                 </h3>
                             </div>
@@ -249,7 +249,7 @@ export default function TasksPage() {
                                     <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
                                 ))}
                                 {groupedTasks.in_progress.length === 0 && (
-                                    <div className="text-center py-8 text-gray-500 text-sm">No tasks</div>
+                                    <div className="text-center py-8 text-gray-500 dark:text-slate-500 text-sm">No tasks</div>
                                 )}
                             </div>
                         </div>
@@ -257,7 +257,7 @@ export default function TasksPage() {
                         {/* Completed Column */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-gray-900">
+                                <h3 className="font-semibold text-gray-900 dark:text-slate-100">
                                     Completed ({groupedTasks.completed.length})
                                 </h3>
                             </div>
@@ -266,7 +266,7 @@ export default function TasksPage() {
                                     <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
                                 ))}
                                 {groupedTasks.completed.length === 0 && (
-                                    <div className="text-center py-8 text-gray-500 text-sm">No tasks</div>
+                                    <div className="text-center py-8 text-gray-500 dark:text-slate-500 text-sm">No tasks</div>
                                 )}
                             </div>
                         </div>
@@ -280,12 +280,12 @@ export default function TasksPage() {
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Task</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned To</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Task</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Type</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Priority</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Due Date</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Assigned To</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
@@ -296,9 +296,9 @@ export default function TasksPage() {
                                             className="hover:bg-gray-50 cursor-pointer"
                                         >
                                             <td className="px-6 py-4">
-                                                <div className="font-medium text-gray-900">{task.title}</div>
+                                                <div className="font-medium text-gray-900 dark:text-slate-100">{task.title}</div>
                                                 {task.description && (
-                                                    <div className="text-sm text-gray-500 line-clamp-1">{task.description}</div>
+                                                    <div className="text-sm text-gray-500 dark:text-slate-500 line-clamp-1">{task.description}</div>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
@@ -316,14 +316,14 @@ export default function TasksPage() {
                                                     {STATUSES.find(s => s.value === task.status)?.label}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                                 {task.due_date ? (
                                                     <span className={isOverdue(task) ? 'text-red-600 font-medium' : ''}>
                                                         {formatDate(task.due_date)}
                                                     </span>
                                                 ) : '-'}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                                 {task.assigned_to.name}
                                             </td>
                                         </tr>
@@ -379,14 +379,14 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
         <Card className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={onClick}>
             <div className="space-y-3">
                 <div className="flex items-start justify-between">
-                    <h4 className="font-medium text-gray-900 flex-1">{task.title}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-slate-100 flex-1">{task.title}</h4>
                     <span className={`text-xs font-medium ${getPriorityColor(task.priority)}`}>
                         {PRIORITIES.find(p => p.value === task.priority)?.label}
                     </span>
                 </div>
 
                 {task.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 line-clamp-2">{task.description}</p>
                 )}
 
                 <div className="flex items-center justify-between">
@@ -400,7 +400,7 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
                     )}
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-slate-500">
                     <div className="flex items-center space-x-3">
                         {task.comments && task.comments.length > 0 && (
                             <div className="flex items-center">
@@ -415,7 +415,7 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
                             </div>
                         )}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-slate-500">
                         {task.assigned_to.name.split(' ')[0]}
                     </div>
                 </div>

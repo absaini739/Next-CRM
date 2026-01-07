@@ -70,8 +70,8 @@ export default function EmailPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Email</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Email</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Manage your email communications
                         </p>
                     </div>
@@ -133,15 +133,15 @@ export default function EmailPage() {
                                                         {email.from}
                                                     </h4>
                                                     {email.hasAttachment && (
-                                                        <PaperClipIcon className="h-4 w-4 text-gray-400" />
+                                                        <PaperClipIcon className="h-4 w-4 text-gray-400 dark:text-slate-400" />
                                                     )}
                                                 </div>
                                                 <p className={`text-sm ${!email.read ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>
                                                     {email.subject}
                                                 </p>
-                                                <p className="text-sm text-gray-500 truncate mt-1">{email.preview}</p>
+                                                <p className="text-sm text-gray-500 dark:text-slate-500 truncate mt-1">{email.preview}</p>
                                             </div>
-                                            <span className="text-xs text-gray-500 ml-4">{email.time}</span>
+                                            <span className="text-xs text-gray-500 dark:text-slate-500 ml-4">{email.time}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -154,10 +154,10 @@ export default function EmailPage() {
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between pb-4 border-b">
                                         <div>
-                                            <div className="font-medium text-gray-900">{selectedEmail.from}</div>
-                                            <div className="text-sm text-gray-600">{selectedEmail.email}</div>
+                                            <div className="font-medium text-gray-900 dark:text-slate-100">{selectedEmail.from}</div>
+                                            <div className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">{selectedEmail.email}</div>
                                         </div>
-                                        <div className="text-sm text-gray-500">{selectedEmail.time}</div>
+                                        <div className="text-sm text-gray-500 dark:text-slate-500">{selectedEmail.time}</div>
                                     </div>
                                     <div className="prose max-w-none">
                                         <p>{selectedEmail.preview}</p>

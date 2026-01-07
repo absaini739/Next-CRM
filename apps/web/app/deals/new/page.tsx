@@ -61,8 +61,8 @@ export default function NewDealPage() {
         <DashboardLayout>
             <div className="max-w-2xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">Add New Deal</h1>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Add New Deal</h1>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                         Create a new sales deal
                     </p>
                 </div>

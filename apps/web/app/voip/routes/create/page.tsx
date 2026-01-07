@@ -74,8 +74,8 @@ export default function CreateInboundRoutePage() {
                         Back
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Create Inbound Route</h1>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create Inbound Route</h1>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                             Define how incoming calls should be routed
                         </p>
                     </div>

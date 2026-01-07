@@ -51,7 +51,7 @@ export default function LeadsPage() {
         return (
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg text-gray-600">Loading...</div>
+                    <div className="text-lg text-gray-600 dark:text-slate-400">Loading...</div>
                 </div>
             </DashboardLayout>
         );
@@ -64,7 +64,7 @@ export default function LeadsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         {/* Breadcrumbs removed as requested */}
-                        <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Leads</h1>
                     </div>
                     <Button
                         variant="primary"
@@ -79,7 +79,7 @@ export default function LeadsPage() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <div className="relative">
-                            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             <input
                                 type="text"
                                 placeholder="Search by Title"
@@ -120,12 +120,12 @@ export default function LeadsPage() {
                                 <div className="p-4 border-b border-gray-200">
                                     <div className="flex items-center justify-between mb-2">
                                         <div>
-                                            <h3 className="font-semibold text-gray-900">
+                                            <h3 className="font-semibold text-gray-900 dark:text-slate-100">
                                                 {stage.name} ({stageLeads.length})
                                             </h3>
-                                            <p className="text-sm text-gray-600">${stageValue.toFixed(2)}</p>
+                                            <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">${stageValue.toFixed(2)}</p>
                                         </div>
-                                        <button className="text-gray-400 hover:text-gray-600">
+                                        <button className="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:text-slate-400">
                                             <PlusIcon className="h-5 w-5" />
                                         </button>
                                     </div>
@@ -141,10 +141,10 @@ export default function LeadsPage() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                                 </svg>
                                             </div>
-                                            <p className="text-sm font-medium text-gray-900 mb-1">
+                                            <p className="text-sm font-medium text-gray-900 dark:text-slate-100 mb-1">
                                                 Your Leads List is Empty
                                             </p>
-                                            <p className="text-xs text-gray-500 mb-4">
+                                            <p className="text-xs text-gray-500 dark:text-slate-500 mb-4">
                                                 Create a lead to organize your goals.
                                             </p>
                                             <button
@@ -161,9 +161,9 @@ export default function LeadsPage() {
                                                 onClick={() => router.push(`/leads/${lead.id}`)}
                                                 className="bg-white p-3 rounded-lg border border-gray-200 hover:shadow-md cursor-pointer transition-shadow"
                                             >
-                                                <h4 className="font-medium text-gray-900 mb-1">{lead.title}</h4>
+                                                <h4 className="font-medium text-gray-900 dark:text-slate-100 mb-1">{lead.title}</h4>
                                                 {lead.description && (
-                                                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">{lead.description}</p>
+                                                    <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 line-clamp-2 mb-2">{lead.description}</p>
                                                 )}
                                                 {lead.lead_value && (
                                                     <p className="text-sm font-semibold text-blue-600">
