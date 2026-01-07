@@ -166,13 +166,13 @@ export default function TasksPage() {
                                     placeholder="Search tasks..."
                                     value={filters.search}
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                             <select
                                 value={filters.status}
                                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value="">All Status</option>
                                 {STATUSES.map(s => (
@@ -182,7 +182,7 @@ export default function TasksPage() {
                             <select
                                 value={filters.priority}
                                 onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value="">All Priorities</option>
                                 {PRIORITIES.map(p => (
@@ -192,7 +192,7 @@ export default function TasksPage() {
                             <select
                                 value={filters.task_type}
                                 onChange={(e) => setFilters({ ...filters, task_type: e.target.value })}
-                                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value="">All Types</option>
                                 {TASK_TYPES.map(t => (

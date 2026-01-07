@@ -33,7 +33,6 @@ const navigation = [
     { name: 'Pipelines', href: '/pipelines', icon: FunnelIcon, permission: 'settings.lead.pipelines' },
     { name: 'VoIP', href: '/voip', icon: PhoneIcon, permission: 'voip' },
     { name: 'Email', href: '/emails', icon: EnvelopeIcon, permission: 'mail' },
-    { name: 'Data Transfer', href: '/data-transfer', icon: ArrowsRightLeftIcon, permission: 'settings.otherSettings.dataTransfer' },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon }, // Always show settings, but content inside will be filtered
 ];
 

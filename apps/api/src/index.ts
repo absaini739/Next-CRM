@@ -30,6 +30,10 @@ import roleRoutes from './routes/role.routes';
 import emailRoutes from './routes/email.routes';
 import taskRoutes from './routes/task.routes';
 import calendarRoutes from './routes/calendar.routes';
+import voipProviderRoutes from './routes/voip-provider.routes';
+import voipTrunkRoutes from './routes/voip-trunk.routes';
+import inboundRouteRoutes from './routes/inbound-route.routes';
+import callRecordingRoutes from './routes/call-recording.routes';
 
 app.use('/auth', authRoutes);
 app.use('/persons', personRoutes);
@@ -46,6 +50,10 @@ app.use('/roles', roleRoutes);
 app.use('/emails', emailRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/calendar', calendarRoutes);
+app.use('/voip/providers', voipProviderRoutes);
+app.use('/voip/trunks', voipTrunkRoutes);
+app.use('/voip/routes', inboundRouteRoutes);
+app.use('/voip/recordings', callRecordingRoutes);
 
 app.get('/', (req, res) => {
     // Health check endpoint
