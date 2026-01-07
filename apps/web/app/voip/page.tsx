@@ -1,232 +1,189 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
-import Input from '@/components/ui/Input';
-import Select from '@/components/ui/Select';
+import api from '@/lib/api';
+import { toast } from 'sonner';
 import {
     PhoneIcon,
-    PhoneArrowUpRightIcon,
-    PhoneArrowDownLeftIcon,
-    PhoneXMarkIcon,
-    ClockIcon,
-    UserIcon
+    ServerIcon,
+    ArrowPathIcon,
+    MicrophoneIcon,
+    ArrowRightIcon
 } from '@heroicons/react/24/outline';
 
 export default function VoIPPage() {
-    const [activeCall, setActiveCall] = useState<any>(null);
-    const [callHistory, setCallHistory] = useState([
-        {
-            id: 1,
-            contact: 'John Doe',
-            number: '+1 (555) 123-4567',
-            type: 'outgoing',
-            duration: '5:32',
-            time: '10 minutes ago',
-            status: 'completed'
-        },
-        {
-            id: 2,
-            contact: 'Jane Smith',
-            number: '+1 (555) 987-6543',
-            type: 'incoming',
-            duration: '12:45',
-            time: '1 hour ago',
-            status: 'completed'
-        },
-        {
-            id: 3,
-            contact: 'Unknown',
-            number: '+1 (555) 456-7890',
-            type: 'missed',
-            duration: '0:00',
-            time: '3 hours ago',
-            status: 'missed'
-        },
-    ]);
-    const [dialNumber, setDialNumber] = useState('');
-    const [callDuration, setCallDuration] = useState(0);
+    const router = useRouter();
+    const [stats, setStats] = useState({
+        providers: 0,
+        trunks: 0,
+        routes: 0,
+        recordings: 0,
+    });
 
     useEffect(() => {
-        let interval: any;
-        if (activeCall) {
-            interval = setInterval(() => {
-                setCallDuration((prev) => prev + 1);
-            }, 1000);
-        } else {
-            setCallDuration(0);
+        fetchStats();
+    }, []);
+
+    const fetchStats = async () => {
+        try {
+            const [providers, trunks, routes, recordings] = await Promise.all([
+                api.get('/voip/providers'),
+                api.get('/voip/trunks'),
+                api.get('/voip/routes'),
+                api.get('/voip/recordings'),
+            ]);
+
+            setStats({
+                providers: providers.data.length,
+                trunks: trunks.data.length,
+                routes: routes.data.length,
+                recordings: recordings.data.length,
+            });
+        } catch (error) {
+            toast.error('Failed to load VoIP stats');
         }
-        return () => clearInterval(interval);
-    }, [activeCall]);
-
-    const formatDuration = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleDial = (number: string) => {
-        setActiveCall({
-            number,
-            contact: 'Calling...',
-            status: 'connecting'
-        });
-        setTimeout(() => {
-            setActiveCall((prev: any) => ({ ...prev, status: 'connected' }));
-        }, 2000);
-    };
+    const sections = [
+        {
+            title: 'VoIP Providers',
+            description: 'Manage VoIP service providers (Twilio, Telnyx, Generic SIP)',
+            icon: PhoneIcon,
+            count: stats.providers,
+            href: '/voip/providers',
+            color: 'blue',
+        },
+        {
+            title: 'VoIP Trunks',
+            description: 'Configure SIP trunks and connection details',
+            icon: ServerIcon,
+            count: stats.trunks,
+            href: '/voip/trunks',
+            color: 'green',
+        },
+        {
+            title: 'Inbound Routes',
+            description: 'Define how incoming calls are routed based on DID patterns',
+            icon: ArrowPathIcon,
+            count: stats.routes,
+            href: '/voip/routes',
+            color: 'purple',
+        },
+        {
+            title: 'Call Recordings',
+            description: 'View and manage recorded calls',
+            icon: MicrophoneIcon,
+            count: stats.recordings,
+            href: '/voip/recordings',
+            color: 'orange',
+        },
+    ];
 
-    const handleEndCall = () => {
-        setActiveCall(null);
-        setDialNumber('');
+    const getColorClasses = (color: string) => {
+        const colors: any = {
+            blue: 'bg-blue-100 text-blue-600',
+            green: 'bg-green-100 text-green-600',
+            purple: 'bg-purple-100 text-purple-600',
+            orange: 'bg-orange-100 text-orange-600',
+        };
+        return colors[color] || colors.blue;
     };
-
-    const dialPadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 
     return (
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">VoIP Phone</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">VoIP Management</h1>
                     <p className="mt-1 text-sm text-gray-600">
-                        Make and manage calls directly from your CRM
+                        Manage your VoIP infrastructure and call routing
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Dialer */}
-                    <div className="lg:col-span-1">
-                        <Card title="Dialer">
-                            {activeCall ? (
-                                <div className="text-center space-y-6">
-                                    <div className="w-24 h-24 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
-                                        <UserIcon className="h-12 w-12 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">{activeCall.contact}</h3>
-                                        <p className="text-sm text-gray-600">{activeCall.number}</p>
-                                        <Badge variant={activeCall.status === 'connected' ? 'success' : 'warning'} className="mt-2">
-                                            {activeCall.status}
-                                        </Badge>
-                                    </div>
-                                    <div className="text-3xl font-bold text-gray-900">
-                                        {formatDuration(callDuration)}
-                                    </div>
-                                    <Button
-                                        variant="danger"
-                                        onClick={handleEndCall}
-                                        className="w-full flex items-center justify-center"
-                                    >
-                                        <PhoneXMarkIcon className="h-5 w-5 mr-2" />
-                                        End Call
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <Input
-                                        value={dialNumber}
-                                        onChange={(e) => setDialNumber(e.target.value)}
-                                        placeholder="Enter phone number"
-                                        className="text-center text-lg"
-                                    />
-
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {dialPadNumbers.map((num) => (
-                                            <button
-                                                key={num}
-                                                onClick={() => setDialNumber(dialNumber + num)}
-                                                className="h-14 bg-gray-100 hover:bg-gray-200 rounded-lg text-xl font-semibold transition-colors"
-                                            >
-                                                {num}
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <Button
-                                        variant="primary"
-                                        onClick={() => handleDial(dialNumber)}
-                                        disabled={!dialNumber}
-                                        className="w-full flex items-center justify-center"
-                                    >
-                                        <PhoneIcon className="h-5 w-5 mr-2" />
-                                        Call
-                                    </Button>
-
-                                    <Select
-                                        label="Quick Dial"
-                                        options={[
-                                            { value: '', label: 'Select a contact...' },
-                                            { value: '+15551234567', label: 'John Doe - +1 (555) 123-4567' },
-                                            { value: '+15559876543', label: 'Jane Smith - +1 (555) 987-6543' },
-                                        ]}
-                                        onChange={(e) => e.target.value && handleDial(e.target.value)}
-                                    />
-                                </div>
-                            )}
-                        </Card>
-                    </div>
-
-                    {/* Call History */}
-                    <div className="lg:col-span-2">
-                        <Card title="Recent Calls">
-                            <div className="space-y-3">
-                                {callHistory.map((call) => (
-                                    <div
-                                        key={call.id}
-                                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                                    >
-                                        <div className="flex items-center space-x-4">
-                                            <div className={`p-2 rounded-full ${call.type === 'outgoing' ? 'bg-blue-100' :
-                                                    call.type === 'incoming' ? 'bg-green-100' :
-                                                        'bg-red-100'
-                                                }`}>
-                                                {call.type === 'outgoing' ? (
-                                                    <PhoneArrowUpRightIcon className={`h-5 w-5 ${call.type === 'outgoing' ? 'text-blue-600' : ''
-                                                        }`} />
-                                                ) : call.type === 'incoming' ? (
-                                                    <PhoneArrowDownLeftIcon className="h-5 w-5 text-green-600" />
-                                                ) : (
-                                                    <PhoneXMarkIcon className="h-5 w-5 text-red-600" />
-                                                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {sections.map((section) => {
+                        const Icon = section.icon;
+                        return (
+                            <Link key={section.href} href={section.href} className="block">
+                                <Card
+                                    className="cursor-pointer hover:shadow-lg transition-shadow h-full"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className={`inline-flex p-3 rounded-lg ${getColorClasses(section.color)}`}>
+                                                <Icon className="h-6 w-6" />
                                             </div>
-                                            <div>
-                                                <h4 className="font-medium text-gray-900">{call.contact}</h4>
-                                                <p className="text-sm text-gray-600">{call.number}</p>
+                                            <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                                                {section.title}
+                                            </h3>
+                                            <p className="mt-2 text-sm text-gray-600">
+                                                {section.description}
+                                            </p>
+                                            <div className="mt-4 flex items-center justify-between">
+                                                <span className="text-2xl font-bold text-gray-900">
+                                                    {section.count}
+                                                </span>
+                                                <ArrowRightIcon className="h-5 w-5 text-gray-400" />
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <div className="flex items-center text-sm text-gray-600">
-                                                <ClockIcon className="h-4 w-4 mr-1" />
-                                                {call.duration}
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-1">{call.time}</p>
-                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </Card>
-
-                        <Card title="Call Statistics" className="mt-6">
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="text-center">
-                                    <div className="text-3xl font-bold text-blue-600">24</div>
-                                    <div className="text-sm text-gray-600 mt-1">Total Calls Today</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-3xl font-bold text-green-600">18</div>
-                                    <div className="text-sm text-gray-600 mt-1">Answered</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-3xl font-bold text-gray-600">3:45</div>
-                                    <div className="text-sm text-gray-600 mt-1">Avg Duration</div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
+                                </Card>
+                            </Link>
+                        );
+                    })}
                 </div>
+
+                <Card title="Quick Start Guide">
+                    <div className="space-y-4">
+                        <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                                1
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-gray-900">Create a VoIP Provider</h4>
+                                <p className="text-sm text-gray-600">
+                                    Set up your Twilio, Telnyx, or Generic SIP provider with credentials
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                                2
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-gray-900">Configure a Trunk</h4>
+                                <p className="text-sm text-gray-600">
+                                    Create a SIP trunk linked to your provider for call handling
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                                3
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-gray-900">Set Up Inbound Routes</h4>
+                                <p className="text-sm text-gray-600">
+                                    Define how incoming calls should be routed based on phone numbers
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold">
+                                4
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-gray-900">Start Making Calls</h4>
+                                <p className="text-sm text-gray-600">
+                                    Your VoIP system is ready! View call recordings in the recordings section
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
             </div>
         </DashboardLayout>
     );
