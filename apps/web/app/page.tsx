@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const [revenueBySource, setRevenueBySource] = useState<any[]>([]);
   const [revenueByType, setRevenueByType] = useState<any[]>([]);
   const [leadsOverTime, setLeadsOverTime] = useState<any[]>([]);
+  const [upcomingTasks, setUpcomingTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,12 +35,14 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsRes, stagesRes, sourceRes, typeRes, timeRes] = await Promise.all([
+      const [statsRes, stagesRes, sourceRes, typeRes, timeRes, tasksRes] = await Promise.all([
         api.get('/analytics/dashboard'),
         api.get('/analytics/leads-by-stages'),
         api.get('/analytics/revenue-by-source'),
         api.get('/analytics/revenue-by-type'),
+        api.get('/analytics/revenue-by-type'),
         api.get('/analytics/leads-over-time'),
+        api.get('/tasks?status=to_do&limit=5&sort=due_date:asc'), // Fetch upcoming tasks
       ]);
 
       setStats(statsRes.data);
@@ -47,6 +50,7 @@ export default function DashboardPage() {
       setRevenueBySource(sourceRes.data.map((item: any) => ({ name: item.source, value: item.revenue })));
       setRevenueByType(typeRes.data.map((item: any) => ({ name: item.type, value: item.revenue })));
       setLeadsOverTime(timeRes.data);
+      setUpcomingTasks(tasksRes.data.tasks || []); // Access .tasks property from response
     } catch (error) {
       toast.error('Failed to load dashboard data');
     } finally {
@@ -191,6 +195,57 @@ export default function DashboardPage() {
             )}
           </Card>
         </div>
+
+        {/* Upcoming Tasks - New Section */}
+        <Card title="My Upcoming Tasks">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Related To</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {upcomingTasks.length > 0 ? (
+                  upcomingTasks.map((task: any) => (
+                    <tr key={task.id} onClick={() => router.push('/tasks')} className="cursor-pointer hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{task.title}</div>
+                        <div className="text-xs text-gray-500">{task.task_type}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">
+                          {task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No date'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          ${task.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                            task.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                              task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-blue-100 text-blue-800'}`}>
+                          {task.priority}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {task.lead?.title || task.deal?.title || task.person?.name || '-'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                      No upcoming tasks
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
 
         {/* Quick Actions */}
         <Card title="Quick Actions">

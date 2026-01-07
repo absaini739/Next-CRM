@@ -11,7 +11,7 @@ const taskSchema = z.object({
     due_date: z.string().optional(),
     due_time: z.string().optional(),
     estimated_duration: z.number().optional(),
-    assigned_to_id: z.number(),
+    assigned_to_id: z.number().optional(),
     person_id: z.number().optional(),
     organization_id: z.number().optional(),
     lead_id: z.number().optional(),
@@ -47,7 +47,10 @@ export const getTasks = async (req: Request, res: Response) => {
 
         // Role-based filtering: regular users only see their tasks
         if (userRole !== 'admin' && userRole !== 'senior') {
-            where.assigned_to_id = userId;
+            where.OR = [
+                { assigned_to_id: userId },
+                { assigned_by_id: userId }
+            ];
         } else if (assigned_to) {
             where.assigned_to_id = Number(assigned_to);
         }
@@ -153,11 +156,33 @@ export const createTask = async (req: Request, res: Response) => {
     try {
         const data = taskSchema.parse(req.body);
         // @ts-ignore
-        const userId = req.userId;
+        const userId = Number(req.userId);
+
+        let assignedToId = data.assigned_to_id;
+
+        // Auto-assign logic: if no assignee provided, try to inherit from Lead or Deal
+        if (!assignedToId) {
+            if (data.lead_id) {
+                const lead = await prisma.lead.findUnique({
+                    where: { id: data.lead_id },
+                    select: { assigned_to_id: true, user_id: true }
+                });
+                assignedToId = lead?.assigned_to_id || lead?.user_id || userId;
+            } else if (data.deal_id) {
+                const deal = await prisma.deal.findUnique({
+                    where: { id: data.deal_id },
+                    select: { user_id: true }
+                });
+                assignedToId = deal?.user_id || userId;
+            } else {
+                assignedToId = userId; // Default to creator
+            }
+        }
 
         const task = await prisma.task.create({
             data: {
                 ...data,
+                assigned_to_id: assignedToId!,
                 assigned_by_id: userId,
                 due_date: data.due_date ? new Date(data.due_date) : null,
                 recurrence_end_date: data.recurrence_end_date ? new Date(data.recurrence_end_date) : null,

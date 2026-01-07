@@ -87,7 +87,10 @@ export const getMonthView = async (req: Request, res: Response) => {
             }),
             prisma.task.findMany({
                 where: {
-                    assigned_to_id: userId,
+                    OR: [
+                        { assigned_to_id: userId },
+                        { assigned_by_id: userId }
+                    ],
                     due_date: { gte: startDate, lte: endDate }
                 },
                 select: {
@@ -134,7 +137,10 @@ export const getWeekView = async (req: Request, res: Response) => {
             }),
             prisma.task.findMany({
                 where: {
-                    assigned_to_id: userId,
+                    OR: [
+                        { assigned_to_id: userId },
+                        { assigned_by_id: userId }
+                    ],
                     due_date: { gte: startDate, lte: endDate }
                 },
                 select: {
@@ -184,7 +190,10 @@ export const getDayView = async (req: Request, res: Response) => {
             }),
             prisma.task.findMany({
                 where: {
-                    assigned_to_id: userId,
+                    OR: [
+                        { assigned_to_id: userId },
+                        { assigned_by_id: userId }
+                    ],
                     due_date: { gte: startDate, lte: endDate }
                 },
                 include: {
