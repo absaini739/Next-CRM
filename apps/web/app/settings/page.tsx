@@ -194,11 +194,7 @@ export default function SettingsPage() {
             <div className="space-y-6">
                 {/* Header */}
                 <div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
-                        <span className="text-blue-600">Dashboard</span>
-                        <span className="mx-2">/</span>
-                        <span>Settings</span>
-                    </div>
+                    {/* Breadcrumbs removed as requested */}
                     <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
                     <p className="mt-1 text-sm text-gray-600">
                         Manage your CRM configuration and preferences

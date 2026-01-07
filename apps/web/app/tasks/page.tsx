@@ -139,11 +139,7 @@ export default function TasksPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
-                            <span className="text-blue-600">Dashboard</span>
-                            <span className="mx-2">/</span>
-                            <span>Tasks</span>
-                        </div>
+                        {/* Breadcrumbs removed as requested */}
                         <h1 className="text-2xl font-bold text-gray-900">Task Management</h1>
                         <p className="mt-1 text-sm text-gray-600">
                             Organize and track your tasks efficiently

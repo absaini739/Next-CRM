@@ -51,11 +51,7 @@ export default function DealsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
-                            <span className="text-blue-600">Dashboard</span>
-                            <span className="mx-2">/</span>
-                            <span>Deals</span>
-                        </div>
+                        {/* Breadcrumbs removed as requested */}
                         <h1 className="text-2xl font-bold text-gray-900">Deals</h1>
                         <p className="mt-1 text-sm text-gray-600">
                             Manage your sales pipeline and track deal progress
@@ -152,8 +148,8 @@ export default function DealsPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${deal.status === 'won' ? 'bg-green-100 text-green-800' :
-                                                        deal.status === 'lost' ? 'bg-red-100 text-red-800' :
-                                                            'bg-blue-100 text-blue-800'
+                                                    deal.status === 'lost' ? 'bg-red-100 text-red-800' :
+                                                        'bg-blue-100 text-blue-800'
                                                     }`}>
                                                     {deal.status.charAt(0).toUpperCase() + deal.status.slice(1)}
                                                 </span>

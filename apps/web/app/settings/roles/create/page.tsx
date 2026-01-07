@@ -240,15 +240,7 @@ export default function CreateRolePage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
-                            <span>Dashboard</span>
-                            <span className="mx-2">/</span>
-                            <span>Settings</span>
-                            <span className="mx-2">/</span>
-                            <span>Roles</span>
-                            <span className="mx-2">/</span>
-                            <span className="text-gray-900">Create Role</span>
-                        </div>
+                        {/* Breadcrumbs removed as requested */}
                         <h1 className="text-2xl font-bold text-gray-900">Create Role</h1>
                     </div>
                     <Button
