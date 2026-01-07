@@ -24,6 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ${error ? 'border-red-500' : 'border-gray-300'}
             ${className}
           `}
+                    autoComplete="off"
                     {...props}
                 />
                 {error && (
