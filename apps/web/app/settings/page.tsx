@@ -1,86 +1,267 @@
 'use client';
 
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
-import { Cog6ToothIcon, UserGroupIcon, ShieldCheckIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import {
+    UsersIcon,
+    ShieldCheckIcon,
+    FunnelIcon,
+    EnvelopeIcon,
+    ArrowsRightLeftIcon,
+    BoltIcon,
+    BellIcon,
+    WrenchScrewdriverIcon,
+    CubeIcon,
+    LockClosedIcon,
+    BuildingOfficeIcon,
+    CurrencyDollarIcon,
+    GlobeAltIcon,
+    ChartBarIcon,
+    DocumentTextIcon,
+    ClockIcon,
+    TagIcon,
+    Cog6ToothIcon
+} from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
+
+interface SettingSection {
+    id: string;
+    title: string;
+    description: string;
+    icon: any;
+    color: string;
+    route?: string;
+}
+
+const settingSections: SettingSection[] = [
+    {
+        id: 'users',
+        title: 'User Management',
+        description: 'Manage users, roles, and permissions',
+        icon: UsersIcon,
+        color: 'bg-blue-100 text-blue-600',
+    },
+    {
+        id: 'roles',
+        title: 'Roles & Permissions',
+        description: 'Configure access control and security',
+        icon: ShieldCheckIcon,
+        color: 'bg-green-100 text-green-600',
+    },
+    {
+        id: 'pipelines',
+        title: 'Pipeline Configuration',
+        description: 'Customize lead and deal pipelines',
+        icon: FunnelIcon,
+        color: 'bg-purple-100 text-purple-600',
+        route: '/pipelines'
+    },
+    {
+        id: 'email',
+        title: 'Email Integration',
+        description: 'Connect your email accounts',
+        icon: EnvelopeIcon,
+        color: 'bg-orange-100 text-orange-600',
+    },
+    {
+        id: 'data-transfer',
+        title: 'Data Transfer',
+        description: 'Import and export your CRM data',
+        icon: ArrowsRightLeftIcon,
+        color: 'bg-indigo-100 text-indigo-600',
+        route: '/data-transfer'
+    },
+    {
+        id: 'automation',
+        title: 'Workflow Automation',
+        description: 'Create automated workflows and triggers',
+        icon: BoltIcon,
+        color: 'bg-yellow-100 text-yellow-600',
+    },
+    {
+        id: 'notifications',
+        title: 'Notifications',
+        description: 'Configure email and push notifications',
+        icon: BellIcon,
+        color: 'bg-red-100 text-red-600',
+    },
+    {
+        id: 'custom-fields',
+        title: 'Custom Fields',
+        description: 'Add custom fields to your CRM entities',
+        icon: WrenchScrewdriverIcon,
+        color: 'bg-pink-100 text-pink-600',
+    },
+    {
+        id: 'integrations',
+        title: 'API & Integrations',
+        description: 'Connect third-party apps and services',
+        icon: CubeIcon,
+        color: 'bg-teal-100 text-teal-600',
+    },
+    {
+        id: 'security',
+        title: 'Security Settings',
+        description: 'Two-factor auth, IP restrictions, audit logs',
+        icon: LockClosedIcon,
+        color: 'bg-gray-100 text-gray-600',
+    },
+    {
+        id: 'company',
+        title: 'Company Profile',
+        description: 'Update company information and branding',
+        icon: BuildingOfficeIcon,
+        color: 'bg-cyan-100 text-cyan-600',
+    },
+    {
+        id: 'billing',
+        title: 'Billing & Subscription',
+        description: 'Manage your subscription and invoices',
+        icon: CurrencyDollarIcon,
+        color: 'bg-emerald-100 text-emerald-600',
+    },
+    {
+        id: 'localization',
+        title: 'Localization',
+        description: 'Language, timezone, and currency settings',
+        icon: GlobeAltIcon,
+        color: 'bg-violet-100 text-violet-600',
+    },
+    {
+        id: 'reports',
+        title: 'Reports & Analytics',
+        description: 'Configure dashboards and custom reports',
+        icon: ChartBarIcon,
+        color: 'bg-lime-100 text-lime-600',
+    },
+    {
+        id: 'templates',
+        title: 'Email Templates',
+        description: 'Create and manage email templates',
+        icon: DocumentTextIcon,
+        color: 'bg-amber-100 text-amber-600',
+    },
+    {
+        id: 'business-hours',
+        title: 'Business Hours',
+        description: 'Set working hours and holidays',
+        icon: ClockIcon,
+        color: 'bg-rose-100 text-rose-600',
+    },
+    {
+        id: 'tags',
+        title: 'Tags & Categories',
+        description: 'Manage tags and categorization',
+        icon: TagIcon,
+        color: 'bg-fuchsia-100 text-fuchsia-600',
+    },
+    {
+        id: 'advanced',
+        title: 'Advanced Settings',
+        description: 'Database, backups, and system configuration',
+        icon: Cog6ToothIcon,
+        color: 'bg-slate-100 text-slate-600',
+    },
+];
 
 export default function SettingsPage() {
+    const router = useRouter();
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredSections = settingSections.filter(section =>
+        section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        section.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleSectionClick = (section: SettingSection) => {
+        if (section.route) {
+            router.push(section.route);
+        } else {
+            // For now, just show a message
+            console.log(`Navigate to ${section.id} settings`);
+        }
+    };
+
     return (
         <DashboardLayout>
             <div className="space-y-6">
+                {/* Header */}
                 <div>
+                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                        <span className="text-blue-600">Dashboard</span>
+                        <span className="mx-2">/</span>
+                        <span>Settings</span>
+                    </div>
                     <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
                     <p className="mt-1 text-sm text-gray-600">
                         Manage your CRM configuration and preferences
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <SettingCard
-                        icon={<UserGroupIcon className="h-8 w-8 text-blue-600" />}
-                        title="User Management"
-                        description="Manage users, roles, and permissions"
-                        href="/settings/users"
-                    />
-                    <SettingCard
-                        icon={<ShieldCheckIcon className="h-8 w-8 text-green-600" />}
-                        title="Roles & Permissions"
-                        description="Configure access control and security"
-                        href="/settings/roles"
-                    />
-                    <SettingCard
-                        icon={<Cog6ToothIcon className="h-8 w-8 text-purple-600" />}
-                        title="Pipeline Configuration"
-                        description="Customize lead and deal pipelines"
-                        href="/settings/pipelines"
-                    />
-                    <SettingCard
-                        icon={<EnvelopeIcon className="h-8 w-8 text-orange-600" />}
-                        title="Email Integration"
-                        description="Connect your email accounts"
-                        href="/settings/email"
+                {/* Search */}
+                <div className="max-w-md">
+                    <input
+                        type="text"
+                        placeholder="Search settings..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
-                <Card>
+                {/* Settings Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredSections.map((section) => {
+                        const Icon = section.icon;
+                        return (
+                            <Card
+                                key={section.id}
+                                className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                                onClick={() => handleSectionClick(section)}
+                            >
+                                <div className="flex items-start space-x-4">
+                                    <div className={`p-3 rounded-lg ${section.color}`}>
+                                        <Icon className="h-6 w-6" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                            {section.title}
+                                        </h3>
+                                        <p className="text-sm text-gray-600">
+                                            {section.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Card>
+                        );
+                    })}
+                </div>
+
+                {filteredSections.length === 0 && (
                     <div className="text-center py-12">
-                        <Cog6ToothIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <h3 className="mt-2 text-sm font-medium text-gray-900">Settings Configuration</h3>
-                        <p className="mt-1 text-sm text-gray-500">
-                            Advanced settings pages will be implemented in the next phase.
-                            <br />
-                            Core CRM functionality is fully operational!
-                        </p>
+                        <p className="text-gray-500">No settings found matching your search.</p>
+                    </div>
+                )}
+
+                {/* Info Card */}
+                <Card className="p-6 bg-blue-50 border-blue-200">
+                    <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                            <Cog6ToothIcon className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-semibold text-blue-900 mb-1">
+                                Settings Configuration
+                            </h3>
+                            <p className="text-sm text-blue-700">
+                                Advanced settings pages will be implemented in the next phase.
+                                Core CRM functionality is fully operational!
+                            </p>
+                        </div>
                     </div>
                 </Card>
             </div>
         </DashboardLayout>
-    );
-}
-
-function SettingCard({
-    icon,
-    title,
-    description,
-    href,
-}: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    href: string;
-}) {
-    return (
-        <a
-            href={href}
-            className="block p-6 bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow"
-        >
-            <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">{icon}</div>
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900">{title}</h3>
-                    <p className="mt-1 text-sm text-gray-500">{description}</p>
-                </div>
-            </div>
-        </a>
     );
 }

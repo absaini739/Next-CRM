@@ -29,7 +29,6 @@ const navigation = [
     { name: 'Tasks', href: '/tasks', icon: CalendarIcon },
     { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
     { name: 'Activities', href: '/activities', icon: CalendarIcon },
-    { name: 'Pipelines', href: '/pipelines', icon: FunnelIcon },
     { name: 'VoIP', href: '/voip', icon: PhoneIcon },
     { name: 'Email', href: '/emails', icon: EnvelopeIcon },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
