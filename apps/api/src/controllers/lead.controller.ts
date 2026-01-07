@@ -6,11 +6,11 @@ const leadSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
     lead_value: z.number().optional(), // Decimal in DB, number in JSON
-    person_id: z.number().int(),
-    lead_source_id: z.number().int(),
-    lead_type_id: z.number().int(),
-    lead_pipeline_id: z.number().int().optional(),
-    lead_stage_id: z.number().int().optional(),
+    person_id: z.number().int().optional(),
+    lead_source_id: z.number().int().optional(),
+    lead_type_id: z.number().int().optional(),
+    pipeline_id: z.number().int().optional(),
+    stage_id: z.number().int().optional(),
 });
 
 export const createLead = async (req: Request, res: Response) => {
@@ -21,7 +21,14 @@ export const createLead = async (req: Request, res: Response) => {
 
         const lead = await prisma.lead.create({
             data: {
-                ...data,
+                title: data.title,
+                description: data.description,
+                lead_value: data.lead_value,
+                person_id: data.person_id,
+                lead_source_id: data.lead_source_id,
+                lead_type_id: data.lead_type_id,
+                pipeline_id: data.pipeline_id,
+                stage_id: data.stage_id,
                 user_id: userId,
                 status: 1, // Default Open
             },

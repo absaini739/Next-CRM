@@ -58,7 +58,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 export const getLeadsByStages = async (req: Request, res: Response) => {
     try {
         const leadsByStage = await prisma.lead.groupBy({
-            by: ['lead_stage_id'],
+            by: ['stage_id'],
             _count: true,
             where: {
                 status: { not: 1 } // Exclude won leads
@@ -66,14 +66,14 @@ export const getLeadsByStages = async (req: Request, res: Response) => {
         });
 
         // Get stage names
-        const stageIds = leadsByStage.map(item => item.lead_stage_id).filter(Boolean) as number[];
-        const stages = await prisma.leadPipelineStage.findMany({
+        const stageIds = leadsByStage.map(item => item.stage_id).filter(Boolean) as number[];
+        const stages = await prisma.leadStage.findMany({
             where: { id: { in: stageIds } },
             select: { id: true, name: true }
         });
 
         const data = leadsByStage.map(item => {
-            const stage = stages.find(s => s.id === item.lead_stage_id);
+            const stage = stages.find((s: any) => s.id === item.stage_id);
             return {
                 stage: stage?.name || 'Unassigned',
                 count: item._count
@@ -102,7 +102,7 @@ export const getRevenueBySource = async (req: Request, res: Response) => {
         });
 
         const data = revenueBySource.map(item => {
-            const source = sources.find(s => s.id === item.lead_source_id);
+            const source = sources.find((s: any) => s.id === item.lead_source_id);
             return {
                 source: source?.name || 'Unknown',
                 revenue: parseFloat(item._sum.lead_value?.toString() || '0')
@@ -131,7 +131,7 @@ export const getRevenueByType = async (req: Request, res: Response) => {
         });
 
         const data = revenueByType.map(item => {
-            const type = types.find(t => t.id === item.lead_type_id);
+            const type = types.find((t: any) => t.id === item.lead_type_id);
             return {
                 type: type?.name || 'Unknown',
                 revenue: parseFloat(item._sum.lead_value?.toString() || '0')

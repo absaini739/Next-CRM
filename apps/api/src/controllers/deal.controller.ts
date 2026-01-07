@@ -8,8 +8,8 @@ const dealSchema = z.object({
     deal_value: z.number().optional(),
     person_id: z.number().int().optional(),
     lead_id: z.number().int().optional(),
-    lead_pipeline_id: z.number().int().optional(),
-    lead_pipeline_stage_id: z.number().int().optional(),
+    pipeline_id: z.number().int().optional(),
+    stage_id: z.number().int().optional(),
 });
 
 export const createDeal = async (req: Request, res: Response) => {

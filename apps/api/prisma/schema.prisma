@@ -90,7 +90,7 @@ model Organization {
   email       String?
   phone       String?
   website     String?
-  address     String?
+  address     Json?
   user_id     Int?     // Owner
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -119,6 +119,8 @@ model Lead {
   user_id         Int?      // Owner
   pipeline_id     Int?
   stage_id        Int?
+  lead_source_id  Int?
+  lead_type_id    Int?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 
@@ -127,6 +129,8 @@ model Lead {
   user            User?         @relation(fields: [user_id], references: [id])
   pipeline        LeadPipeline? @relation(fields: [pipeline_id], references: [id])
   stage           LeadStage?    @relation(fields: [stage_id], references: [id])
+  source          LeadSource?   @relation(fields: [lead_source_id], references: [id])
+  type            LeadType?     @relation(fields: [lead_type_id], references: [id])
   deals           Deal[]
   quotes          Quote[]
   activities      Activity[]
@@ -344,11 +348,13 @@ model Activity {
 
   user_id     Int
   person_id   Int?
+  organization_id Int?
   lead_id     Int?
   deal_id     Int?
 
   user        User     @relation(fields: [user_id], references: [id])
   person      Person?  @relation(fields: [person_id], references: [id])
+  organization Organization? @relation(fields: [organization_id], references: [id])
   lead        Lead?    @relation(fields: [lead_id], references: [id])
   deal        Deal?    @relation(fields: [deal_id], references: [id])
 
@@ -472,4 +478,24 @@ model CalendarEvent {
   deal            Deal?     @relation(fields: [deal_id], references: [id])
   
   @@map("calendar_events")
+}
+
+model LeadSource {
+  id          Int      @id @default(autoincrement())
+  name        String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  leads       Lead[]
+
+  @@map("lead_sources")
+}
+
+model LeadType {
+  id          Int      @id @default(autoincrement())
+  name        String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  leads       Lead[]
+
+  @@map("lead_types")
 }
