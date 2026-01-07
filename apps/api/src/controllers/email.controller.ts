@@ -25,7 +25,8 @@ export const getEmails = async (req: Request, res: Response) => {
 
         const where: any = {
             user_id: userId,
-            folder: folder as string
+            // If folder is 'inbox', show both inbox and sent emails as requested
+            folder: folder === 'inbox' ? { in: ['inbox', 'sent'] } : folder as string
         };
 
         if (search) {

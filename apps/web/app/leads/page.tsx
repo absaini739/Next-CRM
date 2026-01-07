@@ -21,6 +21,7 @@ export default function LeadsPage() {
     const [leads, setLeads] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [draggingId, setDraggingId] = useState<number | null>(null);
 
     useEffect(() => {
         fetchLeads();
@@ -45,6 +46,42 @@ export default function LeadsPage() {
 
     const calculateStageValue = (stageLeads: any[]) => {
         return stageLeads.reduce((sum, lead) => sum + (parseFloat(lead.lead_value) || 0), 0);
+    };
+
+    const handleDragStart = (e: React.DragEvent, id: number) => {
+        setDraggingId(id);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = async (e: React.DragEvent, stageId: string) => {
+        e.preventDefault();
+        if (!draggingId) return;
+
+        const targetStageId = parseInt(stageId);
+
+        // Optimistic update
+        const updatedLeads = leads.map(lead =>
+            lead.id === draggingId ? { ...lead, stage_id: targetStageId } : lead
+        );
+        setLeads(updatedLeads);
+        setDraggingId(null);
+
+        try {
+            await api.put(`/leads/${draggingId}`, { stage_id: targetStageId });
+            toast.success('Lead moved successfully');
+            if (targetStageId === 5) {
+                toast.success('Lead marked as Won and Deal created!');
+                // Refresh to get any backend updates (like status change)
+                fetchLeads();
+            }
+        } catch (error) {
+            toast.error('Failed to move lead');
+            fetchLeads(); // Revert
+        }
     };
 
     if (loading) {
@@ -133,9 +170,13 @@ export default function LeadsPage() {
                                 </div>
 
                                 {/* Column Content */}
-                                <div className="p-4 space-y-3 min-h-[400px]">
+                                <div
+                                    className={`p-4 space-y-3 min-h-[400px] transition-colors ${draggingId ? 'bg-gray-50/50' : ''}`}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDrop(e, stage.id)}
+                                >
                                     {stageLeads.length === 0 ? (
-                                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                                        <div className="flex flex-col items-center justify-center py-12 text-center pointer-events-none">
                                             <div className="mb-4">
                                                 <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -145,21 +186,18 @@ export default function LeadsPage() {
                                                 Your Leads List is Empty
                                             </p>
                                             <p className="text-xs text-gray-500 mb-4">
-                                                Create a lead to organize your goals.
+                                                Drag leads here
                                             </p>
-                                            <button
-                                                onClick={() => router.push('/leads/new')}
-                                                className="px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50"
-                                            >
-                                                Create Lead
-                                            </button>
                                         </div>
                                     ) : (
                                         stageLeads.map((lead) => (
                                             <div
                                                 key={lead.id}
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, lead.id)}
                                                 onClick={() => router.push(`/leads/${lead.id}`)}
-                                                className="bg-white p-3 rounded-lg border border-gray-200 hover:shadow-md cursor-pointer transition-shadow"
+                                                className={`bg-white p-3 rounded-lg border border-gray-200 hover:shadow-md cursor-grab active:cursor-grabbing transition-all ${draggingId === lead.id ? 'opacity-50 ring-2 ring-blue-500 rotate-2' : ''
+                                                    }`}
                                             >
                                                 <h4 className="font-medium text-gray-900 mb-1">{lead.title}</h4>
                                                 {lead.description && (

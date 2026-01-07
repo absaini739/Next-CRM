@@ -180,7 +180,7 @@ export default function EmailsPage() {
                                         placeholder="Search emails..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                             </div>
@@ -243,14 +243,14 @@ export default function EmailsPage() {
                                                     <div className="flex items-start space-x-3">
                                                         <div className="flex-1">
                                                             <div className="flex items-center space-x-2">
-                                                                <span className={`text-sm ${!email.is_read ? 'font-semibold' : 'font-normal'}`}>
+                                                                <span className={`text-sm text-black ${!email.is_read ? 'font-semibold' : 'font-normal'}`}>
                                                                     {email.from}
                                                                 </span>
                                                                 {!email.is_read && (
                                                                     <span className="h-2 w-2 bg-blue-600 rounded-full"></span>
                                                                 )}
                                                             </div>
-                                                            <div className="text-sm text-gray-600 mt-1">{email.subject}</div>
+                                                            <div className="text-sm text-gray-900 mt-1">{email.subject}</div>
                                                         </div>
                                                     </div>
                                                 </td>

@@ -137,6 +137,13 @@ export default function DashboardPage() {
             icon={<UserGroupIcon className="h-8 w-8 text-teal-600" />}
             bgColor="bg-teal-50"
           />
+          <MetricCard
+            title="Emails"
+            value={`${stats?.emailStats?.sent || 0} / ${stats?.emailStats?.received || 0}`}
+            subtitle="Sent / Received"
+            icon={<DocumentTextIcon className="h-8 w-8 text-pink-600" />}
+            bgColor="bg-pink-50"
+          />
         </div>
 
         {/* Charts Row 1 */}
