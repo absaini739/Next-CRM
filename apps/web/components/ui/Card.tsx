@@ -5,11 +5,15 @@ interface CardProps {
     className?: string;
     title?: string;
     action?: ReactNode;
+    onClick?: () => void;
 }
 
-export default function Card({ children, className = '', title, action }: CardProps) {
+export default function Card({ children, className = '', title, action, onClick }: CardProps) {
     return (
-        <div className={`bg-white shadow rounded-lg ${className}`}>
+        <div
+            className={`bg-white shadow rounded-lg ${className}`}
+            onClick={onClick}
+        >
             {(title || action) && (
                 <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     {title && <h3 className="text-lg font-medium text-gray-900">{title}</h3>}

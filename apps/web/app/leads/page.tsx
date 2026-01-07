@@ -9,11 +9,11 @@ import { toast } from 'sonner';
 import { PlusIcon, MagnifyingGlassIcon, FunnelIcon, Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 
 const STAGES = [
-    { id: 'new', name: 'New', color: 'bg-green-500' },
-    { id: 'follow_up', name: 'Follow Up', color: 'bg-green-500' },
-    { id: 'prospect', name: 'Prospect', color: 'bg-green-500' },
-    { id: 'negotiation', name: 'Negotiation', color: 'bg-green-500' },
-    { id: 'won', name: 'Won', color: 'bg-green-500' },
+    { id: '1', name: 'New', color: 'bg-green-500' },
+    { id: '2', name: 'Follow Up', color: 'bg-green-500' },
+    { id: '3', name: 'Prospect', color: 'bg-green-500' },
+    { id: '4', name: 'Negotiation', color: 'bg-green-500' },
+    { id: '5', name: 'Won', color: 'bg-green-500' },
 ];
 
 export default function LeadsPage() {
@@ -37,13 +37,9 @@ export default function LeadsPage() {
         }
     };
 
-    // Group leads by stage
+    // Group leads by stage id
     const groupedLeads = STAGES.reduce((acc, stage) => {
-        acc[stage.id] = leads.filter(l => {
-            if (stage.id === 'new') return !l.status || l.status === null;
-            if (stage.id === 'won') return l.status === 1;
-            return false; // For now, other stages are empty
-        });
+        acc[stage.id] = leads.filter(l => l.stage_id === parseInt(stage.id) || (stage.id === '1' && !l.stage_id));
         return acc;
     }, {} as Record<string, any[]>);
 

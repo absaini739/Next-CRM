@@ -23,6 +23,7 @@ model User {
   persons             Person[]
   organizations       Organization[]
   leads               Lead[]
+  leadsAssignedTo     Lead[]    @relation("LeadsAssignedTo")
   deals               Deal[]
   quotes              Quote[]
   activities          Activity[]
@@ -112,11 +113,25 @@ model Lead {
   id              Int       @id @default(autoincrement())
   title           String
   description     String?
+  first_name      String?
+  last_name       String?
+  company_name    String?
+  job_title       String?
+  website         String?
+  linkedin_url    String?
+  location        String?
+  primary_email   String?
+  secondary_email String?
+  phone           String?
+  mobile          String?
+  lead_rating     String?
+  no_employees    String?
   lead_value      Decimal?  @db.Decimal(10, 2)
   status          Int?      // 0 = lost, 1 = won, null = in progress
   person_id       Int?
   organization_id Int?
   user_id         Int?      // Owner
+  assigned_to_id  Int?      // Assigned User
   pipeline_id     Int?
   stage_id        Int?
   lead_source_id  Int?
@@ -127,6 +142,7 @@ model Lead {
   person          Person?       @relation(fields: [person_id], references: [id])
   organization    Organization? @relation(fields: [organization_id], references: [id])
   user            User?         @relation(fields: [user_id], references: [id])
+  assigned_to     User?         @relation("LeadsAssignedTo", fields: [assigned_to_id], references: [id])
   pipeline        LeadPipeline? @relation(fields: [pipeline_id], references: [id])
   stage           LeadStage?    @relation(fields: [stage_id], references: [id])
   source          LeadSource?   @relation(fields: [lead_source_id], references: [id])

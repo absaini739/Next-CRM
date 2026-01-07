@@ -64,13 +64,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const login = (token: string, userData: User) => {
         Cookies.set('token', token, { expires: 7 });
         setUser(userData);
-        router.push('/');
+        window.location.href = '/';
     };
 
     const logout = () => {
         Cookies.remove('token');
         setUser(null);
-        router.push('/login');
+        window.location.href = '/login';
     };
 
     return (

@@ -22,7 +22,21 @@ export default function LeadDetailPage() {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
+        first_name: '',
+        last_name: '',
+        company_name: '',
+        job_title: '',
+        website: '',
+        linkedin_url: '',
+        location: '',
+        primary_email: '',
+        secondary_email: '',
+        phone: '',
+        mobile: '',
+        lead_rating: 'Medium',
+        no_employees: '',
         lead_value: '',
+        status: null as number | null,
         person_id: '',
     });
 
@@ -34,12 +48,27 @@ export default function LeadDetailPage() {
     const fetchLead = async () => {
         try {
             const response = await api.get(`/leads/${params.id}`);
-            setLead(response.data);
+            const data = response.data;
+            setLead(data);
             setFormData({
-                title: response.data.title,
-                description: response.data.description || '',
-                lead_value: response.data.lead_value || '',
-                person_id: response.data.person_id?.toString() || '',
+                title: data.title,
+                description: data.description || '',
+                first_name: data.first_name || '',
+                last_name: data.last_name || '',
+                company_name: data.company_name || '',
+                job_title: data.job_title || '',
+                website: data.website || '',
+                linkedin_url: data.linkedin_url || '',
+                location: data.location || '',
+                primary_email: data.primary_email || '',
+                secondary_email: data.secondary_email || '',
+                phone: data.phone || '',
+                mobile: data.mobile || '',
+                lead_rating: data.lead_rating || 'Medium',
+                no_employees: data.no_employees || '',
+                lead_value: data.lead_value || '',
+                status: data.status,
+                person_id: data.person_id?.toString() || '',
             });
         } catch (error) {
             toast.error('Failed to load lead');
@@ -65,7 +94,7 @@ export default function LeadDetailPage() {
         try {
             const payload = {
                 ...formData,
-                person_id: parseInt(formData.person_id),
+                person_id: formData.person_id ? parseInt(formData.person_id) : undefined,
                 lead_value: formData.lead_value ? parseFloat(formData.lead_value) : undefined,
                 lead_source_id: 1,
                 lead_type_id: 1,
@@ -73,6 +102,9 @@ export default function LeadDetailPage() {
 
             await api.put(`/leads/${params.id}`, payload);
             toast.success('Lead updated successfully');
+            if (formData.status === 1) {
+                toast.success('Lead converted to Deal!');
+            }
             setEditing(false);
             fetchLead();
         } catch (error: any) {
@@ -112,7 +144,7 @@ export default function LeadDetailPage() {
 
     return (
         <DashboardLayout>
-            <div className="max-w-4xl space-y-6">
+            <div className="max-w-6xl space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center space-x-3">
@@ -143,13 +175,76 @@ export default function LeadDetailPage() {
 
                 {editing ? (
                     <Card>
-                        <form onSubmit={handleUpdate} className="space-y-6">
-                            <Input
-                                label="Lead Title"
-                                required
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            />
+                        <form onSubmit={handleUpdate} className="space-y-6 p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <Input
+                                    label="Lead Title"
+                                    required
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                />
+                                <Input
+                                    label="First Name"
+                                    value={formData.first_name}
+                                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                                />
+                                <Input
+                                    label="Last Name"
+                                    value={formData.last_name}
+                                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                                />
+                                <Input
+                                    label="Company Name"
+                                    value={formData.company_name}
+                                    onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                                />
+                                <Input
+                                    label="Job Title"
+                                    value={formData.job_title}
+                                    onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
+                                />
+                                <Input
+                                    label="Website"
+                                    value={formData.website}
+                                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                                />
+                                <Input
+                                    label="Primary Email"
+                                    value={formData.primary_email}
+                                    onChange={(e) => setFormData({ ...formData, primary_email: e.target.value })}
+                                />
+                                <Input
+                                    label="Phone"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                />
+                                <Select
+                                    label="Status"
+                                    value={formData.status?.toString() || ''}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value ? parseInt(e.target.value) : null })}
+                                    options={[
+                                        { value: '', label: 'Open' },
+                                        { value: '1', label: 'Won' },
+                                        { value: '0', label: 'Lost' },
+                                    ]}
+                                />
+                                <Input
+                                    label="Lead Value"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.lead_value}
+                                    onChange={(e) => setFormData({ ...formData, lead_value: e.target.value })}
+                                />
+                                <Select
+                                    label="Link to Person"
+                                    value={formData.person_id}
+                                    onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
+                                    options={[
+                                        { value: '', label: 'None' },
+                                        ...persons.map((p: any) => ({ value: p.id, label: p.name })),
+                                    ]}
+                                />
+                            </div>
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-700">Description</label>
                                 <textarea
@@ -159,23 +254,6 @@ export default function LeadDetailPage() {
                                     rows={3}
                                 />
                             </div>
-                            <Input
-                                label="Lead Value"
-                                type="number"
-                                step="0.01"
-                                value={formData.lead_value}
-                                onChange={(e) => setFormData({ ...formData, lead_value: e.target.value })}
-                            />
-                            <Select
-                                label="Contact Person"
-                                required
-                                value={formData.person_id}
-                                onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
-                                options={[
-                                    { value: '', label: 'Select a person...' },
-                                    ...persons.map((p: any) => ({ value: p.id, label: p.name })),
-                                ]}
-                            />
                             <div className="flex justify-end">
                                 <Button type="submit" variant="primary" disabled={loading}>
                                     {loading ? 'Saving...' : 'Save Changes'}
@@ -184,37 +262,81 @@ export default function LeadDetailPage() {
                         </form>
                     </Card>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card title="Lead Information">
-                            <dl className="space-y-4">
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Title</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">{lead?.title}</dd>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 space-y-6">
+                            <Card title="Lead Information">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">First Name</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{lead?.first_name || 'N/A'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">Last Name</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{lead?.last_name || 'N/A'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">Company</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{lead?.company_name || 'N/A'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">Job Title</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{lead?.job_title || 'N/A'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">Email</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{lead?.primary_email || 'N/A'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">Phone</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{lead?.phone || 'N/A'}</dd>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <dt className="text-sm font-medium text-gray-500">Description</dt>
+                                        <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{lead?.description || 'No description provided.'}</dd>
+                                    </div>
                                 </div>
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Description</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">{lead?.description || 'N/A'}</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Value</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">
-                                        {lead?.lead_value ? `$${parseFloat(lead.lead_value).toLocaleString()}` : 'N/A'}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Created</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">
-                                        {new Date(lead?.created_at).toLocaleDateString()}
-                                    </dd>
-                                </div>
-                            </dl>
-                        </Card>
+                            </Card>
 
-                        <Card title="Activity Timeline">
-                            <div className="text-sm text-gray-600">
-                                <p>Activities related to this lead will appear here.</p>
-                            </div>
-                        </Card>
+                            <Card title="Activity Timeline">
+                                <div className="text-sm text-gray-600">
+                                    <p>Activities related to this lead will appear here.</p>
+                                </div>
+                            </Card>
+                        </div>
+
+                        <div className="space-y-6">
+                            <Card title="Sales Info">
+                                <dl className="space-y-4">
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">Lead Value</dt>
+                                        <dd className="mt-1 text-lg font-bold text-blue-600">
+                                            {lead?.lead_value ? `$${parseFloat(lead.lead_value).toLocaleString()}` : '$0.00'}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-sm font-medium text-gray-500">Created</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">
+                                            {new Date(lead?.created_at).toLocaleDateString()}
+                                        </dd>
+                                    </div>
+                                    {lead?.deals && lead.deals.length > 0 && (
+                                        <div className="pt-4 border-t border-gray-100">
+                                            <dt className="text-sm font-medium text-green-600">Converted Deal</dt>
+                                            <dd className="mt-1">
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={() => router.push(`/deals/${lead.deals[0].id}`)}
+                                                    className="w-full text-xs"
+                                                >
+                                                    View Deal
+                                                </Button>
+                                            </dd>
+                                        </div>
+                                    )}
+                                </dl>
+                            </Card>
+                        </div>
                     </div>
                 )}
             </div>

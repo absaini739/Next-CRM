@@ -71,7 +71,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                 organization_id: formData.organization_id ? parseInt(formData.organization_id) : undefined,
                 lead_id: formData.lead_id ? parseInt(formData.lead_id) : undefined,
                 deal_id: formData.deal_id ? parseInt(formData.deal_id) : undefined,
-                tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+                tags: formData.tags ? formData.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
             };
 
             if (task) {

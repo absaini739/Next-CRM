@@ -62,7 +62,11 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = loginSchema.parse(req.body);
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+            where: { email },
+            include: { role: true }
+        });
+
         if (!user || !user.password) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -76,7 +80,8 @@ export const login = async (req: Request, res: Response) => {
             expiresIn: '7d',
         });
 
-        res.json({ token, user: { id: user.id, name: user.name, email: user.email, role_id: user.role_id } });
+        const { password: _, ...userWithoutPassword } = user;
+        res.json({ token, user: userWithoutPassword });
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ errors: error.errors });
@@ -132,7 +137,7 @@ export const getUsers = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);
-        
+
         // Prevent deleting self
         // @ts-ignore
         if (id === req.userId) {
