@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import api from '@/lib/api';
@@ -106,31 +107,31 @@ export default function VoIPPage() {
                     {sections.map((section) => {
                         const Icon = section.icon;
                         return (
-                            <Card
-                                key={section.href}
-                                className="cursor-pointer hover:shadow-lg transition-shadow"
-                                onClick={() => router.push(section.href)}
-                            >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <div className={`inline-flex p-3 rounded-lg ${getColorClasses(section.color)}`}>
-                                            <Icon className="h-6 w-6" />
-                                        </div>
-                                        <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                                            {section.title}
-                                        </h3>
-                                        <p className="mt-2 text-sm text-gray-600">
-                                            {section.description}
-                                        </p>
-                                        <div className="mt-4 flex items-center justify-between">
-                                            <span className="text-2xl font-bold text-gray-900">
-                                                {section.count}
-                                            </span>
-                                            <ArrowRightIcon className="h-5 w-5 text-gray-400" />
+                            <Link key={section.href} href={section.href} className="block">
+                                <Card
+                                    className="cursor-pointer hover:shadow-lg transition-shadow h-full"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className={`inline-flex p-3 rounded-lg ${getColorClasses(section.color)}`}>
+                                                <Icon className="h-6 w-6" />
+                                            </div>
+                                            <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                                                {section.title}
+                                            </h3>
+                                            <p className="mt-2 text-sm text-gray-600">
+                                                {section.description}
+                                            </p>
+                                            <div className="mt-4 flex items-center justify-between">
+                                                <span className="text-2xl font-bold text-gray-900">
+                                                    {section.count}
+                                                </span>
+                                                <ArrowRightIcon className="h-5 w-5 text-gray-400" />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </Card>
+                                </Card>
+                            </Link>
                         );
                     })}
                 </div>
