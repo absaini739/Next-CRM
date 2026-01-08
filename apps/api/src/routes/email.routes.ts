@@ -8,6 +8,7 @@ router.use(authMiddleware);
 
 router.get('/', emailController.getEmails);
 router.get('/folders/counts', emailController.getFolderCounts);
+router.get('/thread/:id', emailController.getThread);
 router.get('/:id', emailController.getEmail);
 router.post('/', emailController.createEmail);
 router.put('/:id', emailController.updateEmail);
