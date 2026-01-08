@@ -55,54 +55,84 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
         if (provider === 'gmail') {
             tokens = await gmailService.getTokensFromCode(code as string);
             userInfo = await gmailService.getUserInfo(tokens.access_token!);
+
+            // Check if account already exists
+            const existingAccount = await prisma.emailAccount.findFirst({
+                where: {
+                    user_id: parseInt(userId),
+                    email: userInfo.email
+                }
+            });
+
+            if (existingAccount) {
+                // Update tokens
+                await prisma.emailAccount.update({
+                    where: { id: existingAccount.id },
+                    data: {
+                        access_token: tokens.access_token!,
+                        refresh_token: tokens.refresh_token || null,
+                        token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null
+                    }
+                });
+            } else {
+                // Create new account
+                await prisma.emailAccount.create({
+                    data: {
+                        user_id: parseInt(userId),
+                        provider,
+                        email: userInfo.email,
+                        display_name: userInfo.name,
+                        access_token: tokens.access_token!,
+                        refresh_token: tokens.refresh_token || null,
+                        token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+                        is_default: false
+                    }
+                });
+            }
         } else {
             tokens = await outlookService.getTokensFromCode(code as string);
             userInfo = await outlookService.getUserInfo(tokens.accessToken);
-        }
 
-        // Check if account already exists
-        const existingAccount = await prisma.emailAccount.findFirst({
-            where: {
-                user_id: parseInt(userId),
-                email: userInfo.email
-            }
-        });
-
-        if (existingAccount) {
-            // Update tokens
-            await prisma.emailAccount.update({
-                where: { id: existingAccount.id },
-                data: {
-                    access_token: provider === 'gmail' ? tokens.access_token! : tokens.accessToken,
-                    refresh_token: provider === 'gmail' ? tokens.refresh_token : tokens.refreshToken,
-                    token_expiry: provider === 'gmail'
-                        ? (tokens.expiry_date ? new Date(tokens.expiry_date) : null)
-                        : tokens.expiresOn
-                }
-            });
-        } else {
-            // Create new account
-            await prisma.emailAccount.create({
-                data: {
+            // Check if account already exists
+            const existingAccount = await prisma.emailAccount.findFirst({
+                where: {
                     user_id: parseInt(userId),
-                    provider,
-                    email: userInfo.email,
-                    display_name: userInfo.name,
-                    access_token: provider === 'gmail' ? tokens.access_token! : tokens.accessToken,
-                    refresh_token: provider === 'gmail' ? tokens.refresh_token : tokens.refreshToken,
-                    token_expiry: provider === 'gmail'
-                        ? (tokens.expiry_date ? new Date(tokens.expiry_date) : null)
-                        : tokens.expiresOn,
-                    is_default: false // User can set default later
+                    email: userInfo.email
                 }
             });
+
+            if (existingAccount) {
+                // Update tokens
+                await prisma.emailAccount.update({
+                    where: { id: existingAccount.id },
+                    data: {
+                        access_token: tokens.accessToken,
+                        refresh_token: tokens.refreshToken, // This is actually account home ID for Outlook
+                        token_expiry: tokens.expiresOn
+                    }
+                });
+            } else {
+                // Create new account
+                await prisma.emailAccount.create({
+                    data: {
+                        user_id: parseInt(userId),
+                        provider,
+                        email: userInfo.email,
+                        display_name: userInfo.name,
+                        access_token: tokens.accessToken,
+                        refresh_token: tokens.refreshToken, // This is actually account home ID for Outlook
+                        token_expiry: tokens.expiresOn,
+                        is_default: false
+                    }
+                });
+            }
         }
 
         // Redirect to frontend success page
-        res.redirect(`http://localhost:3000/settings/email-accounts?success=true&email=${encodeURIComponent(userInfo.email)}`);
+        res.redirect(`http://localhost:3000/settings/email?success=true&email=${encodeURIComponent(userInfo.email)}`);
     } catch (error) {
         console.error('Error handling OAuth callback:', error);
-        res.redirect(`http://localhost:3000/settings/email-accounts?error=true`);
+        res.redirect(`http://localhost:3000/settings/email?error=true`);
     }
 };
 

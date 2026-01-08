@@ -48,27 +48,43 @@ export class OutlookService {
         };
 
         const response = await this.msalClient.acquireTokenByCode(tokenRequest);
+
+        if (!response) {
+            throw new Error('Failed to acquire token');
+        }
+
         return {
             accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            expiresOn: response.expiresOn
+            refreshToken: response.account?.homeAccountId || '', // Store account ID instead
+            expiresOn: response.expiresOn || undefined
         };
     }
 
     /**
      * Refresh access token using refresh token
      */
-    async refreshAccessToken(refreshToken: string) {
-        const refreshTokenRequest = {
-            refreshToken,
+    async refreshAccessToken(accountHomeId: string) {
+        const account = await this.msalClient.getTokenCache().getAccountByHomeId(accountHomeId);
+
+        if (!account) {
+            throw new Error('Account not found in cache');
+        }
+
+        const silentRequest = {
+            account,
             scopes: SCOPES
         };
 
-        const response = await this.msalClient.acquireTokenByRefreshToken(refreshTokenRequest);
+        const response = await this.msalClient.acquireTokenSilent(silentRequest);
+
+        if (!response) {
+            throw new Error('Failed to refresh token');
+        }
+
         return {
             accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            expiresOn: response.expiresOn
+            refreshToken: response.account?.homeAccountId || '',
+            expiresOn: response.expiresOn || undefined
         };
     }
 
