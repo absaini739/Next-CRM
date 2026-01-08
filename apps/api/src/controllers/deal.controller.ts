@@ -49,6 +49,32 @@ export const getDeals = async (req: Request, res: Response) => {
     }
 };
 
+export const getDeal = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        const deal = await prisma.deal.findUnique({
+            where: { id },
+            include: {
+                person: true,
+                organization: true,
+                pipeline: true,
+                stage: true,
+                lead: true,
+                user: true
+            }
+        });
+
+        if (!deal) {
+            return res.status(404).json({ message: 'Deal not found' });
+        }
+
+        res.json(deal);
+    } catch (error) {
+        console.error('Error fetching deal:', error);
+        res.status(500).json({ message: 'Error fetching deal' });
+    }
+};
+
 export const updateDeal = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);

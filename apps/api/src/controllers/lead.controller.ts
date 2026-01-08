@@ -158,24 +158,26 @@ export const updateLead = async (req: Request, res: Response) => {
         const currentLead = await prisma.lead.findUnique({ where: { id } });
         if (!currentLead) return res.status(404).json({ message: 'Lead not found' });
 
+        // If moving to Won stage (ID 5), also update status to 1
+        const updateData = { ...data };
+        if (data.stage_id === 5) {
+            updateData.status = 1;
+        }
+
         const lead = await prisma.lead.update({
             where: { id },
-            data: {
-                ...data,
-                // @ts-ignore
-                assigned_to_id: data.assigned_to_id
-            }
+            data: updateData
         });
 
         // Conversion logic: if stage_id is changed to 5 (Won)
         if (data.stage_id === 5 && currentLead.stage_id !== 5) {
             try {
+                console.log(`Lead ${lead.id} moved to Won stage. Starting conversion...`);
                 await handleLeadConversion(lead);
                 console.log(`Lead ${lead.id} converted to deal successfully`);
             } catch (conversionError) {
                 console.error('Lead conversion failed:', conversionError);
-                // Don't fail the entire update if conversion fails
-                // The lead stage is still updated, just the deal creation failed
+                // We'll continue even if conversion failed, but now we know why
             }
         }
 
@@ -183,7 +185,11 @@ export const updateLead = async (req: Request, res: Response) => {
     } catch (error) {
         if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });
         console.error('Error updating lead:', error);
-        res.status(500).json({ message: 'Error updating lead', error: error instanceof Error ? error.message : 'Unknown error' });
+        res.status(500).json({ 
+            message: 'Error updating lead', 
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        });
     }
 };
 
@@ -220,7 +226,22 @@ const handleLeadConversion = async (lead: any) => {
             personId = person.id;
         }
 
-        // 3. Create Deal
+        // 3. Find Default Deal Pipeline and its "Closed Won" stage
+        const dealPipeline = await tx.dealPipeline.findFirst({
+            where: { is_default: true },
+            include: { stages: true }
+        });
+
+        if (!dealPipeline) {
+            throw new Error('Default deal pipeline not found');
+        }
+
+        const wonStage = dealPipeline.stages.find(s => s.name.toLowerCase().includes('won'));
+        if (!wonStage) {
+            throw new Error('Deal stage "Won" not found in default pipeline');
+        }
+
+        // 4. Create Deal
         await tx.deal.create({
             data: {
                 title: leadData.title,
@@ -231,12 +252,12 @@ const handleLeadConversion = async (lead: any) => {
                 organization_id: organizationId,
                 user_id: leadData.user_id,
                 lead_id: leadData.id,
-                pipeline_id: 1, // Default Pipeline
-                stage_id: 6     // Closed Won
+                pipeline_id: dealPipeline.id,
+                stage_id: wonStage.id
             }
         });
 
-        // 4. Update lead with links to Person/Org
+        // 5. Update lead with links to Person/Org
         if (personId !== leadData.person_id || organizationId !== leadData.organization_id) {
             await tx.lead.update({
                 where: { id: leadData.id },

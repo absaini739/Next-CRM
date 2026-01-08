@@ -249,7 +249,7 @@ export default function LeadsPage() {
                                 const stageValue = calculateStageValue(stageLeads);
 
                                 return (
-                                    <div key={stage.id} className="w-72 h-full">
+                                    <div key={stage.id} className="w-64 h-full shrink-0">
                                         <StageColumn
                                             stage={stage}
                                             leads={stageLeads}
