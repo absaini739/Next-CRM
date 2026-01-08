@@ -1,7 +1,8 @@
+```
 import { format } from 'date-fns';
 import {
     ArrowLeftIcon,
-    ReplyIcon,
+    ArrowUturnLeftIcon,
     TrashIcon,
     ArchiveBoxIcon,
     PaperClipIcon
@@ -51,7 +52,7 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
     const fetchEmailDetails = async () => {
         setLoading(true);
         try {
-            const response = await api.get(`/emails/${emailId}`);
+            const response = await api.get(`/ emails / ${ emailId } `);
             setEmail(response.data);
 
             // If it has a thread, fetch the thread
@@ -111,7 +112,7 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
                         Archive
                     </Button>
                     <Button variant="primary" size="sm" onClick={() => onReply(email)}>
-                        <ReplyIcon className="h-4 w-4 mr-1" />
+                        <ArrowUturnLeftIcon className="h-4 w-4 mr-1" />
                         Reply
                     </Button>
                 </div>
@@ -120,7 +121,7 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
             {/* Messages Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-white dark:bg-slate-900">
                 {messagesToDisplay.map((msg, index) => (
-                    <div key={msg.id} className={`border border-gray-200 dark:border-slate-700 rounded-lg p-6 ${msg.id === emailId ? 'bg-white dark:bg-slate-800 shadow-md ring-1 ring-blue-500/20' : 'bg-gray-50 dark:bg-slate-800/50'}`}>
+                    <div key={msg.id} className={`border border - gray - 200 dark: border - slate - 700 rounded - lg p - 6 ${ msg.id === emailId ? 'bg-white dark:bg-slate-800 shadow-md ring-1 ring-blue-500/20' : 'bg-gray-50 dark:bg-slate-800/50' } `}>
                         {/* Message Header */}
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex items-start space-x-3">
