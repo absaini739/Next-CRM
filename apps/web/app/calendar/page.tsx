@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import CalendarEventForm from '@/components/forms/CalendarEventForm';
+import TaskForm from '@/components/forms/TaskForm';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import {
@@ -46,7 +47,9 @@ export default function CalendarPage() {
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showTaskModal, setShowTaskModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     useEffect(() => {
         fetchCalendarData();
@@ -54,10 +57,24 @@ export default function CalendarPage() {
 
     const fetchCalendarData = async () => {
         try {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
+            setLoading(true);
+            let response;
+            if (viewMode === 'month') {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth() + 1;
+                response = await api.get(`/calendar/month/${year}/${month}`);
+            } else if (viewMode === 'week') {
+                const year = currentDate.getFullYear();
+                // Get ISO week number
+                const firstDayOfYear = new Date(year, 0, 1);
+                const pastDaysOfYear = (currentDate.getTime() - firstDayOfYear.getTime()) / 86400000;
+                const weekNum = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+                response = await api.get(`/calendar/week/${year}/${weekNum}`);
+            } else {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                response = await api.get(`/calendar/day/${dateStr}`);
+            }
 
-            const response = await api.get(`/calendar/month/${year}/${month}`);
             setEvents(response.data.events || []);
             setTasks(response.data.tasks || []);
         } catch (error) {
@@ -104,12 +121,32 @@ export default function CalendarPage() {
         });
     };
 
-    const previousMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    const previous = () => {
+        if (viewMode === 'month') {
+            setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+        } else if (viewMode === 'week') {
+            const newDate = new Date(currentDate);
+            newDate.setDate(currentDate.getDate() - 7);
+            setCurrentDate(newDate);
+        } else {
+            const newDate = new Date(currentDate);
+            newDate.setDate(currentDate.getDate() - 1);
+            setCurrentDate(newDate);
+        }
     };
 
-    const nextMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    const next = () => {
+        if (viewMode === 'month') {
+            setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+        } else if (viewMode === 'week') {
+            const newDate = new Date(currentDate);
+            newDate.setDate(currentDate.getDate() + 7);
+            setCurrentDate(newDate);
+        } else {
+            const newDate = new Date(currentDate);
+            newDate.setDate(currentDate.getDate() + 1);
+            setCurrentDate(newDate);
+        }
     };
 
     const goToToday = () => {
@@ -171,16 +208,18 @@ export default function CalendarPage() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <button
-                                onClick={previousMonth}
+                                onClick={previous}
                                 className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg text-gray-900 dark:text-white"
                             >
                                 <ChevronLeftIcon className="h-5 w-5" />
                             </button>
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+                                {viewMode === 'month' && `${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
+                                {viewMode === 'week' && `Week of ${currentDate.toLocaleDateString()}`}
+                                {viewMode === 'day' && currentDate.toLocaleDateString()}
                             </h2>
                             <button
-                                onClick={nextMonth}
+                                onClick={next}
                                 className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg text-gray-900 dark:text-white"
                             >
                                 <ChevronRightIcon className="h-5 w-5" />
@@ -220,64 +259,173 @@ export default function CalendarPage() {
 
                 {/* Calendar Grid */}
                 <Card className="p-6">
-                    {/* Day Headers */}
-                    <div className="grid grid-cols-7 gap-px mb-2">
-                        {DAYS.map(day => (
-                            <div key={day} className="text-center text-sm font-semibold text-gray-600 dark:text-slate-400 py-2">
-                                {day}
+                    {viewMode === 'month' && (
+                        <>
+                            {/* Day Headers */}
+                            <div className="grid grid-cols-7 gap-px mb-2">
+                                {DAYS.map(day => (
+                                    <div key={day} className="text-center text-sm font-semibold text-gray-600 dark:text-slate-400 py-2">
+                                        {day}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
 
-                    {/* Calendar Days */}
-                    <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-slate-700 border border-gray-200 dark:border-slate-700">
-                        {days.map((date, index) => {
-                            const dayTasks = date ? getTasksForDate(date) : [];
-                            const dayEvents = date ? getEventsForDate(date) : [];
-                            const hasItems = dayTasks.length > 0 || dayEvents.length > 0;
+                            {/* Calendar Days */}
+                            <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-slate-700 border border-gray-200 dark:border-slate-700">
+                                {days.map((date, index) => {
+                                    const dayTasks = date ? getTasksForDate(date) : [];
+                                    const dayEvents = date ? getEventsForDate(date) : [];
 
-                            return (
-                                <div
-                                    key={index}
-                                    className={`bg-white dark:bg-slate-800 min-h-[120px] p-2 ${date ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700' : 'bg-gray-50 dark:bg-slate-900'
-                                        } ${isToday(date) ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
-                                    onClick={() => date && setSelectedDate(date)}
+                                    return (
+                                        <div
+                                            key={index}
+                                            className={`bg-white dark:bg-slate-800 min-h-[120px] p-2 ${date ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700' : 'bg-gray-50 dark:bg-slate-900'
+                                                } ${isToday(date) ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
+                                            onClick={() => {
+                                                if (date) {
+                                                    setSelectedDate(date);
+                                                    setShowTaskModal(true);
+                                                }
+                                            }}
+                                        >
+                                            {date && (
+                                                <>
+                                                    <div className={`text-sm font-medium mb-2 ${isToday(date) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'
+                                                        }`}>
+                                                        {date.getDate()}
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        {dayTasks.slice(0, 2).map(task => (
+                                                            <div
+                                                                key={task.id}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setSelectedTask(task);
+                                                                    setShowTaskModal(true);
+                                                                }}
+                                                                className={`text-xs px-2 py-1 rounded truncate cursor-pointer ${getPriorityColor(task.priority)}`}
+                                                            >
+                                                                {task.title}
+                                                            </div>
+                                                        ))}
+                                                        {dayEvents.slice(0, 2).map(event => (
+                                                            <div
+                                                                key={event.id}
+                                                                className="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded truncate"
+                                                            >
+                                                                {event.title}
+                                                            </div>
+                                                        ))}
+                                                        {(dayTasks.length + dayEvents.length) > 2 && (
+                                                            <div className="text-xs text-gray-500 dark:text-slate-500 px-2">
+                                                                +{(dayTasks.length + dayEvents.length) - 2} more
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    )}
+
+                    {viewMode === 'week' && (
+                        <div className="grid grid-cols-7 gap-px divide-x dark:divide-slate-700">
+                            {Array.from({ length: 7 }).map((_, i) => {
+                                const date = new Date(currentDate);
+                                date.setDate(currentDate.getDate() - currentDate.getDay() + i);
+                                const dayTasks = getTasksForDate(date);
+                                const dayEvents = getEventsForDate(date);
+
+                                return (
+                                    <div key={i} className="min-h-[400px] p-2 bg-white dark:bg-slate-800">
+                                        <div className={`text-sm font-semibold mb-4 text-center ${isToday(date) ? 'text-blue-600' : 'text-gray-900 dark:text-white'}`}>
+                                            <div>{DAYS[i]}</div>
+                                            <div className="text-xl">{date.getDate()}</div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {dayTasks.map(task => (
+                                                <div
+                                                    key={task.id}
+                                                    onClick={() => {
+                                                        setSelectedTask(task);
+                                                        setShowTaskModal(true);
+                                                    }}
+                                                    className={`text-xs p-2 rounded shadow-sm cursor-pointer ${getPriorityColor(task.priority)}`}
+                                                >
+                                                    {task.title}
+                                                </div>
+                                            ))}
+                                            {dayEvents.map(event => (
+                                                <div key={event.id} className="text-xs p-2 bg-purple-100 text-purple-800 rounded shadow-sm">
+                                                    {event.title}
+                                                </div>
+                                            ))}
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedDate(date);
+                                                    setShowTaskModal(true);
+                                                }}
+                                                className="w-full py-1 text-xs text-gray-400 hover:text-blue-500 hover:bg-gray-50 dark:hover:bg-slate-700 rounded border border-dashed border-gray-200 dark:border-slate-700"
+                                            >
+                                                + Add Task
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {viewMode === 'day' && (
+                        <div className="max-w-3xl mx-auto space-y-4">
+                            <div className="flex items-center justify-between border-b pb-4">
+                                <h3 className="text-xl font-bold">{currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h3>
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => {
+                                        setSelectedDate(currentDate);
+                                        setShowTaskModal(true);
+                                    }}
                                 >
-                                    {date && (
-                                        <>
-                                            <div className={`text-sm font-medium mb-2 ${isToday(date) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'
-                                                }`}>
-                                                {date.getDate()}
-                                            </div>
-                                            <div className="space-y-1">
-                                                {dayTasks.slice(0, 2).map(task => (
-                                                    <div
-                                                        key={task.id}
-                                                        className={`text-xs px-2 py-1 rounded truncate ${getPriorityColor(task.priority)}`}
-                                                    >
-                                                        {task.title}
-                                                    </div>
-                                                ))}
-                                                {dayEvents.slice(0, 2).map(event => (
-                                                    <div
-                                                        key={event.id}
-                                                        className="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded truncate"
-                                                    >
-                                                        {event.title}
-                                                    </div>
-                                                ))}
-                                                {(dayTasks.length + dayEvents.length) > 2 && (
-                                                    <div className="text-xs text-gray-500 dark:text-slate-500 px-2">
-                                                        +{(dayTasks.length + dayEvents.length) - 2} more
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+                                    <PlusIcon className="h-5 w-5 mr-2" />
+                                    Add Task
+                                </Button>
+                            </div>
+                            <div className="space-y-4">
+                                <h4 className="font-semibold text-gray-700 dark:text-slate-300">Tasks</h4>
+                                {getTasksForDate(currentDate).map(task => (
+                                    <div
+                                        key={task.id}
+                                        onClick={() => {
+                                            setSelectedTask(task);
+                                            setShowTaskModal(true);
+                                        }}
+                                        className={`p-4 rounded-lg flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow ${getPriorityColor(task.priority)}`}
+                                    >
+                                        <div className="font-medium">{task.title}</div>
+                                        <div className="text-sm opacity-75">{task.due_time || 'No time set'}</div>
+                                    </div>
+                                ))}
+                                {getTasksForDate(currentDate).length === 0 && (
+                                    <div className="text-center py-8 text-gray-500 italic">No tasks for today</div>
+                                )}
+
+                                <h4 className="font-semibold text-gray-700 dark:text-slate-300 mt-8">Events</h4>
+                                {getEventsForDate(currentDate).map(event => (
+                                    <div key={event.id} className="p-4 bg-purple-50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100 rounded-lg flex items-center justify-between">
+                                        <div className="font-medium">{event.title}</div>
+                                        <div className="text-sm opacity-75">{new Date(event.start_date).toLocaleTimeString()}</div>
+                                    </div>
+                                ))}
+                                {getEventsForDate(currentDate).length === 0 && (
+                                    <div className="text-center py-8 text-gray-500 italic">No events for today</div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </Card>
 
                 {/* Upcoming Tasks Sidebar */}
@@ -310,6 +458,25 @@ export default function CalendarPage() {
                     </div>
                 </Card>
             </div>
+
+            {/* Task Form Modal */}
+            {showTaskModal && (
+                <TaskForm
+                    task={selectedTask || undefined}
+                    selectedDate={selectedDate || undefined}
+                    onClose={() => {
+                        setShowTaskModal(false);
+                        setSelectedTask(null);
+                        setSelectedDate(null);
+                    }}
+                    onSuccess={() => {
+                        fetchCalendarData();
+                        setShowTaskModal(false);
+                        setSelectedTask(null);
+                        setSelectedDate(null);
+                    }}
+                />
+            )}
 
             {/* Calendar Event Form Modal */}
             {showCreateModal && (

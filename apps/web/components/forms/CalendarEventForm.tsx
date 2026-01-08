@@ -106,7 +106,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                             required
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             placeholder="Enter event title"
                         />
                     </div>
@@ -120,7 +120,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             placeholder="Enter event description"
                         />
                     </div>
@@ -134,7 +134,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                             required
                             value={formData.event_type}
                             onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                         >
                             {EVENT_TYPES.map(type => (
                                 <option key={type.value} value={type.value}>{type.label}</option>
@@ -167,7 +167,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                 required
                                 value={formData.start_date}
                                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             />
                         </div>
 
@@ -181,7 +181,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                     required
                                     value={formData.start_time}
                                     onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                 />
                             </div>
                         )}
@@ -198,7 +198,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                 required
                                 value={formData.end_date}
                                 onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             />
                         </div>
 
@@ -212,7 +212,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                     required
                                     value={formData.end_time}
                                     onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                 />
                             </div>
                         )}
@@ -227,7 +227,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                             type="text"
                             value={formData.location}
                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             placeholder="Enter location or meeting link"
                         />
                     </div>
@@ -244,7 +244,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                     type="number"
                                     value={formData.person_id}
                                     onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Person ID"
                                 />
                             </div>
@@ -257,7 +257,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                     type="number"
                                     value={formData.organization_id}
                                     onChange={(e) => setFormData({ ...formData, organization_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Organization ID"
                                 />
                             </div>
@@ -270,7 +270,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                     type="number"
                                     value={formData.lead_id}
                                     onChange={(e) => setFormData({ ...formData, lead_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Lead ID"
                                 />
                             </div>
@@ -283,7 +283,7 @@ export default function CalendarEventForm({ event, selectedDate, onClose, onSucc
                                     type="number"
                                     value={formData.deal_id}
                                     onChange={(e) => setFormData({ ...formData, deal_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Deal ID"
                                 />
                             </div>

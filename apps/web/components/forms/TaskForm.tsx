@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 interface TaskFormProps {
     task?: any;
+    selectedDate?: Date;
     onClose: () => void;
     onSuccess: () => void;
 }
@@ -25,7 +26,7 @@ const PRIORITIES = [
     { value: 'urgent', label: 'Urgent' },
 ];
 
-export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
+export default function TaskForm({ task, selectedDate, onClose, onSuccess }: TaskFormProps) {
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<any[]>([]);
     const [formData, setFormData] = useState({
@@ -34,7 +35,11 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
         task_type: task?.task_type || 'call',
         priority: task?.priority || 'medium',
         status: task?.status || 'to_do',
-        due_date: task?.due_date ? task.due_date.split('T')[0] : '',
+        due_date: task?.due_date
+            ? task.due_date.split('T')[0]
+            : selectedDate
+                ? selectedDate.toISOString().split('T')[0]
+                : '',
         due_time: task?.due_time || '',
         estimated_duration: task?.estimated_duration || '',
         assigned_to_id: task?.assigned_to_id || '',
@@ -117,7 +122,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                             required
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             placeholder="Enter task title"
                         />
                     </div>
@@ -131,7 +136,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             placeholder="Enter task description"
                         />
                     </div>
@@ -146,7 +151,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                 required
                                 value={formData.task_type}
                                 onChange={(e) => setFormData({ ...formData, task_type: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             >
                                 {TASK_TYPES.map(type => (
                                     <option key={type.value} value={type.value}>{type.label}</option>
@@ -162,7 +167,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                 required
                                 value={formData.priority}
                                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             >
                                 {PRIORITIES.map(priority => (
                                     <option key={priority.value} value={priority.value}>{priority.label}</option>
@@ -181,7 +186,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                 type="date"
                                 value={formData.due_date}
                                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             />
                         </div>
 
@@ -193,7 +198,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                 type="time"
                                 value={formData.due_time}
                                 onChange={(e) => setFormData({ ...formData, due_time: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             />
                         </div>
                     </div>
@@ -208,7 +213,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                 required
                                 value={formData.assigned_to_id}
                                 onChange={(e) => setFormData({ ...formData, assigned_to_id: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             >
                                 <option value="">Select user</option>
                                 {users.map(user => (
@@ -225,7 +230,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                 type="number"
                                 value={formData.estimated_duration}
                                 onChange={(e) => setFormData({ ...formData, estimated_duration: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                 placeholder="e.g., 60"
                             />
                         </div>
@@ -240,7 +245,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                             <select
                                 value={formData.status}
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             >
                                 <option value="to_do">To Do</option>
                                 <option value="in_progress">In Progress</option>
@@ -259,7 +264,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                             type="text"
                             value={formData.tags}
                             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                             placeholder="Enter tags separated by commas"
                         />
                         <p className="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
@@ -277,7 +282,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                     type="number"
                                     value={formData.person_id}
                                     onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Person ID"
                                 />
                             </div>
@@ -290,7 +295,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                     type="number"
                                     value={formData.organization_id}
                                     onChange={(e) => setFormData({ ...formData, organization_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Organization ID"
                                 />
                             </div>
@@ -303,7 +308,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                     type="number"
                                     value={formData.lead_id}
                                     onChange={(e) => setFormData({ ...formData, lead_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Lead ID"
                                 />
                             </div>
@@ -316,7 +321,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
                                     type="number"
                                     value={formData.deal_id}
                                     onChange={(e) => setFormData({ ...formData, deal_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
                                     placeholder="Deal ID"
                                 />
                             </div>
