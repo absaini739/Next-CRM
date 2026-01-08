@@ -172,7 +172,7 @@ export class EmailSyncService {
 
         // Auto-link to CRM records by email address
         // TODO: Fix Prisma JSON query syntax - temporarily disabled
-        const personMatch = null; /* await prisma.person.findFirst({
+        const personMatch: any = null; /* await prisma.person.findFirst({
             where: {
                 emails: {
                     path: '$[*].value',
@@ -181,11 +181,11 @@ export class EmailSyncService {
             }
         }); */
 
-        const leadMatch = null; /* personMatch ? await prisma.lead.findFirst({
+        const leadMatch: any = null; /* personMatch ? await prisma.lead.findFirst({
             where: { person_id: personMatch.id }
         }) : null; */
 
-        const dealMatch = null; /* personMatch ? await prisma.deal.findFirst({
+        const dealMatch: any = null; /* personMatch ? await prisma.deal.findFirst({
             where: { person_id: personMatch.id }
         }) : null; */
 
