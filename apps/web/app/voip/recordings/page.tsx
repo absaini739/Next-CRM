@@ -48,7 +48,7 @@ export default function CallRecordingsPage() {
             <div className="space-y-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Call Recordings</h1>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
                         View and manage recorded calls
                     </p>
                 </div>
@@ -68,16 +68,16 @@ export default function CallRecordingsPage() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                                 {recordings.map((recording) => (
-                                    <tr key={recording.id} className="hover:bg-gray-50">
+                                    <tr key={recording.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
                                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-500">
                                             {recording.recording_sid}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-slate-100">
                                             {recording.from_number}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-slate-100">
                                             {recording.to_number}
                                         </td>
                                         <td className="px-6 py-4">

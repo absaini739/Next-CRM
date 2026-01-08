@@ -58,7 +58,7 @@ export default function DashboardPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-gray-600 dark:text-slate-400 dark:text-slate-400">Loading dashboard...</div>
+          <div className="text-lg text-gray-600 dark:text-slate-400">Loading dashboard...</div>
         </div>
       </DashboardLayout>
     );
@@ -70,8 +70,8 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 dark:text-white">Dashboard</h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Dashboard</h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
               Welcome back! Here's what's happening with your CRM.
             </p>
           </div>

@@ -58,7 +58,7 @@ export default function InboundRoutesPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Inbound Routes</h1>
-                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
+                        <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
                             Define how incoming calls are routed based on DID patterns
                         </p>
                     </div>
@@ -86,9 +86,9 @@ export default function InboundRoutesPage() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                                 {routes.map((route) => (
-                                    <tr key={route.id} className="hover:bg-gray-50">
+                                    <tr key={route.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
                                         <td className="px-6 py-4">
                                             <div className="font-medium text-gray-900 dark:text-slate-100">{route.name}</div>
                                         </td>

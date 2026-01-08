@@ -85,19 +85,19 @@ export default function LeadsPage() {
                                 placeholder="Search by Title"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                             />
                         </div>
-                        <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center">
+                        <button className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center text-gray-700 dark:text-slate-200">
                             <FunnelIcon className="h-5 w-5 mr-2" />
                             Filter
                         </button>
                     </div>
                     <div className="flex items-center space-x-3">
-                        <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select className="px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option>Default Pipeline</option>
                         </select>
-                        <div className="flex border border-gray-300 rounded-lg">
+                        <div className="flex border border-gray-300 dark:border-slate-600 rounded-lg overflow-hidden">
                             <button className="p-2 bg-blue-50 text-blue-600">
                                 <Squares2X2Icon className="h-5 w-5" />
                             </button>
@@ -115,9 +115,9 @@ export default function LeadsPage() {
                         const stageValue = calculateStageValue(stageLeads);
 
                         return (
-                            <div key={stage.id} className="bg-white rounded-lg border border-gray-200">
+                            <div key={stage.id} className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
                                 {/* Column Header */}
-                                <div className="p-4 border-b border-gray-200">
+                                <div className="p-4 border-b border-gray-200 dark:border-slate-700">
                                     <div className="flex items-center justify-between mb-2">
                                         <div>
                                             <h3 className="font-semibold text-gray-900 dark:text-slate-100">
@@ -137,7 +137,7 @@ export default function LeadsPage() {
                                     {stageLeads.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-12 text-center">
                                             <div className="mb-4">
-                                                <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-16 h-16 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                                 </svg>
                                             </div>
@@ -149,7 +149,7 @@ export default function LeadsPage() {
                                             </p>
                                             <button
                                                 onClick={() => router.push('/leads/new')}
-                                                className="px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50"
+                                                className="px-4 py-2 text-sm text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
                                             >
                                                 Create Lead
                                             </button>
@@ -159,7 +159,7 @@ export default function LeadsPage() {
                                             <div
                                                 key={lead.id}
                                                 onClick={() => router.push(`/leads/${lead.id}`)}
-                                                className="bg-white p-3 rounded-lg border border-gray-200 hover:shadow-md cursor-pointer transition-shadow"
+                                                className="bg-white dark:bg-slate-700/50 p-3 rounded-lg border border-gray-200 dark:border-slate-700 hover:shadow-md cursor-pointer transition-shadow"
                                             >
                                                 <h4 className="font-medium text-gray-900 dark:text-slate-100 mb-1">{lead.title}</h4>
                                                 {lead.description && (

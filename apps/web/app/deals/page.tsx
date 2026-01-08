@@ -99,10 +99,10 @@ export default function DealsPage() {
                 </div>
 
                 {/* Deals List/Table */}
-                <div className="bg-white rounded-lg border border-gray-200">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-50 border-b">
+                            <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wider">
                                         Title
@@ -121,7 +121,7 @@ export default function DealsPage() {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200">
+                            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                                 {deals.length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-slate-500">
@@ -133,7 +133,7 @@ export default function DealsPage() {
                                         <tr
                                             key={deal.id}
                                             onClick={() => router.push(`/deals/${deal.id}`)}
-                                            className="hover:bg-gray-50 cursor-pointer"
+                                            className="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="font-medium text-gray-900 dark:text-slate-100">{deal.title}</div>
@@ -196,13 +196,13 @@ function SummaryCard({
     iconBg: string;
 }) {
     return (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6">
             <div className="flex items-center justify-between">
                 <div>
                     <p className="text-sm font-medium text-gray-600 dark:text-slate-400">{title}</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{value}</p>
                 </div>
-                <div className={`p-3 rounded-full ${iconBg}`}>
+                <div className={`p-3 rounded-full ${iconBg} dark:bg-slate-700/50`}>
                     <Icon className={`h-6 w-6 ${iconColor}`} />
                 </div>
             </div>
