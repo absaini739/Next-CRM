@@ -6,10 +6,9 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
-import Card from '@/components/ui/Card';
 import api from '@/lib/api';
 import { toast } from 'sonner';
-import { PlusIcon, UserIcon, BuildingOfficeIcon, GlobeAltIcon, EnvelopeIcon, PhoneIcon, StarIcon, ChartBarIcon, DocumentTextIcon, ArrowLeftIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PlusIcon, StarIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 
 export default function NewLeadPage() {
@@ -40,8 +39,8 @@ export default function NewLeadPage() {
         person_id: '',
         lead_source_id: '1',
         lead_type_id: '1',
-        user_id: '', // Lead Owner
-        assigned_to_id: '', // Assigned To
+        user_id: '',
+        assigned_to_id: '',
     });
 
     useEffect(() => {
@@ -67,7 +66,6 @@ export default function NewLeadPage() {
     const fetchUsers = async () => {
         try {
             const response = await api.get('/auth/users');
-            console.log('Fetched users:', response.data);
             setUsers(response.data);
         } catch (error) {
             console.error('Failed to load users', error);
@@ -100,256 +98,268 @@ export default function NewLeadPage() {
         }
     };
 
+    // Helper for compact inputs
+    const compactClass = "py-1 text-sm";
+
     return (
         <DashboardLayout>
-            <div className="max-w-6xl mx-auto px-4 py-8">
-                {/* Header Section */}
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center space-x-4">
-                        <button
-                            onClick={() => router.back()}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                        >
-                            <ArrowLeftIcon className="h-6 w-6 text-gray-600 dark:text-slate-400" />
-                        </button>
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create High-Value Lead</h1>
-                            <p className="text-gray-500 dark:text-slate-500 mt-1">Nurture your sales pipeline with detailed intelligence.</p>
+            {/* 
+               Hack: Negative margins to escape the DashboardLayout's default padding (p-6).
+               We then set h-full so it takes exactly the remaining space.
+            */}
+            <div className="h-full flex flex-col -m-6 p-6">
+                <div className="max-w-7xl mx-auto w-full h-full flex flex-col">
+                    {/* Compact Header */}
+                    <div className="flex items-center justify-between mb-2 shrink-0">
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => router.back()}
+                                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                            >
+                                <ArrowLeftIcon className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+                            </button>
+                            <h1 className="text-xl font-bold text-gray-900 tracking-tight">Create Lead</h1>
                         </div>
                     </div>
-                    <div className="hidden md:block">
-                        <div className="flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-100">
-                            <PlusIcon className="h-4 w-4 mr-2" />
-                            New Opportunity
-                        </div>
-                    </div>
-                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Main Content Area - Glassmorphism Card */}
-                    <div className="bg-white/70 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl overflow-hidden">
-                        <div className="p-8">
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 pb-2">
+                        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-lg rounded-xl flex-1 flex flex-col overflow-hidden">
+                            <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2 overflow-y-auto">
 
-                                {/* Section 1: Core Identification */}
-                                <div className="lg:col-span-2 space-y-8">
-                                    <div className="space-y-6">
-                                        <div className="flex items-center space-x-2 pb-2 border-b border-gray-100">
-                                            <UserIcon className="h-5 w-5 text-blue-600" />
-                                            <h2 className="text-xl font-semibold text-gray-800 uppercase tracking-wider text-sm">Lead & Contact Details</h2>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="col-span-1 md:col-span-2">
-                                                <Input
-                                                    label="Opportunity Title"
-                                                    required
-                                                    value={formData.title}
-                                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                                    placeholder="e.g. Enterprise Software Suite License - Q1"
-                                                    className="text-lg font-medium"
+                                {/* Row 1: Primary Deal Info */}
+                                <div className="lg:col-span-2">
+                                    <Input
+                                        label="Opportunity Title"
+                                        required
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        placeholder="Enterprise License Q1"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Deal Value ($)"
+                                        type="number"
+                                        step="0.01"
+                                        value={formData.lead_value}
+                                        onChange={(e) => setFormData({ ...formData, lead_value: e.target.value })}
+                                        placeholder="0.00"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Select
+                                        label="Status"
+                                        value={formData.stage_id}
+                                        onChange={(e) => setFormData({ ...formData, stage_id: e.target.value })}
+                                        options={[
+                                            { value: '1', label: 'New' },
+                                            { value: '2', label: 'Follow Up' },
+                                            { value: '3', label: 'Prospect' },
+                                            { value: '4', label: 'Negotiation' },
+                                            { value: '5', label: 'Won' },
+                                        ]}
+                                        className={compactClass}
+                                    />
+                                </div>
+
+                                {/* Row 2: Person Info */}
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="First Name"
+                                        required
+                                        value={formData.first_name}
+                                        onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                                        placeholder="John"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Last Name"
+                                        value={formData.last_name}
+                                        onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                                        placeholder="Doe"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Job Title"
+                                        value={formData.job_title}
+                                        onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
+                                        placeholder="CTO"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Select
+                                        label="Lead Owner"
+                                        value={formData.user_id}
+                                        onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}
+                                        options={[
+                                            { value: '', label: 'Select' },
+                                            ...users.map((u: any) => ({ value: u.id, label: u.name })),
+                                        ]}
+                                        className={compactClass}
+                                    />
+                                </div>
+
+                                {/* Row 3: Contact Info */}
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Primary Email"
+                                        type="email"
+                                        value={formData.primary_email}
+                                        onChange={(e) => setFormData({ ...formData, primary_email: e.target.value })}
+                                        placeholder="email@example.com"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Mobile"
+                                        value={formData.mobile}
+                                        onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                                        placeholder="+1 234..."
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Phone"
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="Work Phone"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Location"
+                                        value={formData.location}
+                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                        placeholder="City, Country"
+                                        className={compactClass}
+                                    />
+                                </div>
+
+                                {/* Row 4: Company & Assignment */}
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Company"
+                                        value={formData.company_name}
+                                        onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                                        placeholder="Acme Inc."
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Website"
+                                        value={formData.website}
+                                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                                        placeholder="acme.com"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Employees"
+                                        value={formData.no_employees}
+                                        onChange={(e) => setFormData({ ...formData, no_employees: e.target.value })}
+                                        placeholder="50-100"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Select
+                                        label="Assigned To"
+                                        value={formData.assigned_to_id}
+                                        onChange={(e) => setFormData({ ...formData, assigned_to_id: e.target.value })}
+                                        options={[
+                                            { value: '', label: 'Unassigned' },
+                                            ...users.map((u: any) => ({ value: u.id, label: u.name })),
+                                        ]}
+                                        className={compactClass}
+                                    />
+                                </div>
+
+                                {/* Row 5: Additional Info */}
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="LinkedIn"
+                                        value={formData.linkedin_url}
+                                        onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
+                                        placeholder="linkedin.com/in/..."
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Input
+                                        label="Secondary Email"
+                                        value={formData.secondary_email}
+                                        onChange={(e) => setFormData({ ...formData, secondary_email: e.target.value })}
+                                        placeholder="other@email.com"
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <Select
+                                        label="Existing Contact"
+                                        value={formData.person_id}
+                                        onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
+                                        options={[
+                                            { value: '', label: 'Create New' },
+                                            ...persons.map((p: any) => ({ value: p.id, label: p.name })),
+                                        ]}
+                                        className={compactClass}
+                                    />
+                                </div>
+                                <div className="lg:col-span-1 flex flex-col justify-end pb-1">
+                                    <div className="flex items-center space-x-1 h-full pt-4">
+                                        <span className="text-xs font-medium text-gray-700 mr-2">Rating:</span>
+                                        {[1, 2, 3, 4, 5].map((rating) => (
+                                            <button
+                                                key={rating}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, lead_rating: rating.toString() })}
+                                                onMouseEnter={() => setHoverRating(rating)}
+                                                onMouseLeave={() => setHoverRating(0)}
+                                                className="focus:outline-none"
+                                            >
+                                                <StarIcon
+                                                    className={`h-5 w-5 transition-colors ${(hoverRating || parseInt(formData.lead_rating || '0')) >= rating
+                                                        ? 'text-yellow-400 fill-yellow-400'
+                                                        : 'text-gray-300'
+                                                        }`}
                                                 />
-                                            </div>
-                                            <Input
-                                                label="Estimated Deal Value ($)"
-                                                type="number"
-                                                step="0.01"
-                                                value={formData.lead_value}
-                                                onChange={(e) => setFormData({ ...formData, lead_value: e.target.value })}
-                                                placeholder="0.00"
-                                            />
-                                            <Select
-                                                label="Link to Global Contact"
-                                                value={formData.person_id}
-                                                onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
-                                                options={[
-                                                    { value: '', label: 'Create New Entry' },
-                                                    ...persons.map((p: any) => ({ value: p.id, label: p.name })),
-                                                ]}
-                                            />
-                                            <Input
-                                                label="First Name"
-                                                required
-                                                value={formData.first_name}
-                                                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                                                placeholder="Primary contact's name"
-                                            />
-                                            <Input
-                                                label="Last Name"
-                                                value={formData.last_name}
-                                                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                                                placeholder="Surname"
-                                            />
-                                            <Input
-                                                label="Job Title"
-                                                value={formData.job_title}
-                                                onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
-                                                placeholder="e.g. CTO / Head of Procurement"
-                                            />
-                                            <Select
-                                                label="Lead Owner"
-                                                value={formData.user_id}
-                                                onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}
-                                                options={[
-                                                    { value: '', label: 'Select Owner' },
-                                                    ...users.map((u: any) => ({ value: u.id, label: u.name })),
-                                                ]}
-                                            />
-                                            <Select
-                                                label="Assigned To"
-                                                value={formData.assigned_to_id}
-                                                onChange={(e) => setFormData({ ...formData, assigned_to_id: e.target.value })}
-                                                options={[
-                                                    { value: '', label: 'Unassigned' },
-                                                    ...users.map((u: any) => ({ value: u.id, label: u.name })),
-                                                ]}
-                                            />
-                                            <Select
-                                                label="Lead Status"
-                                                value={formData.stage_id}
-                                                onChange={(e) => setFormData({ ...formData, stage_id: e.target.value })}
-                                                options={[
-                                                    { value: '1', label: 'New' },
-                                                    { value: '2', label: 'Follow Up' },
-                                                    { value: '3', label: 'Prospect' },
-                                                    { value: '4', label: 'Negotiation' },
-                                                    { value: '5', label: 'Won' },
-                                                ]}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Section 2: Company Details */}
-                                    <div className="space-y-6">
-                                        <div className="flex items-center space-x-2 pb-2 border-b border-gray-100">
-                                            <BuildingOfficeIcon className="h-5 w-5 text-emerald-600" />
-                                            <h2 className="text-xl font-semibold text-gray-800 uppercase tracking-wider text-sm">Company Details</h2>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <Input
-                                                label="Company Name"
-                                                value={formData.company_name}
-                                                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                                                placeholder="Company legal name"
-                                            />
-                                            <Input
-                                                label="Website Link"
-                                                value={formData.website}
-                                                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                                                placeholder="www.acme.com"
-                                            />
-                                            <div className="space-y-1">
-                                                <label className="block text-sm font-medium text-gray-700">Lead Rating</label>
-                                                <div className="flex items-center space-x-1">
-                                                    {[1, 2, 3, 4, 5].map((rating) => (
-                                                        <button
-                                                            key={rating}
-                                                            type="button"
-                                                            onClick={() => setFormData({ ...formData, lead_rating: rating.toString() })}
-                                                            onMouseEnter={() => setHoverRating(rating)}
-                                                            onMouseLeave={() => setHoverRating(0)}
-                                                            className="p-1 focus:outline-none transition-transform hover:scale-110"
-                                                        >
-                                                            <StarIcon
-                                                                className={`h-8 w-8 transition-colors ${(hoverRating || parseInt(formData.lead_rating || '0')) >= rating
-                                                                    ? 'text-yellow-400 fill-yellow-400'
-                                                                    : 'text-gray-300'
-                                                                    }`}
-                                                            />
-                                                        </button>
-                                                    ))}
-                                                    <span className="ml-2 text-sm text-gray-500 dark:text-slate-500 font-medium">
-                                                        {formData.lead_rating ? `${formData.lead_rating} Star${formData.lead_rating !== '1' ? 's' : ''}` : 'Rate Impact'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <Input
-                                                label="No. of Employees"
-                                                value={formData.no_employees}
-                                                onChange={(e) => setFormData({ ...formData, no_employees: e.target.value })}
-                                                placeholder="e.g. 50-200"
-                                            />
-                                        </div>
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
-                                {/* Sidebar Column: Contact Info & Logistics */}
-                                <div className="lg:col-span-1 space-y-8 bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-                                    <div className="space-y-6">
-                                        <div className="flex items-center space-x-2 pb-2 border-b border-gray-200">
-                                            <PhoneIcon className="h-5 w-5 text-amber-600" />
-                                            <h2 className="text-xl font-semibold text-gray-800 uppercase tracking-wider text-sm">Contact Info</h2>
-                                        </div>
-                                        <Input
-                                            label="Primary Email"
-                                            type="email"
-                                            value={formData.primary_email}
-                                            onChange={(e) => setFormData({ ...formData, primary_email: e.target.value })}
-                                            placeholder="primary@email.com"
-                                        />
-                                        <Input
-                                            label="Secondary Email"
-                                            type="email"
-                                            value={formData.secondary_email}
-                                            onChange={(e) => setFormData({ ...formData, secondary_email: e.target.value })}
-                                            placeholder="secondary@email.com"
-                                        />
-                                        <Input
-                                            label="Phone"
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            placeholder="Work Phone"
-                                        />
-                                        <Input
-                                            label="Mobile"
-                                            value={formData.mobile}
-                                            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                                            placeholder="Mobile Phone"
-                                        />
-                                        <Input
-                                            label="LinkedIn URL"
-                                            value={formData.linkedin_url}
-                                            onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                                            placeholder="linkedin.com/in/..."
-                                        />
-                                        <Input
-                                            label="Location"
-                                            value={formData.location}
-                                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                            placeholder="City, Country"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Wide Full Width Sections */}
-                            <div className="mt-12 pt-8 border-t border-gray-100">
-                                <div className="space-y-4">
-                                    <label className="flex items-center text-sm font-semibold text-gray-700">
-                                        <DocumentTextIcon className="h-4 w-4 mr-2" />
-                                        Description & Notes
-                                    </label>
+                                {/* Full Width Description */}
+                                <div className="lg:col-span-4 mt-2">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Notes</label>
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black transition-all"
-                                        rows={4}
-                                        placeholder="Add any additional context, requirements, or notes..."
+                                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                                        rows={2}
+                                        placeholder="Additional context..."
                                     />
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Form Actions Footer */}
-                        <div className="bg-gray-50/80 px-8 py-6 flex items-center justify-between border-t border-gray-100">
-                            <p className="text-sm text-gray-500 dark:text-slate-500 italic">
-                                * Lead Owner defaults to you. Status defaults to New.
-                            </p>
-                            <div className="flex space-x-4">
+                            {/* Footer */}
+                            <div className="bg-gray-50 px-5 py-2 flex items-center justify-end space-x-3 border-t border-gray-100 shrink-0">
                                 <Button
                                     type="button"
                                     variant="secondary"
                                     onClick={() => router.back()}
-                                    className="px-8 bg-white border-gray-200 hover:bg-gray-50 shadow-sm"
+                                    className="bg-white py-1 px-4 text-sm"
                                 >
                                     Cancel
                                 </Button>
@@ -357,14 +367,14 @@ export default function NewLeadPage() {
                                     type="submit"
                                     variant="primary"
                                     disabled={loading}
-                                    className="px-10 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-lg shadow-blue-500/20"
+                                    className="py-1 px-4 text-sm"
                                 >
-                                    {loading ? 'Processing...' : 'Create Lead'}
+                                    {loading ? 'Creating...' : 'Create Lead'}
                                 </Button>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </DashboardLayout>
     );
