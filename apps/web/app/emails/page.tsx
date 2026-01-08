@@ -53,6 +53,12 @@ export default function EmailsPage() {
     const [selectedEmails, setSelectedEmails] = useState<number[]>([]);
     const [search, setSearch] = useState('');
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalEmails, setTotalEmails] = useState(0);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
     // Detail view state
     const [view, setView] = useState<'list' | 'detail'>('list');
     const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null);
@@ -78,10 +84,17 @@ export default function EmailsPage() {
 
     useEffect(() => {
         if (selectedAccountId && view === 'list') {
+            setCurrentPage(1); // Reset to page 1 when filters change
             fetchEmails();
             fetchCounts();
         }
     }, [selectedAccountId, folder, search, view]);
+
+    useEffect(() => {
+        if (selectedAccountId && view === 'list') {
+            fetchEmails();
+        }
+    }, [currentPage, itemsPerPage]);
 
     const fetchAccounts = async () => {
         try {
@@ -99,10 +112,14 @@ export default function EmailsPage() {
                 params: {
                     account_id: selectedAccountId,
                     folder,
-                    search
+                    search,
+                    page: currentPage,
+                    limit: itemsPerPage
                 }
             });
             setEmails(response.data.data);
+            setTotalPages(response.data.pagination.pages);
+            setTotalEmails(response.data.pagination.total);
         } catch (error) {
             console.error('Failed to fetch emails');
         } finally {
@@ -205,6 +222,104 @@ export default function EmailsPage() {
     const toggleEmailSelection = (id: number) => {
         setSelectedEmails(prev =>
             prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
+        );
+    };
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    const renderPagination = () => {
+        const pageNumbers = [];
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+        if (endPage - startPage < maxVisible - 1) {
+            startPage = Math.max(1, endPage - maxVisible + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(i);
+        }
+
+        return (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <div className="flex items-center space-x-2 text-sm text-gray-700 dark:text-slate-300">
+                    <span>Show</span>
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            setItemsPerPage(Number(e.target.value));
+                            setCurrentPage(1);
+                        }}
+                        className="px-2 py-1 border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                    >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                    </select>
+                    <span>
+                        Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalEmails)} of {totalEmails}
+                    </span>
+                </div>
+
+                <div className="flex items-center space-x-1">
+                    <button
+                        onClick={() => handlePageChange(1)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-600"
+                    >
+                        First
+                    </button>
+                    <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-600"
+                    >
+                        Previous
+                    </button>
+
+                    {startPage > 1 && (
+                        <span className="px-2 text-gray-500">...</span>
+                    )}
+
+                    {pageNumbers.map(page => (
+                        <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`px-3 py-1 rounded border ${currentPage === page
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600'
+                                }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    {endPage < totalPages && (
+                        <span className="px-2 text-gray-500">...</span>
+                    )}
+
+                    <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-600"
+                    >
+                        Next
+                    </button>
+                    <button
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-600"
+                    >
+                        Last
+                    </button>
+                </div>
+            </div>
         );
     };
 
@@ -387,6 +502,9 @@ export default function EmailsPage() {
                                         </tbody>
                                     </table>
                                 </div>
+
+                                {/* Pagination */}
+                                {!loading && emails.length > 0 && renderPagination()}
                             </Card>
                         </>
                     )}
