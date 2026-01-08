@@ -34,6 +34,7 @@ import voipProviderRoutes from './routes/voip-provider.routes';
 import voipTrunkRoutes from './routes/voip-trunk.routes';
 import inboundRouteRoutes from './routes/inbound-route.routes';
 import callRecordingRoutes from './routes/call-recording.routes';
+import emailAccountRoutes from './routes/email-account.routes';
 
 app.use('/auth', authRoutes);
 app.use('/persons', personRoutes);
@@ -54,6 +55,7 @@ app.use('/voip/providers', voipProviderRoutes);
 app.use('/voip/trunks', voipTrunkRoutes);
 app.use('/voip/routes', inboundRouteRoutes);
 app.use('/voip/recordings', callRecordingRoutes);
+app.use('/email-accounts', emailAccountRoutes);
 
 app.get('/', (req, res) => {
     // Health check endpoint
