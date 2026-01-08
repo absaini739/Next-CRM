@@ -13,9 +13,9 @@ import api from '@/lib/api';
 
 interface Attachment {
     id: number;
-    file_name: string;
-    file_size: number;
-    file_type: string;
+    filename: string;
+    size: number;
+    content_type: string;
 }
 
 interface EmailMessage {
@@ -165,8 +165,8 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
                                                 <DocumentIcon className="h-4 w-4" />
                                             </div>
                                             <div className="overflow-hidden">
-                                                <div className="text-sm font-medium text-gray-900 dark:text-white truncate" title={att.file_name}>{att.file_name}</div>
-                                                <div className="text-xs text-gray-500 dark:text-slate-400">{(att.file_size / 1024).toFixed(1)} KB</div>
+                                                <div className="text-sm font-medium text-gray-900 dark:text-white truncate" title={att.filename}>{att.filename}</div>
+                                                <div className="text-xs text-gray-500 dark:text-slate-400">{(att.size / 1024).toFixed(1)} KB</div>
                                             </div>
                                         </div>
                                     ))}

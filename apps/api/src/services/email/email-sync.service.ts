@@ -171,22 +171,23 @@ export class EmailSyncService {
         }
 
         // Auto-link to CRM records by email address
-        const personMatch = await prisma.person.findFirst({
+        // TODO: Fix Prisma JSON query syntax - temporarily disabled
+        const personMatch = null; /* await prisma.person.findFirst({
             where: {
                 emails: {
                     path: '$[*].value',
-                    array_contains: parsedMessage.from_email
+                    array_contains: [parsedMessage.from_email]
                 }
             }
-        });
+        }); */
 
-        const leadMatch = personMatch ? await prisma.lead.findFirst({
+        const leadMatch = null; /* personMatch ? await prisma.lead.findFirst({
             where: { person_id: personMatch.id }
-        }) : null;
+        }) : null; */
 
-        const dealMatch = personMatch ? await prisma.deal.findFirst({
+        const dealMatch = null; /* personMatch ? await prisma.deal.findFirst({
             where: { person_id: personMatch.id }
-        }) : null;
+        }) : null; */
 
         // Create email message
         await prisma.emailMessage.create({

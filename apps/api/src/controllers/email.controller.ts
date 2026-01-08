@@ -48,7 +48,7 @@ export const getEmails = async (req: Request, res: Response) => {
                 where,
                 include: {
                     account: true,
-                    attachments: { select: { id: true, file_name: true, file_type: true, file_size: true } }
+                    attachments: { select: { id: true, filename: true, content_type: true, size: true } }
                 },
                 orderBy: { received_at: 'desc' },
                 skip: (Number(page) - 1) * Number(limit),
@@ -201,23 +201,22 @@ export const createEmail = async (req: Request, res: Response) => {
 
         // Send via provider
         if (account.provider === 'gmail') {
-            const info = await gmailService.sendEmail(account, {
+            const info = await gmailService.sendEmail(account.id, {
                 to: data.to,
                 cc: data.cc,
                 bcc: data.bcc,
                 subject: data.subject,
-                html: data.body,
-                attachments: data.attachments
+                body: data.body,
+                isHtml: true
             });
-            sentMessageId = info.messageId;
+            sentMessageId = info.id || '';
         } else {
-            const info = await outlookService.sendEmail(account, {
+            const info = await outlookService.sendEmail(account.id, {
                 to: data.to,
                 cc: data.cc,
                 bcc: data.bcc,
                 subject: data.subject,
-                html: data.body,
-                attachments: data.attachments
+                body: data.body
             });
             sentMessageId = info.id;
         }

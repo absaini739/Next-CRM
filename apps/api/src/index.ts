@@ -35,6 +35,7 @@ import voipTrunkRoutes from './routes/voip-trunk.routes';
 import inboundRouteRoutes from './routes/inbound-route.routes';
 import callRecordingRoutes from './routes/call-recording.routes';
 import emailAccountRoutes from './routes/email-account.routes';
+import { initEmailSyncWorker } from './workers/email-sync.worker';
 
 app.use('/auth', authRoutes);
 app.use('/persons', personRoutes);
@@ -61,6 +62,9 @@ app.get('/', (req, res) => {
     // Health check endpoint
     res.json({ message: 'ispecia API is running' });
 });
+
+// Initialize background workers
+initEmailSyncWorker();
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
