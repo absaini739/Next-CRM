@@ -169,14 +169,21 @@ export const updateLead = async (req: Request, res: Response) => {
 
         // Conversion logic: if stage_id is changed to 5 (Won)
         if (data.stage_id === 5 && currentLead.stage_id !== 5) {
-            await handleLeadConversion(lead);
+            try {
+                await handleLeadConversion(lead);
+                console.log(`Lead ${lead.id} converted to deal successfully`);
+            } catch (conversionError) {
+                console.error('Lead conversion failed:', conversionError);
+                // Don't fail the entire update if conversion fails
+                // The lead stage is still updated, just the deal creation failed
+            }
         }
 
         res.json(lead);
     } catch (error) {
         if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });
-        console.error(error);
-        res.status(500).json({ message: 'Error updating lead' });
+        console.error('Error updating lead:', error);
+        res.status(500).json({ message: 'Error updating lead', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 };
 

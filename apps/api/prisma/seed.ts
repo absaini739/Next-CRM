@@ -76,6 +76,28 @@ async function main() {
         await prisma.leadStage.create({ data: stage });
     }
 
+    // Create Default Deal Pipeline
+    const defaultDealPipeline = await prisma.dealPipeline.create({
+        data: {
+            name: 'Standard Pipeline',
+            is_default: true,
+        },
+    });
+
+    // Create Deal Stages
+    const dealStages = [
+        { name: 'Qualified', pipeline_id: defaultDealPipeline.id, probability: 20 },
+        { name: 'Proposal', pipeline_id: defaultDealPipeline.id, probability: 40 },
+        { name: 'Negotiation', pipeline_id: defaultDealPipeline.id, probability: 60 },
+        { name: 'Closing', pipeline_id: defaultDealPipeline.id, probability: 80 },
+        { name: 'Closed Won', pipeline_id: defaultDealPipeline.id, probability: 100 },
+        { name: 'Closed Lost', pipeline_id: defaultDealPipeline.id, probability: 0 },
+    ];
+
+    for (const stage of dealStages) {
+        await prisma.dealStage.create({ data: stage });
+    }
+
     console.log('Seeding finished.');
 }
 
