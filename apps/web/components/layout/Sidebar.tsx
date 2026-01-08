@@ -30,7 +30,6 @@ const navigation = [
     { name: 'Tasks', href: '/tasks', icon: CalendarIcon, permission: 'activities' },
     { name: 'Calendar', href: '/calendar', icon: CalendarIcon, permission: 'activities' },
     { name: 'Activities', href: '/activities', icon: CalendarIcon, permission: 'activities' },
-    { name: 'Pipelines', href: '/pipelines', icon: FunnelIcon, permission: 'settings.lead.pipelines' },
     {
         name: 'VoIP',
         href: '/voip',
