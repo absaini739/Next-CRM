@@ -19,21 +19,22 @@ model User {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
-  role                Role      @relation(fields: [role_id], references: [id])
-  persons             Person[]
-  organizations       Organization[]
-  leads               Lead[]
-  leadsAssignedTo     Lead[]    @relation("LeadsAssignedTo")
-  deals               Deal[]
-  quotes              Quote[]
-  activities          Activity[]
-  emails              Email[]
-  tasksAssignedTo     Task[]    @relation("TasksAssignedTo")
-  tasksAssignedBy     Task[]    @relation("TasksAssignedBy")
-  taskComments        TaskComment[]
-  taskTimeLogs        TaskTimeLog[]
-  calendarEvents      CalendarEvent[]
-  callRecordings      CallRecording[]
+  role            Role            @relation(fields: [role_id], references: [id])
+  persons         Person[]
+  organizations   Organization[]
+  leads           Lead[]
+  leadsAssignedTo Lead[]          @relation("LeadsAssignedTo")
+  deals           Deal[]
+  quotes          Quote[]
+  activities      Activity[]
+  emails          Email[]
+  email_accounts  EmailAccount[]  @relation("UserEmailAccounts")
+  tasksAssignedTo Task[]          @relation("TasksAssignedTo")
+  tasksAssignedBy Task[]          @relation("TasksAssignedBy")
+  taskComments    TaskComment[]
+  taskTimeLogs    TaskTimeLog[]
+  calendarEvents  CalendarEvent[]
+  callRecordings  CallRecording[]
 
   @@map("users")
 }
@@ -80,6 +81,7 @@ model Person {
   quotes         Quote[]
   activities     Activity[]
   sentEmails     Email[]
+  email_messages EmailMessage[]  @relation("EmailMessagePerson")
   tasks          Task[]
   calendarEvents CalendarEvent[]
 
@@ -127,12 +129,12 @@ model Lead {
   mobile          String?
   lead_rating     String?
   no_employees    String?
-  lead_value      Decimal?  @db.Decimal(10, 2)
-  status          Int?      // 0 = lost, 1 = won, null = in progress
+  lead_value      Decimal? @db.Decimal(10, 2)
+  status          Int? // 0 = lost, 1 = won, null = in progress
   person_id       Int?
   organization_id Int?
-  user_id         Int?      // Owner
-  assigned_to_id  Int?      // Assigned User
+  user_id         Int? // Owner
+  assigned_to_id  Int? // Assigned User
   pipeline_id     Int?
   stage_id        Int?
   lead_source_id  Int?
@@ -140,20 +142,21 @@ model Lead {
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 
-  person          Person?       @relation(fields: [person_id], references: [id])
-  organization    Organization? @relation(fields: [organization_id], references: [id])
-  user            User?         @relation(fields: [user_id], references: [id])
-  assigned_to     User?         @relation("LeadsAssignedTo", fields: [assigned_to_id], references: [id])
-  pipeline        LeadPipeline? @relation(fields: [pipeline_id], references: [id])
-  stage           LeadStage?    @relation(fields: [stage_id], references: [id])
-  source          LeadSource?   @relation(fields: [lead_source_id], references: [id])
-  type            LeadType?     @relation(fields: [lead_type_id], references: [id])
-  deals           Deal[]
-  quotes          Quote[]
-  activities      Activity[]
-  emails          Email[]
-  tasks           Task[]
-  calendarEvents  CalendarEvent[]
+  person         Person?         @relation(fields: [person_id], references: [id])
+  organization   Organization?   @relation(fields: [organization_id], references: [id])
+  user           User?           @relation(fields: [user_id], references: [id])
+  assigned_to    User?           @relation("LeadsAssignedTo", fields: [assigned_to_id], references: [id])
+  pipeline       LeadPipeline?   @relation(fields: [pipeline_id], references: [id])
+  stage          LeadStage?      @relation(fields: [stage_id], references: [id])
+  source         LeadSource?     @relation(fields: [lead_source_id], references: [id])
+  type           LeadType?       @relation(fields: [lead_type_id], references: [id])
+  deals          Deal[]
+  quotes         Quote[]
+  activities     Activity[]
+  emails         Email[]
+  email_messages EmailMessage[]  @relation("EmailMessageLead")
+  tasks          Task[]
+  calendarEvents CalendarEvent[]
 
   @@map("leads")
 }
@@ -211,6 +214,7 @@ model Deal {
   quotes         Quote[]
   activities     Activity[]
   emails         Email[]
+  email_messages EmailMessage[]  @relation("EmailMessageDeal")
   tasks          Task[]
   calendarEvents CalendarEvent[]
 
@@ -310,24 +314,24 @@ model QuoteItem {
 
 // Email
 model Email {
-  id         Int       @id @default(autoincrement())
-  from       String
-  to         Json // Array of email addresses
-  cc         Json? // Array of email addresses
-  bcc        Json? // Array of email addresses
-  subject    String
-  body       String
-  folder     String    @default("inbox") // inbox, draft, outbox, sent, archive, trash
-  is_read    Boolean   @default(false)
-  is_starred Boolean   @default(false)
-  sent_at    DateTime?
+  id           Int       @id @default(autoincrement())
+  from         String
+  to           Json // Array of email addresses
+  cc           Json? // Array of email addresses
+  bcc          Json? // Array of email addresses
+  subject      String
+  body         String
+  folder       String    @default("inbox") // inbox, draft, outbox, sent, archive, trash
+  is_read      Boolean   @default(false)
+  is_starred   Boolean   @default(false)
+  sent_at      DateTime?
   scheduled_at DateTime?
-  user_id    Int
-  person_id  Int?
-  lead_id    Int?
-  deal_id    Int?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  user_id      Int
+  person_id    Int?
+  lead_id      Int?
+  deal_id      Int?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
 
   user        User              @relation(fields: [user_id], references: [id])
   person      Person?           @relation(fields: [person_id], references: [id])
@@ -350,6 +354,171 @@ model EmailAttachment {
   email Email @relation(fields: [email_id], references: [id], onDelete: Cascade)
 
   @@map("email_attachments")
+}
+
+// Email Integration Models
+model EmailAccount {
+  id           Int     @id @default(autoincrement())
+  user_id      Int
+  provider     String // 'gmail', 'outlook'
+  email        String
+  display_name String?
+
+  // OAuth tokens
+  access_token  String    @db.Text
+  refresh_token String?   @db.Text
+  token_expiry  DateTime?
+
+  // Sync settings
+  last_sync_at   DateTime?
+  sync_enabled   Boolean   @default(true)
+  sync_from_date DateTime? // Only sync emails from this date
+
+  // Account settings
+  is_default Boolean @default(false)
+  signature  String? @db.Text
+
+  // Provider-specific data
+  provider_data Json? // Store provider-specific IDs, labels, etc.
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user          User           @relation("UserEmailAccounts", fields: [user_id], references: [id], onDelete: Cascade)
+  messages      EmailMessage[]
+  sent_messages EmailMessage[] @relation("SentFromAccount")
+
+  @@unique([user_id, email])
+  @@map("email_accounts")
+}
+
+model EmailMessage {
+  id         Int  @id @default(autoincrement())
+  account_id Int
+  thread_id  Int?
+
+  // Email identifiers
+  message_id  String // Provider's message ID
+  in_reply_to String? // Message ID this is replying to
+  references  Json? // Array of message IDs in thread
+
+  // Email content
+  from_email String
+  from_name  String?
+  to         Json // Array of {email, name}
+  cc         Json? // Array of {email, name}
+  bcc        Json? // Array of {email, name}
+  subject    String
+  body_text  String? @db.Text
+  body_html  String? @db.Text
+  snippet    String? // First 200 chars for preview
+
+  // Metadata
+  folder          String  @default("inbox") // inbox, sent, draft, trash, archive
+  labels          Json? // Array of label names/IDs
+  is_read         Boolean @default(false)
+  is_starred      Boolean @default(false)
+  is_draft        Boolean @default(false)
+  has_attachments Boolean @default(false)
+
+  // Timestamps
+  sent_at     DateTime?
+  received_at DateTime?
+
+  // CRM Relations
+  person_id Int?
+  lead_id   Int?
+  deal_id   Int?
+
+  // Tracking
+  sent_from_crm        Boolean @default(false)
+  sent_from_account_id Int? // Which account was used to send
+  tracking_enabled     Boolean @default(false)
+
+  // Provider data
+  provider_data Json? // Raw data from provider
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  account           EmailAccount             @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  sent_from_account EmailAccount?            @relation("SentFromAccount", fields: [sent_from_account_id], references: [id])
+  thread            EmailThread?             @relation(fields: [thread_id], references: [id])
+  person            Person?                  @relation("EmailMessagePerson", fields: [person_id], references: [id])
+  lead              Lead?                    @relation("EmailMessageLead", fields: [lead_id], references: [id])
+  deal              Deal?                    @relation("EmailMessageDeal", fields: [deal_id], references: [id])
+  attachments       EmailMessageAttachment[]
+  tracking_events   EmailTracking[]
+
+  @@unique([account_id, message_id])
+  @@index([account_id, folder])
+  @@index([thread_id])
+  @@index([person_id])
+  @@index([lead_id])
+  @@index([deal_id])
+  @@map("email_messages")
+}
+
+model EmailThread {
+  id                 Int      @id @default(autoincrement())
+  subject            String
+  participant_emails Json // Array of all emails in thread
+  last_message_at    DateTime
+  message_count      Int      @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  messages EmailMessage[]
+
+  @@map("email_threads")
+}
+
+model EmailMessageAttachment {
+  id         Int @id @default(autoincrement())
+  message_id Int
+
+  filename     String
+  content_type String
+  size         Int // bytes
+
+  // Storage
+  storage_path String? // Local file path or cloud URL
+  inline       Boolean @default(false)
+  content_id   String? // For inline images
+
+  // Provider data
+  attachment_id String? // Provider's attachment ID
+
+  created_at DateTime @default(now())
+
+  message EmailMessage @relation(fields: [message_id], references: [id], onDelete: Cascade)
+
+  @@map("email_message_attachments")
+}
+
+model EmailTracking {
+  id         Int    @id @default(autoincrement())
+  message_id Int
+  event_type String // 'open', 'click'
+
+  // For opens
+  ip_address String?
+  user_agent String? @db.Text
+
+  // For clicks
+  link_url String? @db.Text
+
+  // Geolocation (optional)
+  country String?
+  city    String?
+
+  tracked_at DateTime @default(now())
+
+  message EmailMessage @relation(fields: [message_id], references: [id], onDelete: Cascade)
+
+  @@index([message_id, event_type])
+  @@map("email_tracking")
 }
 
 // Activities & Tasks
