@@ -4,11 +4,14 @@ import * as emailAccountController from '../controllers/email-account.controller
 
 const router = Router();
 
+// OAuth callback - NO AUTH REQUIRED (comes from Google/Microsoft)
+router.get('/oauth/callback', emailAccountController.handleOAuthCallback);
+
+// All other routes require authentication
 router.use(authMiddleware);
 
 // OAuth flow
 router.post('/connect', emailAccountController.initiateOAuth);
-router.get('/oauth/callback', emailAccountController.handleOAuthCallback);
 
 // Account management
 router.get('/', emailAccountController.getEmailAccounts);
