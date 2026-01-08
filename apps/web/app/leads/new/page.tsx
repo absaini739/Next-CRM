@@ -104,11 +104,14 @@ export default function NewLeadPage() {
     return (
         <DashboardLayout>
             {/* 
-               Hack: Negative margins to escape the DashboardLayout's default padding (p-6).
-               We then set h-full so it takes exactly the remaining space.
+               Overlap Fix Logic:
+               - Removed -mt-14 which was causing overlap with the navbar.
+               - Used -mx-6 -mb-6 to reclaim space from DashboardLayout's p-6 padding on sides and bottom only.
+               - Used mt-[-1rem] to slightly pull up without hitting header (safe zone).
+               - Adjusted height to fit viewport: h-[calc(100%+1.5rem)] covers the bottom padding reclaiming.
             */}
-            <div className="h-full flex flex-col -m-6 p-6">
-                <div className="max-w-7xl mx-auto w-full h-full flex flex-col">
+            <div className="h-[calc(100%+1.5rem)] -mx-6 -mb-6 mt-[-1rem] flex flex-col overflow-hidden">
+                <div className="w-full h-full flex flex-col px-6 pb-6">
                     {/* Compact Header */}
                     <div className="flex items-center justify-between mb-2 shrink-0">
                         <div className="flex items-center space-x-2">
@@ -122,9 +125,16 @@ export default function NewLeadPage() {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 pb-2">
+                    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 pb-1">
                         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-lg rounded-xl flex-1 flex flex-col overflow-hidden">
-                            <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2 overflow-y-auto">
+
+                            {/* 
+                                Form Layout:
+                                - Removed pt-10 to gain back some space since we aren't pulling up as much.
+                                - Added content-center to keep efficient vertical distribution.
+                            */}
+                            {/* Changed shrink-0 to flex-1 to allow vertical centering */}
+                            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-slate-600 flex-1 content-center">
 
                                 {/* Row 1: Primary Deal Info */}
                                 <div className="lg:col-span-2">
@@ -319,7 +329,7 @@ export default function NewLeadPage() {
                                 </div>
                                 <div className="lg:col-span-1 flex flex-col justify-end pb-1">
                                     <div className="flex items-center space-x-1 h-full pt-4">
-                                        <span className="text-xs font-medium text-gray-700 mr-2">Rating:</span>
+                                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300 mr-2">Rating:</span>
                                         {[1, 2, 3, 4, 5].map((rating) => (
                                             <button
                                                 key={rating}
@@ -332,7 +342,7 @@ export default function NewLeadPage() {
                                                 <StarIcon
                                                     className={`h-5 w-5 transition-colors ${(hoverRating || parseInt(formData.lead_rating || '0')) >= rating
                                                         ? 'text-yellow-400 fill-yellow-400'
-                                                        : 'text-gray-300'
+                                                        : 'text-gray-300 dark:text-gray-600'
                                                         }`}
                                                 />
                                             </button>
@@ -342,24 +352,24 @@ export default function NewLeadPage() {
 
                                 {/* Full Width Description */}
                                 <div className="lg:col-span-4 mt-2">
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Notes</label>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                                        className="w-full px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
                                         rows={2}
                                         placeholder="Additional context..."
                                     />
                                 </div>
                             </div>
 
-                            {/* Footer */}
-                            <div className="bg-gray-50 px-5 py-2 flex items-center justify-end space-x-3 border-t border-gray-100 shrink-0">
+                            {/* Footer - Slightly Increased Padding for visual balance */}
+                            <div className="px-5 py-4 flex items-center justify-end space-x-3 border-t border-gray-200 dark:border-slate-700 shrink-0">
                                 <Button
                                     type="button"
                                     variant="secondary"
                                     onClick={() => router.back()}
-                                    className="bg-white py-1 px-4 text-sm"
+                                    className="bg-transparent dark:text-white border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 py-1 px-4 text-sm"
                                 >
                                     Cancel
                                 </Button>
@@ -372,6 +382,7 @@ export default function NewLeadPage() {
                                     {loading ? 'Creating...' : 'Create Lead'}
                                 </Button>
                             </div>
+
                         </div>
                     </form>
                 </div>

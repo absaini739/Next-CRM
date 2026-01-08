@@ -96,6 +96,3 @@ export default function DataTable({ columns, data, onRowClick }: DataTableProps)
         </div>
     );
 }
-
-// Add React import at top
-import React from 'react';

@@ -52,3 +52,36 @@ export const getActivities = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error fetching activities' });
     }
 };
+export const updateActivity = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const data = activitySchema.partial().parse(req.body);
+
+        const activity = await prisma.activity.update({
+            where: { id: parseInt(id) },
+            data: {
+                ...data,
+                start_at: data.start_at ? new Date(data.start_at) : undefined,
+                end_at: data.end_at ? new Date(data.end_at) : undefined,
+            },
+            include: { user: true, person: true }
+        });
+        res.json(activity);
+    } catch (error) {
+        if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });
+        console.error(error);
+        res.status(500).json({ message: 'Error updating activity' });
+    }
+};
+
+export const deleteActivity = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        await prisma.activity.delete({
+            where: { id: parseInt(id) }
+        });
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting activity' });
+    }
+};
