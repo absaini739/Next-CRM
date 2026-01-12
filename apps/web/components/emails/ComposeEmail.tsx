@@ -4,6 +4,7 @@ import { PencilSquareIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import api from '@/lib/api';
+import TemplateSelector from './TemplateSelector';
 
 interface EmailAccount {
     id: number;
@@ -106,6 +107,25 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
         setIsScheduling(false);
     };
 
+    const handleTemplateSelect = (template: any) => {
+        // Replace variables with placeholders or empty
+        let subject = template.subject;
+        let body = template.body;
+
+        // Simple variable replacement - in production, show a modal to collect values
+        if (template.variables && template.variables.length > 0) {
+            template.variables.forEach((variable: string) => {
+                const placeholder = `[${variable.toUpperCase()}]`;
+                subject = subject.replace(`{${variable}}`, placeholder);
+                body = body.replace(new RegExp(`\\{${variable}\\}`, 'g'), placeholder);
+            });
+        }
+
+        setSubject(subject);
+        setBody(body);
+        toast.success('Template loaded! Replace placeholders with actual values.');
+    };
+
     const handleDiscard = () => {
         resetForm();
         onClose();
@@ -132,6 +152,11 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
 
                 {/* Form Content */}
                 <div className="p-6 space-y-4 overflow-y-auto">
+                    {/* Template Selector */}
+                    <div className="flex justify-end">
+                        <TemplateSelector onSelect={handleTemplateSelect} />
+                    </div>
+
                     {/* Account Selector */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">From</label>
