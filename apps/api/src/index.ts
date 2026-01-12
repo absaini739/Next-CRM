@@ -36,6 +36,7 @@ import inboundRouteRoutes from './routes/inbound-route.routes';
 import callRecordingRoutes from './routes/call-recording.routes';
 import emailAccountRoutes from './routes/email-account.routes';
 import emailTemplateRoutes from './routes/email-template.routes';
+import trackingRoutes from './routes/tracking.routes';
 import { initEmailSyncWorker } from './workers/email-sync.worker';
 import { createBullBoard } from '@bull-board/api';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
