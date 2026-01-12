@@ -12,10 +12,6 @@ import { toast } from 'sonner';
 import {
     XMarkIcon,
     PaperAirplaneIcon,
-    BoldIcon,
-    ItalicIcon,
-    ListBulletIcon,
-    LinkIcon,
     MinusIcon
 } from '@heroicons/react/24/outline';
 
@@ -318,20 +314,30 @@ export default function ComposeEmail({
                 <button
                     onClick={() => editor?.chain().focus().toggleBold().run()}
                     className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-700 ${editor?.isActive('bold') ? 'bg-gray-200 dark:bg-slate-600' : ''}`}
+                    title="Bold"
                 >
-                    <BoldIcon className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4 text-gray-600 dark:text-slate-400">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" />
+                    </svg>
                 </button>
                 <button
                     onClick={() => editor?.chain().focus().toggleItalic().run()}
                     className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-700 ${editor?.isActive('italic') ? 'bg-gray-200 dark:bg-slate-600' : ''}`}
+                    title="Italic"
                 >
-                    <ItalicIcon className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4 text-gray-600 dark:text-slate-400">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 4h4m-2 16h4m-6-16l-4 16" />
+                    </svg>
                 </button>
                 <button
                     onClick={() => editor?.chain().focus().toggleBulletList().run()}
                     className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-700 ${editor?.isActive('bulletList') ? 'bg-gray-200 dark:bg-slate-600' : ''}`}
+                    title="Bullet List"
                 >
-                    <ListBulletIcon className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4 text-gray-600 dark:text-slate-400">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
                 </button>
                 <button
                     onClick={() => {
@@ -341,8 +347,11 @@ export default function ComposeEmail({
                         }
                     }}
                     className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-700 ${editor?.isActive('link') ? 'bg-gray-200 dark:bg-slate-600' : ''}`}
+                    title="Add Link"
                 >
-                    <LinkIcon className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4 text-gray-600 dark:text-slate-400">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                    </svg>
                 </button>
             </div>
 
@@ -375,36 +384,3 @@ export default function ComposeEmail({
     );
 }
 
-// Missing icon components
-function BoldIcon({ className }: { className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" />
-        </svg>
-    );
-}
-
-function ItalicIcon({ className }: { className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 4h4m-2 16h4m-6-16l-4 16" />
-        </svg>
-    );
-}
-
-function ListBulletIcon({ className }: { className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-        </svg>
-    );
-}
-
-function LinkIcon({ className }: { className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
-        </svg>
-    );
-}
