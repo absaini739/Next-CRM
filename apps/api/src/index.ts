@@ -64,6 +64,7 @@ app.use('/voip/routes', inboundRouteRoutes);
 app.use('/voip/recordings', callRecordingRoutes);
 app.use('/email-accounts', emailAccountRoutes);
 app.use('/email-templates', emailTemplateRoutes);
+app.use('/track', trackingRoutes);
 
 // Bull Board - Queue monitoring dashboard
 const serverAdapter = new ExpressAdapter();
