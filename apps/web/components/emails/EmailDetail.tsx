@@ -6,13 +6,15 @@ import {
     TrashIcon,
     ArchiveBoxIcon,
     PaperClipIcon,
-    ArrowDownTrayIcon
+    ArrowDownTrayIcon,
+    ChartBarIcon
 } from '@heroicons/react/24/outline';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import DOMPurify from 'dompurify';
+import EmailTrackingStats from './EmailTrackingStats';
 
 interface Attachment {
     id: number;
@@ -48,6 +50,7 @@ export default function EmailDetail({ emailId, onBack, onReply, onForward, onArc
     const [email, setEmail] = useState<EmailMessage | null>(null);
     const [thread, setThread] = useState<EmailMessage[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'email' | 'tracking'>('email');
 
     useEffect(() => {
         fetchEmailDetails();
