@@ -200,35 +200,11 @@ export const createEmail = async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'Email account not found' });
         }
 
-        let sentMessageId: string;
-
-        // Send via provider
-        if (account.provider === 'gmail') {
-            const info = await gmailService.sendEmail(account.id, {
-                to: data.to,
-                cc: data.cc,
-                bcc: data.bcc,
-                subject: data.subject,
-                body: data.body,
-                isHtml: true
-            });
-            sentMessageId = info.id || '';
-        } else {
-            const info = await outlookService.sendEmail(account.id, {
-                to: data.to,
-                cc: data.cc,
-                bcc: data.bcc,
-                subject: data.subject,
-                body: data.body
-            });
-            sentMessageId = info.id;
-        }
-
-        // Save to Sent folder first (we need the ID for tracking)
+        // IMPORTANT: Create email message first to get ID for tracking
         const emailMessage = await prisma.emailMessage.create({
             data: {
                 account_id: account.id,
-                message_id: sentMessageId,
+                message_id: '', // Will update after sending
                 folder: 'sent',
                 from_email: account.email,
                 from_name: account.display_name,
@@ -246,7 +222,7 @@ export const createEmail = async (req: Request, res: Response) => {
             }
         });
 
-        // If tracking enabled, inject tracking into email body
+        // If tracking enabled, inject tracking BEFORE sending
         let finalBody = data.body;
         if (data.tracking_enabled) {
             finalBody = addEmailTracking(data.body, emailMessage.id);
@@ -257,6 +233,37 @@ export const createEmail = async (req: Request, res: Response) => {
                 data: { body_html: finalBody }
             });
         }
+
+        let sentMessageId: string;
+
+        // Send via provider with tracked body
+        if (account.provider === 'gmail') {
+            const info = await gmailService.sendEmail(account.id, {
+                to: data.to,
+                cc: data.cc,
+                bcc: data.bcc,
+                subject: data.subject,
+                body: finalBody, // Use tracked body!
+                isHtml: true
+            });
+            sentMessageId = info.id || '';
+        } else {
+            const info = await outlookService.sendEmail(account.id, {
+                to: data.to,
+                cc: data.cc,
+                bcc: data.bcc,
+                subject: data.subject,
+                body: finalBody, // Use tracked body!
+                isHtml: true
+            });
+            sentMessageId = info.id;
+        }
+
+        // Update with actual message ID from provider
+        await prisma.emailMessage.update({
+            where: { id: emailMessage.id },
+            data: { message_id: sentMessageId }
+        });
 
         // Auto-link email to CRM entities
         try {
