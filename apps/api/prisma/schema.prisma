@@ -29,6 +29,7 @@ model User {
   activities      Activity[]
   emails          Email[]
   email_accounts  EmailAccount[]  @relation("UserEmailAccounts")
+  emailTemplates  EmailTemplate[]
   tasksAssignedTo Task[]          @relation("TasksAssignedTo")
   tasksAssignedBy Task[]          @relation("TasksAssignedBy")
   taskComments    TaskComment[]
@@ -520,6 +521,25 @@ model EmailTracking {
   @@index([message_id, event_type])
   @@map("email_tracking")
 }
+
+model EmailTemplate {
+  id          Int    @id @default(autoincrement())
+  user_id     Int
+  name        String
+  subject     String
+  body        String @db.Text
+  description String?
+  variables   Json? // Stores array of variable names like ['name', 'company']
+  is_shared   Boolean @default(false) // For team templates
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("email_templates")
+}
+
 
 // Activities & Tasks
 model Activity {
