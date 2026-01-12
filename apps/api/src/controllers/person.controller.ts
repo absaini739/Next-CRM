@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { getPersonEmails as fetchPersonEmails } from '../services/email-linking.service';
 
 const personSchema = z.object({
     name: z.string().min(1),
@@ -89,5 +90,26 @@ export const deletePerson = async (req: Request, res: Response) => {
         res.json({ message: 'Person deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting person' });
+    }
+};
+
+export const getPersonEmails = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+
+        // Verify person exists
+        const person = await prisma.person.findUnique({
+            where: { id },
+        });
+
+        if (!person) {
+            return res.status(404).json({ message: 'Person not found' });
+        }
+
+        const emails = await fetchPersonEmails(id);
+        res.json(emails);
+    } catch (error) {
+        console.error('Error fetching person emails:', error);
+        res.status(500).json({ message: 'Error fetching emails' });
     }
 };
