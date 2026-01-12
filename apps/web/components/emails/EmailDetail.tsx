@@ -138,18 +138,41 @@ export default function EmailDetail({ emailId, onBack, onReply, onForward, onArc
                         <ArchiveBoxIcon className="h-4 w-4 mr-1" />
                         Archive
                     </Button>
-                    <Button variant="secondary" size="sm" onClick={() => onForward(email)}>
-                        <ArrowUturnRightIcon className="h-4 w-4 mr-1" />
-                        Forward
-                    </Button>
                     <Button variant="primary" size="sm" onClick={() => onReply(email)}>
                         <ArrowUturnLeftIcon className="h-4 w-4 mr-1" />
                         Reply
                     </Button>
+                    <Button variant="secondary" size="sm" onClick={() => onForward(email)}>
+                        <ArrowUturnRightIcon className="h-4 w-4 mr-1" />
+                        Forward
+                    </Button>
                 </div>
             </div>
 
-            {/* Messages Content */}
+            {/* Tabs */}
+            <div className="flex border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <button
+                    onClick={() => setActiveTab('email')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'email'
+                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
+                        }`}
+                >
+                    Email
+                </button>
+                <button
+                    onClick={() => setActiveTab('tracking')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${activeTab === 'tracking'
+                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
+                        }`}
+                >
+                    <ChartBarIcon className="h-4 w-4" />
+                    Tracking
+                </button>
+            </div>
+
+            {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-white dark:bg-slate-900">
                 {messagesToDisplay.map((msg, index) => (
                     <div key={msg.id} className={`border border-gray-200 dark:border-slate-700 rounded-lg p-6 ${msg.id === emailId ? 'bg-white dark:bg-slate-800 shadow-md ring-1 ring-blue-500/20' : 'bg-gray-50 dark:bg-slate-800/50'}`}>
