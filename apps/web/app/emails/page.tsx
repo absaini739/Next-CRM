@@ -20,6 +20,9 @@ import {
     EnvelopeIcon
 } from '@heroicons/react/24/outline';
 
+import EmailDetail from '@/components/emails/EmailDetail';
+import ComposeEmail from '@/components/emails/ComposeEmail';
+
 interface EmailAccount {
     id: number;
     email: string;
@@ -33,6 +36,8 @@ interface Email {
     from_email: string;
     subject: string;
     snippet: string;
+    body_html?: string;
+    body_text?: string;
     folder: string;
     is_read: boolean;
     has_attachments: boolean;
@@ -40,7 +45,6 @@ interface Email {
     created_at: string;
 }
 
-import EmailDetail from '@/components/emails/EmailDetail';
 
 export default function EmailsPage() {
     const [accounts, setAccounts] = useState<EmailAccount[]>([]);
@@ -64,12 +68,8 @@ export default function EmailsPage() {
     const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null);
 
     // Compose form state
-    const [to, setTo] = useState('');
-    const [subject, setSubject] = useState('');
-    const [body, setBody] = useState('');
-    const [isScheduling, setIsScheduling] = useState(false);
-    const [scheduledAt, setScheduledAt] = useState('');
-    const [sending, setSending] = useState(false);
+    const [composeMode, setComposeMode] = useState<'compose' | 'reply' | 'forward'>('compose');
+    const [replyToEmail, setReplyToEmail] = useState<Email | null>(null);
 
     useEffect(() => {
         fetchAccounts();
@@ -187,11 +187,30 @@ export default function EmailsPage() {
         fetchCounts();
     };
 
-    const handleReply = (email: any) => {
-        setTo(email.from_email);
-        setSubject(`Re: ${email.subject}`);
-        setBody(`\n\n\nOn ${new Date(email.created_at).toLocaleString()}, ${email.from_name || email.from_email} wrote:\n> ${email.body_text || email.snippet || ''}`);
+    const handleCompose = () => {
+        setComposeMode('compose');
+        setReplyToEmail(null);
         setShowCompose(true);
+    };
+
+    const handleReply = (email: Email) => {
+        setComposeMode('reply');
+        setReplyToEmail(email);
+        setShowCompose(true);
+    };
+
+    const handleForward = (email: Email) => {
+        setComposeMode('forward');
+        setReplyToEmail(email);
+        setShowCompose(true);
+    };
+
+    const handleComposeSent = () => {
+        // Refresh counts and emails if in sent folder
+        fetchCounts();
+        if (folder === 'sent' && view === 'list') {
+            fetchEmails();
+        }
     };
 
     const handleDelete = async (id: number) => {
