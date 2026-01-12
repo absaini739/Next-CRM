@@ -2,14 +2,17 @@ import { format } from 'date-fns';
 import {
     ArrowLeftIcon,
     ArrowUturnLeftIcon,
+    ArrowUturnRightIcon,
     TrashIcon,
     ArchiveBoxIcon,
-    PaperClipIcon
+    PaperClipIcon,
+    ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
+import DOMPurify from 'dompurify';
 
 interface Attachment {
     id: number;
@@ -36,10 +39,12 @@ interface EmailDetailProps {
     emailId: number;
     onBack: () => void;
     onReply: (email: EmailMessage) => void;
+    onForward: (email: EmailMessage) => void;
+    onArchive: (id: number) => void;
     onDelete: (id: number) => void;
 }
 
-export default function EmailDetail({ emailId, onBack, onReply, onDelete }: EmailDetailProps) {
+export default function EmailDetail({ emailId, onBack, onReply, onForward, onArchive, onDelete }: EmailDetailProps) {
     const [email, setEmail] = useState<EmailMessage | null>(null);
     const [thread, setThread] = useState<EmailMessage[]>([]);
     const [loading, setLoading] = useState(true);
@@ -68,6 +73,26 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
             console.error('Failed to fetch email details');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDownloadAttachment = async (emailId: number, attachmentId: number, filename: string) => {
+        try {
+            const response = await api.get(`/emails/${emailId}/attachments/${attachmentId}`, {
+                responseType: 'blob'
+            });
+
+            // Create download link
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to download attachment:', error);
         }
     };
 
@@ -106,9 +131,13 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
                         <TrashIcon className="h-4 w-4 mr-1" />
                         Delete
                     </Button>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" onClick={() => onArchive(email.id)}>
                         <ArchiveBoxIcon className="h-4 w-4 mr-1" />
                         Archive
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => onForward(email)}>
+                        <ArrowUturnRightIcon className="h-4 w-4 mr-1" />
+                        Forward
                     </Button>
                     <Button variant="primary" size="sm" onClick={() => onReply(email)}>
                         <ArrowUturnLeftIcon className="h-4 w-4 mr-1" />
@@ -145,7 +174,7 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
                         {/* Message Body */}
                         <div className="prose dark:prose-invert max-w-none text-gray-800 dark:text-slate-200">
                             {msg.body_html ? (
-                                <div dangerouslySetInnerHTML={{ __html: msg.body_html }} />
+                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(msg.body_html) }} />
                             ) : (
                                 <div className="whitespace-pre-wrap">{msg.body_text || '(No content)'}</div>
                             )}
@@ -160,15 +189,20 @@ export default function EmailDetail({ emailId, onBack, onReply, onDelete }: Emai
                                 </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                     {msg.attachments.map(att => (
-                                        <div key={att.id} className="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700/80 transition-colors">
+                                        <button
+                                            key={att.id}
+                                            onClick={() => handleDownloadAttachment(msg.id, att.id, att.filename)}
+                                            className="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700/80 transition-colors cursor-pointer text-left"
+                                        >
                                             <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center text-blue-600 dark:text-blue-400 mr-3">
                                                 <DocumentIcon className="h-4 w-4" />
                                             </div>
-                                            <div className="overflow-hidden">
+                                            <div className="overflow-hidden flex-1">
                                                 <div className="text-sm font-medium text-gray-900 dark:text-white truncate" title={att.filename}>{att.filename}</div>
                                                 <div className="text-xs text-gray-500 dark:text-slate-400">{(att.size / 1024).toFixed(1)} KB</div>
                                             </div>
-                                        </div>
+                                            <ArrowDownTrayIcon className="h-4 w-4 text-gray-400 dark:text-slate-500 ml-2" />
+                                        </button>
                                     ))}
                                 </div>
                             </div>

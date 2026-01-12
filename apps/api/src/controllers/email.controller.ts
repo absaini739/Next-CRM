@@ -298,3 +298,56 @@ export const deleteEmail = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error deleting email' });
     }
 };
+
+// Get attachment for download
+export const getAttachment = async (req: Request, res: Response) => {
+    try {
+        const emailId = parseInt(req.params.id);
+        const attachmentId = parseInt(req.params.attachmentId);
+        // @ts-ignore
+        const userId = req.userId;
+
+        // Verify email belongs to user
+        const email = await prisma.emailMessage.findFirst({
+            where: {
+                id: emailId,
+                account: { user_id: userId }
+            }
+        });
+
+        if (!email) {
+            return res.status(404).json({ message: 'Email not found' });
+        }
+
+        // Get attachment
+        const attachment = await prisma.emailAttachment.findFirst({
+            where: {
+                id: attachmentId,
+                email_id: emailId
+            }
+        });
+
+        if (!attachment) {
+            return res.status(404).json({ message: 'Attachment not found' });
+        }
+
+        // Set headers for download
+        res.setHeader('Content-Type', attachment.content_type || 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${attachment.filename}"`);
+        res.setHeader('Content-Length', attachment.size);
+
+        // Send file data
+        // Note: In a real implementation, you'd fetch the actual file from storage
+        // For now, we'll send the stored data (if available) or return an error
+        if (attachment.data) {
+            // If data is stored as base64, decode it
+            const buffer = Buffer.from(attachment.data, 'base64');
+            res.send(buffer);
+        } else {
+            res.status(404).json({ message: 'Attachment data not available' });
+        }
+    } catch (error) {
+        console.error('Error downloading attachment:', error);
+        res.status(500).json({ message: 'Error downloading attachment' });
+    }
+};

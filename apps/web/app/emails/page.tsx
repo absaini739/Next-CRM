@@ -176,6 +176,31 @@ export default function EmailsPage() {
         setShowCompose(true);
     };
 
+    const handleForward = (email: any) => {
+        setComposeData({
+            to: '',
+            subject: `Fwd: ${email.subject}`,
+            body: `\n\n---------- Forwarded message ---------\nFrom: ${email.from_name || email.from_email} <${email.from_email}>\nDate: ${new Date(email.created_at).toLocaleString()}\nSubject: ${email.subject}\n\n${email.body_text || email.snippet || ''}`,
+            selectedAccountId: parseInt(selectedAccountId)
+        });
+        setShowCompose(true);
+    };
+
+    const handleArchive = async (id: number) => {
+        try {
+            await api.patch(`/emails/${id}`, { folder: 'archive' });
+            toast.success('Email archived');
+            if (view === 'detail') {
+                handleBackToList();
+            } else {
+                fetchEmails();
+                fetchCounts();
+            }
+        } catch (error) {
+            toast.error('Failed to archive email');
+        }
+    };
+
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to delete this email?')) return;
 
@@ -375,6 +400,8 @@ export default function EmailsPage() {
                                 emailId={selectedEmailId}
                                 onBack={handleBackToList}
                                 onReply={handleReply}
+                                onForward={handleForward}
+                                onArchive={handleArchive}
                                 onDelete={handleDelete}
                             />
                         </div>
