@@ -28,6 +28,10 @@ interface ComposeEmailProps {
 export default function ComposeEmail({ open, onClose, onSuccess, accounts, initialData }: ComposeEmailProps) {
     const [selectedAccountId, setSelectedAccountId] = useState<string>('');
     const [to, setTo] = useState('');
+    const [cc, setCc] = useState('');
+    const [bcc, setBcc] = useState('');
+    const [showCc, setShowCc] = useState(false);
+    const [showBcc, setShowBcc] = useState(false);
     const [subject, setSubject] = useState('');
     const [body, setBody] = useState('');
     const [sending, setSending] = useState(false);
@@ -69,6 +73,8 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
             await api.post('/emails', {
                 account_id: parseInt(selectedAccountId),
                 to: to.split(',').map(e => e.trim()),
+                cc: cc ? cc.split(',').map(e => e.trim()) : undefined,
+                bcc: bcc ? bcc.split(',').map(e => e.trim()) : undefined,
                 subject,
                 body,
                 folder: 'sent',
@@ -90,6 +96,10 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
 
     const resetForm = () => {
         setTo('');
+        setCc('');
+        setBcc('');
+        setShowCc(false);
+        setShowBcc(false);
         setSubject('');
         setBody('');
         setScheduledAt('');
@@ -137,12 +147,54 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
                         </select>
                     </div>
 
-                    <Input
-                        label="To"
-                        value={to}
-                        onChange={(e) => setTo(e.target.value)}
-                        placeholder="recipient@example.com (comma separated)"
-                    />
+                    <div>
+                        <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">To</label>
+                            <div className="flex gap-2">
+                                {!showCc && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCc(true)}
+                                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                                    >
+                                        + Cc
+                                    </button>
+                                )}
+                                {!showBcc && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowBcc(true)}
+                                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                                    >
+                                        + Bcc
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <Input
+                            value={to}
+                            onChange={(e) => setTo(e.target.value)}
+                            placeholder="recipient@example.com (comma separated)"
+                        />
+                    </div>
+
+                    {showCc && (
+                        <Input
+                            label="Cc"
+                            value={cc}
+                            onChange={(e) => setCc(e.target.value)}
+                            placeholder="cc@example.com (comma separated)"
+                        />
+                    )}
+
+                    {showBcc && (
+                        <Input
+                            label="Bcc"
+                            value={bcc}
+                            onChange={(e) => setBcc(e.target.value)}
+                            placeholder="bcc@example.com (comma separated)"
+                        />
+                    )}
 
                     <Input
                         label="Subject"
