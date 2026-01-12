@@ -2,7 +2,6 @@ import { format } from 'date-fns';
 import {
     ArrowLeftIcon,
     ArrowUturnLeftIcon,
-    ArrowUturnRightIcon,
     TrashIcon,
     ArchiveBoxIcon,
     PaperClipIcon
@@ -37,11 +36,10 @@ interface EmailDetailProps {
     emailId: number;
     onBack: () => void;
     onReply: (email: EmailMessage) => void;
-    onForward: (email: EmailMessage) => void;
     onDelete: (id: number) => void;
 }
 
-export default function EmailDetail({ emailId, onBack, onReply, onForward, onDelete }: EmailDetailProps) {
+export default function EmailDetail({ emailId, onBack, onReply, onDelete }: EmailDetailProps) {
     const [email, setEmail] = useState<EmailMessage | null>(null);
     const [thread, setThread] = useState<EmailMessage[]>([]);
     const [loading, setLoading] = useState(true);
@@ -111,10 +109,6 @@ export default function EmailDetail({ emailId, onBack, onReply, onForward, onDel
                     <Button variant="secondary" size="sm">
                         <ArchiveBoxIcon className="h-4 w-4 mr-1" />
                         Archive
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={() => onForward(email)}>
-                        <ArrowUturnRightIcon className="h-4 w-4 mr-1" />
-                        Forward
                     </Button>
                     <Button variant="primary" size="sm" onClick={() => onReply(email)}>
                         <ArrowUturnLeftIcon className="h-4 w-4 mr-1" />

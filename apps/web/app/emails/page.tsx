@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -21,14 +20,6 @@ import {
     EnvelopeIcon
 } from '@heroicons/react/24/outline';
 
-import EmailDetail from '@/components/emails/EmailDetail';
-
-// Dynamic import to avoid TipTap SSR hydration issues
-const ComposeEmail = dynamic(() => import('@/components/emails/ComposeEmail'), {
-    ssr: false,
-    loading: () => <div className="fixed bottom-0 right-4 w-[600px] bg-white dark:bg-slate-800 shadow-2xl rounded-t-lg p-4 z-50">Loading editor...</div>
-});
-
 interface EmailAccount {
     id: number;
     email: string;
@@ -42,8 +33,6 @@ interface Email {
     from_email: string;
     subject: string;
     snippet: string;
-    body_html?: string;
-    body_text?: string;
     folder: string;
     is_read: boolean;
     has_attachments: boolean;
@@ -51,6 +40,7 @@ interface Email {
     created_at: string;
 }
 
+import EmailDetail from '@/components/emails/EmailDetail';
 
 export default function EmailsPage() {
     const [accounts, setAccounts] = useState<EmailAccount[]>([]);
@@ -74,8 +64,12 @@ export default function EmailsPage() {
     const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null);
 
     // Compose form state
-    const [composeMode, setComposeMode] = useState<'compose' | 'reply' | 'forward'>('compose');
-    const [replyToEmail, setReplyToEmail] = useState<Email | null>(null);
+    const [to, setTo] = useState('');
+    const [subject, setSubject] = useState('');
+    const [body, setBody] = useState('');
+    const [isScheduling, setIsScheduling] = useState(false);
+    const [scheduledAt, setScheduledAt] = useState('');
+    const [sending, setSending] = useState(false);
 
     useEffect(() => {
         fetchAccounts();
@@ -144,7 +138,41 @@ export default function EmailsPage() {
         }
     };
 
+    const handleSendEmail = async () => {
+        if (!to || !subject) {
+            toast.error('Please fill in recipient and subject');
+            return;
+        }
 
+        setSending(true);
+        try {
+            await api.post('/emails', {
+                account_id: parseInt(selectedAccountId),
+                to: to.split(',').map(e => e.trim()),
+                subject,
+                body, // In real app, this would be HTML from a rich text editor
+                folder: 'sent',
+                scheduled_at: isScheduling && scheduledAt ? scheduledAt : undefined
+            });
+
+            toast.success(isScheduling ? 'Email scheduled successfully' : 'Email sent successfully');
+            setShowCompose(false);
+            // Reset form
+            setTo('');
+            setSubject('');
+            setBody('');
+            setScheduledAt('');
+            setIsScheduling(false);
+
+            // Refresh if in sent folder or just to update counts
+            if (folder === 'sent' && view === 'list') fetchEmails();
+            fetchCounts();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to send email');
+        } finally {
+            setSending(false);
+        }
+    };
 
     const handleEmailClick = (id: number) => {
         setSelectedEmailId(id);
@@ -159,30 +187,11 @@ export default function EmailsPage() {
         fetchCounts();
     };
 
-    const handleCompose = () => {
-        setComposeMode('compose');
-        setReplyToEmail(null);
+    const handleReply = (email: any) => {
+        setTo(email.from_email);
+        setSubject(`Re: ${email.subject}`);
+        setBody(`\n\n\nOn ${new Date(email.created_at).toLocaleString()}, ${email.from_name || email.from_email} wrote:\n> ${email.body_text || email.snippet || ''}`);
         setShowCompose(true);
-    };
-
-    const handleReply = (email: Email) => {
-        setComposeMode('reply');
-        setReplyToEmail(email);
-        setShowCompose(true);
-    };
-
-    const handleForward = (email: Email) => {
-        setComposeMode('forward');
-        setReplyToEmail(email);
-        setShowCompose(true);
-    };
-
-    const handleComposeSent = () => {
-        // Refresh counts and emails if in sent folder
-        fetchCounts();
-        if (folder === 'sent' && view === 'list') {
-            fetchEmails();
-        }
     };
 
     const handleDelete = async (id: number) => {
@@ -321,7 +330,7 @@ export default function EmailsPage() {
                 <div className="w-full lg:w-96 flex-shrink-0 flex flex-col space-y-4 overflow-y-auto lg:max-h-full">
                     <Button
                         variant="primary"
-                        onClick={handleCompose}
+                        onClick={() => setShowCompose(true)}
                         className="w-full flex items-center justify-center py-3"
                     >
                         <PencilSquareIcon className="h-5 w-5 mr-2" />
@@ -384,7 +393,6 @@ export default function EmailsPage() {
                                 emailId={selectedEmailId}
                                 onBack={handleBackToList}
                                 onReply={handleReply}
-                                onForward={handleForward}
                                 onDelete={handleDelete}
                             />
                         </div>
@@ -506,16 +514,102 @@ export default function EmailsPage() {
                 </div>
             </div>
 
-            {/* Compose Modal - Using new ComposeEmail component */}
-            {showCompose && selectedAccountId && (
-                <ComposeEmail
-                    accountId={parseInt(selectedAccountId)}
-                    accountEmail={accounts.find(a => a.id.toString() === selectedAccountId)?.email || ''}
-                    onClose={() => setShowCompose(false)}
-                    onSent={handleComposeSent}
-                    mode={composeMode}
-                    replyToEmail={replyToEmail || undefined}
-                />
+            {/* Compose Modal */}
+            {showCompose && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+                        <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between bg-gray-50 dark:bg-slate-800/50 rounded-t-xl">
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                <PencilSquareIcon className="h-5 w-5 mr-2 text-blue-500" />
+                                New Message
+                            </h2>
+                            <button
+                                onClick={() => setShowCompose(false)}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-4 overflow-y-auto">
+                            {/* Account Selector in Compose */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">From</label>
+                                <select
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={selectedAccountId}
+                                    onChange={(e) => setSelectedAccountId(e.target.value)}
+                                    disabled={loading}
+                                >
+                                    {accounts.map(acc => (
+                                        <option key={acc.id} value={acc.id}>{acc.email} ({acc.provider})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <Input
+                                label="To"
+                                value={to}
+                                onChange={(e) => setTo(e.target.value)}
+                                placeholder="recipient@example.com (comma separated)"
+                            />
+
+                            <Input
+                                label="Subject"
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
+                                placeholder="Subject"
+                            />
+
+                            <div className="flex items-center space-x-2 py-1">
+                                <input
+                                    type="checkbox"
+                                    id="schedule-check"
+                                    checked={isScheduling}
+                                    onChange={(e) => setIsScheduling(e.target.checked)}
+                                    className="rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 dark:bg-slate-700"
+                                />
+                                <label htmlFor="schedule-check" className="text-sm text-gray-700 dark:text-slate-300 select-none cursor-pointer">
+                                    Schedule for later
+                                </label>
+                            </div>
+
+                            {isScheduling && (
+                                <Input
+                                    type="datetime-local"
+                                    label="Schedule Time"
+                                    value={scheduledAt}
+                                    onChange={(e) => setScheduledAt(e.target.value)}
+                                />
+                            )}
+
+                            <div className="flex-1">
+                                <textarea
+                                    value={body}
+                                    onChange={(e) => setBody(e.target.value)}
+                                    rows={12}
+                                    className="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm leading-relaxed"
+                                    placeholder="Write your message here..."
+                                />
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-gray-200 dark:border-slate-700 flex justify-end space-x-3 bg-gray-50 dark:bg-slate-800/50 rounded-b-xl">
+                            <Button variant="secondary" onClick={() => setShowCompose(false)}>
+                                Discard
+                            </Button>
+                            <Button
+                                variant="primary"
+                                onClick={handleSendEmail}
+                                disabled={sending}
+                                className="pl-4 pr-6"
+                            >
+                                <PaperAirplaneIcon className="h-4 w-4 mr-2" />
+                                {sending ? 'Sending...' : (isScheduling ? 'Schedule Send' : 'Send Message')}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             )}
         </DashboardLayout>
     );
