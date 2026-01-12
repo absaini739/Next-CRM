@@ -78,6 +78,7 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
                 bcc: bcc ? bcc.split(',').map(e => e.trim()) : undefined,
                 subject,
                 body,
+                tracking_enabled: trackingEnabled,
                 folder: 'sent',
                 scheduled_at: isScheduling && scheduledAt ? scheduledAt : undefined
             });
@@ -105,6 +106,7 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
         setBody('');
         setScheduledAt('');
         setIsScheduling(false);
+        setTrackingEnabled(false);
     };
 
     const handleTemplateSelect = (template: any) => {
@@ -228,17 +230,32 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
                         placeholder="Subject"
                     />
 
-                    <div className="flex items-center space-x-2 py-1">
-                        <input
-                            type="checkbox"
-                            id="schedule-check"
-                            checked={isScheduling}
-                            onChange={(e) => setIsScheduling(e.target.checked)}
-                            className="rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 dark:bg-slate-700"
-                        />
-                        <label htmlFor="schedule-check" className="text-sm text-gray-700 dark:text-slate-300 select-none cursor-pointer">
-                            Schedule for later
-                        </label>
+                    <div className="flex items-center space-x-4 py-1">
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="tracking-check"
+                                checked={trackingEnabled}
+                                onChange={(e) => setTrackingEnabled(e.target.checked)}
+                                className="rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 dark:bg-slate-700"
+                            />
+                            <label htmlFor="tracking-check" className="text-sm text-gray-700 dark:text-slate-300 select-none cursor-pointer">
+                                Enable email tracking
+                            </label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="schedule-check"
+                                checked={isScheduling}
+                                onChange={(e) => setIsScheduling(e.target.checked)}
+                                className="rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 dark:bg-slate-700"
+                            />
+                            <label htmlFor="schedule-check" className="text-sm text-gray-700 dark:text-slate-300 select-none cursor-pointer">
+                                Schedule for later
+                            </label>
+                        </div>
                     </div>
 
                     {isScheduling && (

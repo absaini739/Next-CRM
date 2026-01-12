@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { gmailService } from '../services/email/gmail.service';
 import { outlookService } from '../services/email/outlook.service';
+import { addEmailTracking } from '../utils/email-tracking';
 
 const sendEmailSchema = z.object({
     account_id: z.number(),
@@ -11,6 +12,7 @@ const sendEmailSchema = z.object({
     bcc: z.array(z.string().email()).optional(),
     subject: z.string(),
     body: z.string(), // HTML body
+    tracking_enabled: z.boolean().optional(),
     attachments: z.array(z.object({
         filename: z.string(),
         content: z.string(), // base64
@@ -221,7 +223,7 @@ export const createEmail = async (req: Request, res: Response) => {
             sentMessageId = info.id;
         }
 
-        // Save to Sent folder
+        // Save to Sent folder first (we need the ID for tracking)
         const emailMessage = await prisma.emailMessage.create({
             data: {
                 account_id: account.id,
@@ -238,9 +240,22 @@ export const createEmail = async (req: Request, res: Response) => {
                 is_read: true,
                 sent_at: new Date(),
                 sent_from_crm: true,
-                sent_from_account_id: account.id
+                sent_from_account_id: account.id,
+                tracking_enabled: data.tracking_enabled || false
             }
         });
+
+        // If tracking enabled, inject tracking into email body
+        let finalBody = data.body;
+        if (data.tracking_enabled) {
+            finalBody = addEmailTracking(data.body, emailMessage.id);
+
+            // Update the email message with tracked body
+            await prisma.emailMessage.update({
+                where: { id: emailMessage.id },
+                data: { body_html: finalBody }
+            });
+        }
 
         res.status(201).json(emailMessage);
     } catch (error) {
