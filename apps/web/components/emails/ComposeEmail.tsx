@@ -36,6 +36,7 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
     const [subject, setSubject] = useState('');
     const [body, setBody] = useState('');
     const [sending, setSending] = useState(false);
+    const [trackingEnabled, setTrackingEnabled] = useState(false);
 
     // Scheduling (optional future feature, kept UI for consistency but simplified logic)
     const [isScheduling, setIsScheduling] = useState(false);
