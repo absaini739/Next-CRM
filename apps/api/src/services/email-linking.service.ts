@@ -83,13 +83,15 @@ export async function autoLinkEmail(emailMessageId: number) {
         };
 
         // 1. Find matching Persons
+        // Search for persons whose emails JSON array contains any of our email addresses
         const persons = await prisma.person.findMany({
             where: {
-                emails: {
-                    // Search in JSON array
-                    path: '$[*].value',
-                    array_contains: emailAddresses,
-                },
+                OR: emailAddresses.map(email => ({
+                    emails: {
+                        path: '$[*].value',
+                        string_contains: email,
+                    },
+                })),
             },
         });
 

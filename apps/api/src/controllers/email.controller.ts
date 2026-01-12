@@ -258,6 +258,14 @@ export const createEmail = async (req: Request, res: Response) => {
             });
         }
 
+        // Auto-link email to CRM entities
+        try {
+            const linkResult = await autoLinkEmail(emailMessage.id);
+            console.log(`✅ Auto-linked email ${emailMessage.id}:`, linkResult);
+        } catch (linkError) {
+            console.error('Auto-linking failed (non-critical):', linkError);
+        }
+
         res.status(201).json(emailMessage);
     } catch (error) {
         if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });
