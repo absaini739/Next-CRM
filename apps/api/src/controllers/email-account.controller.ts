@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { gmailService } from '../services/email/gmail.service';
 import { outlookService } from '../services/email/outlook.service';
+import { emailSyncService } from '../services/email/email-sync.service';
 
 const connectAccountSchema = z.object({
     provider: z.enum(['gmail', 'outlook'])
@@ -37,6 +38,7 @@ export const initiateOAuth = async (req: Request, res: Response) => {
 
 /**
  * Handle OAuth callback from provider
+ * AUTO-TRIGGERS INITIAL SYNC for new accounts
  */
 export const handleOAuthCallback = async (req: Request, res: Response) => {
     try {
@@ -51,6 +53,8 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
 
         let tokens: any;
         let userInfo: any;
+        let accountId: number;
+        let isNewAccount = false;
 
         if (provider === 'gmail') {
             tokens = await gmailService.getTokensFromCode(code as string);
@@ -71,12 +75,14 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
                     data: {
                         access_token: tokens.access_token!,
                         refresh_token: tokens.refresh_token || null,
-                        token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null
+                        token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+                        sync_enabled: true
                     }
                 });
+                accountId = existingAccount.id;
             } else {
                 // Create new account
-                await prisma.emailAccount.create({
+                const newAccount = await prisma.emailAccount.create({
                     data: {
                         user_id: parseInt(userId),
                         provider,
@@ -85,9 +91,12 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
                         access_token: tokens.access_token!,
                         refresh_token: tokens.refresh_token || null,
                         token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
-                        is_default: false
+                        is_default: false,
+                        sync_enabled: true
                     }
                 });
+                accountId = newAccount.id;
+                isNewAccount = true;
             }
         } else {
             tokens = await outlookService.getTokensFromCode(code as string);
@@ -107,25 +116,45 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
                     where: { id: existingAccount.id },
                     data: {
                         access_token: tokens.accessToken,
-                        refresh_token: tokens.refreshToken, // This is actually account home ID for Outlook
-                        token_expiry: tokens.expiresOn
+                        refresh_token: tokens.refreshToken,
+                        token_expiry: tokens.expiresOn,
+                        sync_enabled: true
                     }
                 });
+                accountId = existingAccount.id;
             } else {
                 // Create new account
-                await prisma.emailAccount.create({
+                const newAccount = await prisma.emailAccount.create({
                     data: {
                         user_id: parseInt(userId),
                         provider,
                         email: userInfo.email,
                         display_name: userInfo.name,
                         access_token: tokens.accessToken,
-                        refresh_token: tokens.refreshToken, // This is actually account home ID for Outlook
+                        refresh_token: tokens.refreshToken,
                         token_expiry: tokens.expiresOn,
-                        is_default: false
+                        is_default: false,
+                        sync_enabled: true
                     }
                 });
+                accountId = newAccount.id;
+                isNewAccount = true;
             }
+        }
+
+        // 🔄 AUTO-TRIGGER INITIAL SYNC FOR NEW ACCOUNTS
+        // Run sync in background (don't await - redirect user immediately)
+        if (isNewAccount) {
+            console.log(`\n🆕 New account connected: ${userInfo.email} - Starting background sync...`);
+            emailSyncService.initialSyncForNewAccount(accountId).catch(err => {
+                console.error(`Background sync failed for ${userInfo.email}:`, err);
+            });
+        } else {
+            // Even for existing accounts, trigger a sync to get latest emails
+            console.log(`\n🔄 Existing account reconnected: ${userInfo.email} - Starting background sync...`);
+            emailSyncService.syncAccount(accountId).catch(err => {
+                console.error(`Background sync failed for ${userInfo.email}:`, err);
+            });
         }
 
         // Redirect to frontend success page
@@ -234,7 +263,7 @@ export const setDefaultAccount = async (req: Request, res: Response) => {
 };
 
 /**
- * Trigger manual sync for an account
+ * Trigger manual sync for an account - ACTUALLY SYNCS ALL EMAILS
  */
 export const triggerSync = async (req: Request, res: Response) => {
     try {
@@ -251,16 +280,65 @@ export const triggerSync = async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'Email account not found' });
         }
 
-        // TODO: Trigger background sync job
-        // For now, just update last_sync_at
-        await prisma.emailAccount.update({
-            where: { id: accountId },
-            data: { last_sync_at: new Date() }
+        // Start sync in background (don't block the response)
+        console.log(`\n📧 Manual sync triggered for: ${account.email}`);
+
+        // Respond immediately
+        res.json({
+            message: 'Sync started successfully',
+            account_id: accountId,
+            email: account.email
         });
 
-        res.json({ message: 'Sync triggered successfully' });
+        // Actually trigger the full sync in background
+        emailSyncService.syncAccount(accountId).catch(err => {
+            console.error(`Sync failed for ${account.email}:`, err);
+        });
+
     } catch (error) {
         console.error('Error triggering sync:', error);
         res.status(500).json({ message: 'Error triggering sync' });
     }
+};
+
+/**
+ * Toggle sync enabled/disabled for an account
+ */
+export const toggleSync = async (req: Request, res: Response) => {
+    try {
+        const accountId = parseInt(req.params.id);
+        // @ts-ignore
+        const userId = req.userId;
+
+        const account = await prisma.emailAccount.findFirst({
+            where: { id: accountId, user_id: userId }
+        });
+
+        if (!account) {
+            return res.status(404).json({ message: 'Email account not found' });
+        }
+
+        await prisma.emailAccount.update({
+            where: { id: accountId },
+            data: { sync_enabled: !account.sync_enabled }
+        });
+
+        res.json({
+            message: 'Sync toggled successfully',
+            sync_enabled: !account.sync_enabled
+        });
+    } catch (error) {
+        console.error('Error toggling sync:', error);
+        res.status(500).json({ message: 'Error toggling sync' });
+    }
+};
+
+export const emailAccountController = {
+    initiateOAuth,
+    handleOAuthCallback,
+    getEmailAccounts,
+    disconnectAccount,
+    setDefaultAccount,
+    triggerSync,
+    toggleSync
 };
