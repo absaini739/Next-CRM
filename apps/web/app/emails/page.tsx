@@ -466,7 +466,7 @@ export default function EmailsPage() {
                                                 </tr>
                                             ) : emails.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={4} className="px-4 py-16 text-center text-gray-500 dark:text-slate-400">
+                                                    <td colSpan={5} className="px-4 py-16 text-center text-gray-500 dark:text-slate-400">
                                                         <EnvelopeIcon className="h-12 w-12 mx-auto text-gray-300 dark:text-slate-600 mb-3" />
                                                         <p className="text-lg font-medium text-gray-900 dark:text-slate-300">No emails found</p>
                                                         <p className="text-sm">Your {folder} is empty</p>
@@ -510,6 +510,15 @@ export default function EmailsPage() {
                                                                 hour: '2-digit',
                                                                 minute: '2-digit'
                                                             })}
+                                                        </td>
+                                                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                            <button
+                                                                onClick={() => handleDelete(email.id)}
+                                                                className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                                                                title="Delete email"
+                                                            >
+                                                                <TrashIcon className="h-4 w-4" />
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 ))
