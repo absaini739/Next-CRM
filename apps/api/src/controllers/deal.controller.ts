@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { getDealEmails as fetchDealEmails } from '../services/email-linking.service';
 
 const dealSchema = z.object({
     title: z.string().min(1),
@@ -99,5 +100,19 @@ export const deleteDeal = async (req: Request, res: Response) => {
         res.json({ message: 'Deal deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting deal' });
+    }
+};
+
+export const getDealEmails = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        const deal = await prisma.deal.findUnique({ where: { id } });
+        if (!deal) return res.status(404).json({ message: 'Deal not found' });
+
+        const emails = await fetchDealEmails(id);
+        res.json(emails);
+    } catch (error) {
+        console.error('Error fetching deal emails:', error);
+        res.status(500).json({ message: 'Error fetching emails' });
     }
 };

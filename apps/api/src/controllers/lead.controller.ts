@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { getLeadEmails as fetchLeadEmails } from '../services/email-linking.service';
 
 const leadSchema = z.object({
     title: z.string().min(1),
@@ -185,8 +186,8 @@ export const updateLead = async (req: Request, res: Response) => {
     } catch (error) {
         if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });
         console.error('Error updating lead:', error);
-        res.status(500).json({ 
-            message: 'Error updating lead', 
+        res.status(500).json({
+            message: 'Error updating lead',
             error: error instanceof Error ? error.message : 'Unknown error',
             stack: error instanceof Error ? error.stack : undefined
         });
@@ -277,5 +278,19 @@ export const deleteLead = async (req: Request, res: Response) => {
         res.json({ message: 'Lead deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting lead' });
+    }
+};
+
+export const getLeadEmails = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        const lead = await prisma.lead.findUnique({ where: { id } });
+        if (!lead) return res.status(404).json({ message: 'Lead not found' });
+
+        const emails = await fetchLeadEmails(id);
+        res.json(emails);
+    } catch (error) {
+        console.error('Error fetching lead emails:', error);
+        res.status(500).json({ message: 'Error fetching emails' });
     }
 };

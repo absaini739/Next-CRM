@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma';
 import { gmailService } from '../services/email/gmail.service';
 import { outlookService } from '../services/email/outlook.service';
 import { addEmailTracking } from '../utils/email-tracking';
+import { autoLinkEmail } from '../services/email-linking.service';
 
 const sendEmailSchema = z.object({
     account_id: z.number(),
