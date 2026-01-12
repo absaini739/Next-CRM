@@ -320,10 +320,10 @@ export const getAttachment = async (req: Request, res: Response) => {
         }
 
         // Get attachment
-        const attachment = await prisma.emailAttachment.findFirst({
+        const attachment = await prisma.emailMessageAttachment.findFirst({
             where: {
                 id: attachmentId,
-                email_id: emailId
+                message_id: emailId
             }
         });
 
@@ -339,9 +339,9 @@ export const getAttachment = async (req: Request, res: Response) => {
         // Send file data
         // Note: In a real implementation, you'd fetch the actual file from storage
         // For now, we'll send the stored data (if available) or return an error
-        if (attachment.data) {
+        if ((attachment as any).data) {
             // If data is stored as base64, decode it
-            const buffer = Buffer.from(attachment.data, 'base64');
+            const buffer = Buffer.from((attachment as any).data, 'base64');
             res.send(buffer);
         } else {
             res.status(404).json({ message: 'Attachment data not available' });

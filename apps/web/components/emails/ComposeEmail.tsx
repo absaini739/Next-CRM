@@ -226,6 +226,7 @@ export default function ComposeEmail({ open, onClose, onSuccess, accounts, initi
                     )}
 
                     <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Message</label>
                         <textarea
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
