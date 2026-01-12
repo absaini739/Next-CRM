@@ -449,12 +449,15 @@ export default function EmailsPage() {
                                                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase w-32">
                                                     Date
                                                 </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider w-20">
+                                                    Actions
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                                             {loading ? (
                                                 <tr>
-                                                    <td colSpan={4} className="px-4 py-12 text-center text-gray-500 dark:text-slate-400">
+                                                    <td colSpan={5} className="px-4 py-12 text-center text-gray-500 dark:text-slate-400">
                                                         <div className="flex flex-col items-center justify-center">
                                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
                                                             <p>Loading emails...</p>

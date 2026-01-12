@@ -111,7 +111,7 @@ export const startPeriodicSync = async () => {
         {},
         {
             repeat: {
-                cron: '*/15 * * * *', // Every 15 minutes
+                cron: '*/2 * * * *', // Every 2 minutes (faster sync)
             },
             jobId: 'periodic-sync-job',
         }

@@ -18,5 +18,6 @@ router.get('/', emailAccountController.getEmailAccounts);
 router.delete('/:id', emailAccountController.disconnectAccount);
 router.put('/:id/default', emailAccountController.setDefaultAccount);
 router.post('/:id/sync', emailAccountController.triggerSync);
+router.post('/:id/sync-now', emailAccountController.syncNow);
 
 export default router;

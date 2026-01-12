@@ -342,3 +342,35 @@ export const emailAccountController = {
     triggerSync,
     toggleSync
 };
+/**
+ * Manual sync - trigger immediate email sync for an account
+ */
+export const syncNow = async (req: Request, res: Response) => {
+    try {
+        const accountId = parseInt(req.params.id);
+        // @ts-ignore
+        const userId = req.userId;
+
+        // Verify account belongs to user
+        const account = await prisma.emailAccount.findFirst({
+            where: { id: accountId, user_id: userId }
+        });
+
+        if (!account) {
+            return res.status(404).json({ message: 'Email account not found' });
+        }
+
+        // Trigger immediate sync
+        console.log(`🔄 Manual sync triggered for account ${accountId}`);
+        await emailSyncService.syncAccount(accountId);
+
+        res.json({
+            message: 'Sync completed successfully',
+            account_id: accountId,
+            synced_at: new Date()
+        });
+    } catch (error) {
+        console.error('Error in manual sync:', error);
+        res.status(500).json({ message: 'Error syncing emails' });
+    }
+};
