@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -21,7 +22,12 @@ import {
 } from '@heroicons/react/24/outline';
 
 import EmailDetail from '@/components/emails/EmailDetail';
-import ComposeEmail from '@/components/emails/ComposeEmail';
+
+// Dynamic import to avoid TipTap SSR hydration issues
+const ComposeEmail = dynamic(() => import('@/components/emails/ComposeEmail'), {
+    ssr: false,
+    loading: () => <div className="fixed bottom-0 right-4 w-[600px] bg-white dark:bg-slate-800 shadow-2xl rounded-t-lg p-4 z-50">Loading editor...</div>
+});
 
 interface EmailAccount {
     id: number;
