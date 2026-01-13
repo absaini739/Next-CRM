@@ -42,10 +42,6 @@ import emailAccountRoutes from './routes/email-account.routes';
 import emailTemplateRoutes from './routes/email-template.routes';
 import trackingRoutes from './routes/tracking.routes';
 import callRoutes from './routes/call.routes';
-import { createBullBoard } from '@bull-board/api';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
-import { ExpressAdapter } from '@bull-board/express';
-import { emailSyncQueue, startPeriodicSync } from './queues/email-sync.queue';
 
 app.use('/auth', authRoutes);
 app.use('/persons', personRoutes);
@@ -71,16 +67,7 @@ app.use('/email-templates', emailTemplateRoutes);
 app.use('/track', trackingRoutes);
 app.use('/voip', callRoutes);
 
-// Bull Board - Queue monitoring dashboard
-const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/admin/queues');
 
-createBullBoard({
-    queues: [new BullAdapter(emailSyncQueue)],
-    serverAdapter: serverAdapter,
-});
-
-app.use('/admin/queues', serverAdapter.getRouter());
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -102,7 +89,6 @@ app.get('/health', async (req, res) => {
             status: 'healthy',
             checks: {
                 database: 'connected',
-                redis: 'connected', // TODO: Add Redis health check
             },
             uptime: process.uptime(),
             timestamp: new Date().toISOString(),
@@ -121,12 +107,7 @@ app.use(notFoundHandler);
 // Global error handler - must be last
 app.use(errorHandler);
 
-// Start periodic email sync
-startPeriodicSync().then(() => {
-    console.log('✅ Email sync queue initialized');
-}).catch((err) => {
-    console.error('❌ Failed to start periodic sync:', err);
-});
+
 
 // Validate environment variables on startup
 if (!process.env.DATABASE_URL) {
@@ -143,6 +124,5 @@ if (apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1')) {
 
 app.listen(port, () => {
     console.log(`✅ Server is running at http://localhost:${port}`);
-    console.log(`📊 Bull Board available at http://localhost:${port}/admin/queues`);
     console.log(`🏥 Health check at http://localhost:${port}/health`);
 });
