@@ -1,0 +1,13 @@
+SKU,Name,Description,Price,Quantity,Category
+CRM-ENT-001,Enterprise CRM License,Full-featured CRM for large organizations with unlimited users,15000,100,Software
+CRM-SMB-002,Small Business CRM,Affordable CRM solution for small businesses (up to 10 users),2500,500,Software
+CRM-MID-003,Mid-Market CRM,Scalable CRM for growing companies (up to 50 users),7500,250,Software
+INT-EMAIL-004,Email Integration Module,Advanced email integration with tracking and automation,1200,300,Add-on
+INT-VOIP-005,VoIP Integration Module,Complete voice calling integration with call recording,1800,200,Add-on
+ANA-DASH-006,Analytics Dashboard,Advanced reporting and analytics dashboard,950,400,Add-on
+AUTO-WORK-007,Workflow Automation,Automated workflows and business process automation,2200,150,Add-on
+MOB-APP-008,Mobile App License,Native mobile apps for iOS and Android,800,600,Add-on
+API-ACCESS-009,API Access Package,Full API access with developer documentation,1500,100,Add-on
+TRAIN-BASIC-010,Basic Training Package,4-hour onboarding and training session,500,unlimited,Service
+TRAIN-ADV-011,Advanced Training,Full-day advanced training workshop,1200,unlimited,Service
+SUPPORT-PREM-012,Premium Support,24/7 premium support with dedicated account manager,3000,50,Service

@@ -131,14 +131,53 @@ export default function DataTransferPage() {
                             )}
                         </div>
 
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                            <h4 className="text-sm font-medium text-blue-900 mb-2">Required Columns:</h4>
-                            <ul className="text-sm text-blue-700 space-y-1">
+                        {/* Sample CSV Download */}
+                        <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
+                            <h4 className="text-sm font-medium text-gray-900 dark:text-slate-100 mb-2">Download Sample CSV:</h4>
+                            <div className="flex flex-wrap gap-2">
+                                {importType === 'leads' && (
+                                    <a
+                                        href="/samples/leads_sample.csv"
+                                        download="leads_sample.csv"
+                                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                    >
+                                        <DocumentArrowDownIcon className="h-4 w-4 mr-1.5" />
+                                        leads_sample.csv
+                                    </a>
+                                )}
+                                {importType === 'persons' && (
+                                    <a
+                                        href="/samples/persons_sample.csv"
+                                        download="persons_sample.csv"
+                                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                    >
+                                        <DocumentArrowDownIcon className="h-4 w-4 mr-1.5" />
+                                        persons_sample.csv
+                                    </a>
+                                )}
+                                {importType === 'products' && (
+                                    <a
+                                        href="/samples/products_sample.csv"
+                                        download="products_sample.csv"
+                                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                    >
+                                        <DocumentArrowDownIcon className="h-4 w-4 mr-1.5" />
+                                        products_sample.csv
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">Required Columns:</h4>
+                            <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                                 {importType === 'persons' && (
                                     <>
                                         <li>• Name (required)</li>
                                         <li>• Email (optional)</li>
                                         <li>• Phone (optional)</li>
+                                        <li>• Organization (optional)</li>
+                                        <li>• Job Title (optional)</li>
                                     </>
                                 )}
                                 {importType === 'products' && (
@@ -148,13 +187,24 @@ export default function DataTransferPage() {
                                         <li>• Description (optional)</li>
                                         <li>• Price (optional)</li>
                                         <li>• Quantity (optional)</li>
+                                        <li>• Category (optional)</li>
                                     </>
                                 )}
                                 {importType === 'leads' && (
                                     <>
                                         <li>• Title (required)</li>
                                         <li>• Description (optional)</li>
-                                        <li>• Value (optional)</li>
+                                        <li>• First Name, Last Name (optional)</li>
+                                        <li>• Company Name, Job Title (optional)</li>
+                                        <li>• Website, LinkedIn URL (optional)</li>
+                                        <li>• Location (optional)</li>
+                                        <li>• Primary Email, Secondary Email (optional)</li>
+                                        <li>• Phone, Mobile (optional)</li>
+                                        <li>• Lead Rating (Hot/Warm/Cold) (optional)</li>
+                                        <li>• No Employees (optional)</li>
+                                        <li>• Lead Value (optional)</li>
+                                        <li>• Status (In Progress/Won/Lost) (optional)</li>
+                                        <li>• Source, Type (optional)</li>
                                     </>
                                 )}
                             </ul>

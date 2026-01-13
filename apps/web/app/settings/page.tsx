@@ -10,18 +10,12 @@ import {
     FunnelIcon,
     EnvelopeIcon,
     ArrowsRightLeftIcon,
-    BoltIcon,
     BellIcon,
     WrenchScrewdriverIcon,
-    CubeIcon,
     LockClosedIcon,
     BuildingOfficeIcon,
-    CurrencyDollarIcon,
-    GlobeAltIcon,
-    ChartBarIcon,
     DocumentTextIcon,
     ClockIcon,
-    TagIcon,
     Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
@@ -75,14 +69,7 @@ const settingSections: SettingSection[] = [
         color: 'bg-indigo-100 text-indigo-600',
         route: '/data-transfer'
     },
-    {
-        id: 'automation',
-        title: 'Workflow Automation',
-        description: 'Create automated workflows and triggers',
-        icon: BoltIcon,
-        color: 'bg-yellow-100 text-yellow-600',
-        route: '/settings/automation'
-    },
+
     {
         id: 'notifications',
         title: 'Notifications',
@@ -99,14 +86,7 @@ const settingSections: SettingSection[] = [
         color: 'bg-pink-100 text-pink-600',
         route: '/settings/custom-fields'
     },
-    {
-        id: 'integrations',
-        title: 'API & Integrations',
-        description: 'Connect third-party apps and services',
-        icon: CubeIcon,
-        color: 'bg-teal-100 text-teal-600',
-        route: '/settings/integrations'
-    },
+
     {
         id: 'security',
         title: 'Security Settings',
@@ -123,30 +103,9 @@ const settingSections: SettingSection[] = [
         color: 'bg-cyan-100 text-cyan-600',
         route: '/settings/company'
     },
-    {
-        id: 'billing',
-        title: 'Billing & Subscription',
-        description: 'Manage your subscription and invoices',
-        icon: CurrencyDollarIcon,
-        color: 'bg-emerald-100 text-emerald-600',
-        route: '/settings/billing'
-    },
-    {
-        id: 'localization',
-        title: 'Localization',
-        description: 'Language, timezone, and currency settings',
-        icon: GlobeAltIcon,
-        color: 'bg-violet-100 text-violet-600',
-        route: '/settings/localization'
-    },
-    {
-        id: 'reports',
-        title: 'Reports & Analytics',
-        description: 'Configure dashboards and custom reports',
-        icon: ChartBarIcon,
-        color: 'bg-lime-100 text-lime-600',
-        route: '/settings/reports'
-    },
+
+
+
     {
         id: 'templates',
         title: 'Email Templates',
@@ -163,22 +122,8 @@ const settingSections: SettingSection[] = [
         color: 'bg-rose-100 text-rose-600',
         route: '/settings/business-hours'
     },
-    {
-        id: 'tags',
-        title: 'Tags & Categories',
-        description: 'Manage tags and categorization',
-        icon: TagIcon,
-        color: 'bg-fuchsia-100 text-fuchsia-600',
-        route: '/settings/tags'
-    },
-    {
-        id: 'advanced',
-        title: 'Advanced Settings',
-        description: 'Database, backups, and system configuration',
-        icon: Cog6ToothIcon,
-        color: 'bg-slate-100 text-slate-600',
-        route: '/settings/advanced'
-    },
+
+
 ];
 
 export default function SettingsPage() {
@@ -251,24 +196,6 @@ export default function SettingsPage() {
                         <p className="text-gray-500 dark:text-slate-500">No settings found matching your search.</p>
                     </div>
                 )}
-
-                {/* Info Card */}
-                <Card className="p-6 bg-blue-50 border-blue-200">
-                    <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                            <Cog6ToothIcon className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-semibold text-blue-900 mb-1">
-                                Settings Configuration
-                            </h3>
-                            <p className="text-sm text-blue-700">
-                                Advanced settings pages will be implemented in the next phase.
-                                Core CRM functionality is fully operational!
-                            </p>
-                        </div>
-                    </div>
-                </Card>
             </div>
         </DashboardLayout>
     );
