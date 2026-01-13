@@ -642,12 +642,60 @@ export class EmailSyncService {
         }
     }
     /**
-     * Check if an address is "Whitelisted" based on our "Sent" history
+     * Check if an email address is known in the CRM system
+     * Checks: Users, Persons, Organizations, and Sent history
      */
-    private async isAddressWhitelisted(accountId: number, email: string): Promise<boolean> {
+    private async isKnownContact(accountId: number, email: string): Promise<boolean> {
         if (!email) return false;
 
-        // Check if we have EVER sent an email TO this person from this account
+        const normalizedEmail = email.toLowerCase().trim();
+
+        // 1. Check if it's a CRM User (Admin, Manager, Staff)
+        const user = await prisma.user.findFirst({
+            where: {
+                email: {
+                    equals: normalizedEmail,
+                    mode: 'insensitive'
+                }
+            }
+        });
+
+        if (user) {
+            console.log(`[Filter] ✅ Email from CRM User: ${email}`);
+            return true;
+        }
+
+        // 2. Check if it's a Person (Contact)
+        const person = await prisma.person.findFirst({
+            where: {
+                email: {
+                    equals: normalizedEmail,
+                    mode: 'insensitive'
+                }
+            }
+        });
+
+        if (person) {
+            console.log(`[Filter] ✅ Email from Person: ${email}`);
+            return true;
+        }
+
+        // 3. Check if it's an Organization
+        const organization = await prisma.organization.findFirst({
+            where: {
+                email: {
+                    equals: normalizedEmail,
+                    mode: 'insensitive'
+                }
+            }
+        });
+
+        if (organization) {
+            console.log(`[Filter] ✅ Email from Organization: ${email}`);
+            return true;
+        }
+
+        // 4. Check if we have EVER sent an email TO this person (Sent history whitelist)
         const interaction = await prisma.emailMessage.findFirst({
             where: {
                 account_id: accountId,
@@ -656,20 +704,34 @@ export class EmailSyncService {
                     {
                         to: {
                             path: ['$[*]', 'email'],
-                            string_contains: email.toLowerCase(),
+                            string_contains: normalizedEmail,
                         }
                     },
                     {
                         cc: {
                             path: ['$[*]', 'email'],
-                            string_contains: email.toLowerCase(),
+                            string_contains: normalizedEmail,
                         }
                     }
                 ]
             }
         });
 
-        return !!interaction;
+        if (interaction) {
+            console.log(`[Filter] ✅ Email from Sent History: ${email}`);
+            return true;
+        }
+
+        console.log(`[Filter] ❌ Unknown sender (not in CRM): ${email}`);
+        return false;
+    }
+
+    /**
+     * @deprecated Use isKnownContact() instead
+     * Check if an address is "Whitelisted" based on our "Sent" history
+     */
+    private async isAddressWhitelisted(accountId: number, email: string): Promise<boolean> {
+        return this.isKnownContact(accountId, email);
     }
 }
 
