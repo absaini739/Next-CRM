@@ -49,12 +49,12 @@ emailSyncQueue.process('sync-all-accounts', async (job) => {
 
         console.log(`Found ${accounts.length} accounts to sync for user ${userId}`);
 
-        // Sync each account
+        // Sync each account by adding individual jobs to the queue
         for (const account of accounts) {
-            await emailSyncService.syncAccount(account.id);
+            await emailSyncQueue.add('sync-account', { accountId: account.id });
         }
 
-        console.log(`✅ Sync completed for all accounts of user ${userId}`);
+        console.log(`✅ Sync jobs queued for all accounts of user ${userId}`);
         return { success: true, userId, accountCount: accounts.length };
     } catch (error: any) {
         console.error(`❌ Sync failed for user ${userId}:`, error.message);
@@ -62,44 +62,38 @@ emailSyncQueue.process('sync-all-accounts', async (job) => {
     }
 });
 
-// Periodic sync job - runs every 15 minutes
-emailSyncQueue.process('periodic-sync', async (job) => {
-    console.log('🔄 Running periodic sync for all users');
+// Periodic sync job - triggers individual sync-account jobs for all enabled accounts
+const processPeriodicSync = async (job: any) => {
+    console.log('🔄 Running sync for all enabled accounts');
 
     try {
-        // Get all enabled email accounts
         const accounts = await prisma.emailAccount.findMany({
             where: { sync_enabled: true },
-            select: { id: true, email: true, user_id: true },
+            select: { id: true, email: true },
         });
 
         console.log(`Found ${accounts.length} accounts to sync`);
 
-        // Sync each account
-        let successCount = 0;
-        let failCount = 0;
-
         for (const account of accounts) {
-            try {
-                await emailSyncService.syncAccount(account.id);
-                successCount++;
-            } catch (error: any) {
-                console.error(`Failed to sync account ${account.email}:`, error.message);
-                failCount++;
-            }
+            await emailSyncQueue.add('sync-account', { accountId: account.id });
         }
 
-        console.log(`✅ Periodic sync completed: ${successCount} success, ${failCount} failed`);
-        return { success: true, successCount, failCount, total: accounts.length };
+        console.log(`✅ Sync jobs queued for ${accounts.length} accounts`);
+        return { success: true, count: accounts.length };
     } catch (error: any) {
-        console.error('❌ Periodic sync failed:', error.message);
+        console.error('❌ Sync failed:', error.message);
         throw error;
     }
-});
+};
 
-// Add periodic sync job (every 15 minutes)
+emailSyncQueue.process('periodic-sync', processPeriodicSync);
+
+// Legacy handler for 'trigger-all-syncs' to prevent "Missing process handler" errors
+emailSyncQueue.process('trigger-all-syncs', processPeriodicSync);
+
+// Add periodic sync job (every 2 minutes)
 export const startPeriodicSync = async () => {
-    // Remove existing repeatable jobs first
+    // Remove existing repeatable jobs first to avoid duplicates or old formats
     const repeatableJobs = await emailSyncQueue.getRepeatableJobs();
     for (const job of repeatableJobs) {
         await emailSyncQueue.removeRepeatableByKey(job.key);
@@ -111,13 +105,13 @@ export const startPeriodicSync = async () => {
         {},
         {
             repeat: {
-                cron: '*/2 * * * *', // Every 2 minutes (faster sync)
+                cron: '*/2 * * * *', // Every 2 minutes
             },
             jobId: 'periodic-sync-job',
         }
     );
 
-    console.log('✅ Periodic email sync scheduled (every 15 minutes)');
+    console.log('✅ Periodic email sync scheduled (every 2 minutes)');
 };
 
 // Queue event listeners

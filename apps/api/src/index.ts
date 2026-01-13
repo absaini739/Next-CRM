@@ -42,7 +42,6 @@ import emailAccountRoutes from './routes/email-account.routes';
 import emailTemplateRoutes from './routes/email-template.routes';
 import trackingRoutes from './routes/tracking.routes';
 import callRoutes from './routes/call.routes';
-import { initEmailSyncWorker } from './workers/email-sync.worker';
 import { createBullBoard } from '@bull-board/api';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { ExpressAdapter } from '@bull-board/express';
@@ -121,9 +120,6 @@ app.use(notFoundHandler);
 
 // Global error handler - must be last
 app.use(errorHandler);
-
-// Initialize background workers
-initEmailSyncWorker();
 
 // Start periodic email sync
 startPeriodicSync().then(() => {
