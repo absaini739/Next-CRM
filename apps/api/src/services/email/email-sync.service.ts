@@ -464,23 +464,9 @@ export class EmailSyncService {
         });
 
         // Link it, excluding the account owner's email to ensure a REAL contact is found
-        const linkResult = await autoLinkEmail(newEmail.id, {
+        await autoLinkEmail(newEmail.id, {
             excludeEmails: accountEmail ? [accountEmail] : []
         });
-
-        // HYPER-STRICT FILTER:
-        // 1. Always keep Sent/Draft items
-        // 2. ONLY keep Inbox/Other if the sender is in our "Sent Interaction" list
-        // (Removing CRM contact bypass as requested - only project-interacted people are whitelisted)
-        if (folder !== 'sent' && folder !== 'draft') {
-            const isWhitelisted = await this.isAddressWhitelisted(accountId, parsedMessage.from_email);
-
-            if (!isWhitelisted) {
-                console.log(`[Sync] HYPER-FILTERED: Deleting email from ${parsedMessage.from_email} (Not in project Sent whitelist)`);
-                await prisma.emailMessage.delete({ where: { id: newEmail.id } }).catch(() => { });
-                return null;
-            }
-        }
 
         return newEmail;
     }
@@ -671,7 +657,7 @@ export class EmailSyncService {
      * Check if an email address is known in the CRM system
      * Checks: Users, Persons, Organizations, and Sent history
      */
-    private async isKnownContact(accountId: number, email: string): Promise<boolean> {
+    async isKnownContact(accountId: number, email: string): Promise<boolean> {
         if (!email) return false;
 
         const normalizedEmail = email.toLowerCase().trim();
@@ -694,11 +680,15 @@ export class EmailSyncService {
         // 2. Check if it's a Person (Contact)
         const person = await prisma.person.findFirst({
             where: {
-                email: {
-                    equals: normalizedEmail,
-                    mode: 'insensitive'
-                }
-            }
+                OR: [
+                    {
+                        emails: {
+                            path: ['$[*]', 'value'],
+                            string_contains: normalizedEmail,
+                        },
+                    },
+                ],
+            },
         });
 
         if (person) {

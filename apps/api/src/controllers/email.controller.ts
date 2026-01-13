@@ -25,7 +25,7 @@ const sendEmailSchema = z.object({
 // Get emails (inbox/sent/etc) with pagination
 export const getEmails = async (req: Request, res: Response) => {
     try {
-        const { folder = 'inbox', page = 1, limit = 20, search, account_id } = req.query;
+        const { folder = 'inbox', page = 1, limit = 20, search, account_id, strict = 'false' } = req.query;
         // @ts-ignore
         const userId = req.userId;
 
@@ -44,6 +44,16 @@ export const getEmails = async (req: Request, res: Response) => {
                 { from_email: { contains: search as string, mode: 'insensitive' } },
                 { from_name: { contains: search as string, mode: 'insensitive' } },
                 { snippet: { contains: search as string, mode: 'insensitive' } }
+            ];
+        }
+
+        // Apply strict filtering if requested
+        if (strict === 'true' && folder === 'inbox') {
+            where.OR = [
+                { person_id: { not: null } },
+                { lead_id: { not: null } },
+                { deal_id: { not: null } },
+                { sent_from_crm: true }
             ];
         }
 
@@ -579,5 +589,72 @@ export const syncEmails = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('Error triggering manual sync:', error);
         res.status(500).json({ message: 'Error triggering manual sync' });
+    }
+};
+// Multiple bulk operations (delete, archive, mark read)
+export const bulkUpdate = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId;
+        const { ids, folder, is_read } = req.body;
+
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ message: 'No email IDs provided' });
+        }
+
+        const where: any = {
+            id: { in: ids },
+            account: { user_id: userId }
+        };
+
+        const data: any = {};
+        if (folder) data.folder = folder;
+        if (is_read !== undefined) data.is_read = is_read;
+
+        if (Object.keys(data).length === 0) {
+            return res.status(400).json({ message: 'No update data provided' });
+        }
+
+        await prisma.emailMessage.updateMany({
+            where,
+            data
+        });
+
+        res.json({ message: `Successfully updated ${ids.length} emails` });
+    } catch (error) {
+        console.error('Error in bulk update:', error);
+        res.status(500).json({ message: 'Error performing bulk update' });
+    }
+};
+
+// Bulk Delete (permanently or move to trash)
+export const bulkDelete = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId;
+        const { ids, permanent = false } = req.body;
+
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ message: 'No email IDs provided' });
+        }
+
+        const where: any = {
+            id: { in: ids },
+            account: { user_id: userId }
+        };
+
+        if (permanent) {
+            await prisma.emailMessage.deleteMany({ where });
+            res.json({ message: `Permanently deleted ${ids.length} emails` });
+        } else {
+            await prisma.emailMessage.updateMany({
+                where,
+                data: { folder: 'trash' }
+            });
+            res.json({ message: `Moved ${ids.length} emails to trash` });
+        }
+    } catch (error) {
+        console.error('Error in bulk delete:', error);
+        res.status(500).json({ message: 'Error performing bulk delete' });
     }
 };

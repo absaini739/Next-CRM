@@ -6,12 +6,20 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get('/', emailController.getEmails);
+// Bulk Operations (Static routes first)
+router.patch('/bulk', emailController.bulkUpdate);
+router.post('/bulk/delete', emailController.bulkDelete);
+
+// Folder & Stats
 router.get('/folders/counts', emailController.getFolderCounts);
 router.get('/thread/:id', emailController.getThread);
+
+// Standard CRUD
+router.get('/', emailController.getEmails);
 router.get('/:id/attachments/:attachmentId', emailController.getAttachment);
 router.get('/:id', emailController.getEmail);
-// Manual Connect
+
+// Manual Connect & Sync
 router.post('/sync', emailController.syncEmails);
 router.post('/connect-manual', emailController.connectManual);
 
