@@ -692,11 +692,12 @@ export class EmailSyncService {
         }
 
         // 2. Check if it's a Person (Contact)
+        // Person.emails is a JSON array: [{value: "email@example.com", label: "Work"}]
         const person = await prisma.person.findFirst({
             where: {
-                email: {
-                    equals: normalizedEmail,
-                    mode: 'insensitive'
+                emails: {
+                    path: ['$[*]', 'value'],
+                    string_contains: normalizedEmail
                 }
             }
         });
