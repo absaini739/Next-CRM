@@ -4,9 +4,11 @@
  */
 
 import twilio from 'twilio';
-import { AccessToken } from 'twilio/lib/jwt/AccessToken';
-import VoiceGrant from 'twilio/lib/jwt/AccessToken/VoiceGrant';
+import { jwt } from 'twilio';
 import { prisma } from '../../lib/prisma';
+
+const AccessToken = jwt.AccessToken;
+const VoiceGrant = AccessToken.VoiceGrant;
 
 export class TwilioService {
     /**

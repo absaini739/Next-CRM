@@ -1,12 +1,9 @@
-/**
- * Call Controller
- * Handles voice call operations
- */
-
 import { Request, Response } from 'express';
 import { twilioService } from '../services/voip/twilio.service';
 import { prisma } from '../lib/prisma';
-import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
+import { twiml } from 'twilio';
+
+const VoiceResponse = twiml.VoiceResponse;
 
 /**
  * Generate Twilio token for WebRTC calling
