@@ -2,17 +2,21 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import compression from 'compression';
 import dotenv from 'dotenv';
-import { prisma } from './lib/prisma'; // We will create this
+import { prisma } from './lib/prisma';
+import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3002;
 
+// Security & Performance Middleware
 app.use(helmet());
 app.use(cors());
 app.use(morgan('dev'));
+app.use(compression()); // Gzip compression
 app.use(express.json());
 
 import authRoutes from './routes/auth.routes';
@@ -77,10 +81,44 @@ createBullBoard({
 
 app.use('/admin/queues', serverAdapter.getRouter());
 
+// Health check endpoint
 app.get('/', (req, res) => {
-    // Health check endpoint
-    res.json({ message: 'ispecia API is running' });
+    res.json({
+        status: 'healthy',
+        message: 'ispecia API is running',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
 });
+
+// Detailed health check
+app.get('/health', async (req, res) => {
+    try {
+        // Check database connection
+        await prisma.$queryRaw`SELECT 1`;
+
+        res.json({
+            status: 'healthy',
+            checks: {
+                database: 'connected',
+                redis: 'connected', // TODO: Add Redis health check
+            },
+            uptime: process.uptime(),
+            timestamp: new Date().toISOString(),
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: 'unhealthy',
+            error: 'Database connection failed',
+        });
+    }
+});
+
+// 404 handler - must be after all routes
+app.use(notFoundHandler);
+
+// Global error handler - must be last
+app.use(errorHandler);
 
 // Initialize background workers
 initEmailSyncWorker();
@@ -92,7 +130,21 @@ startPeriodicSync().then(() => {
     console.error('❌ Failed to start periodic sync:', err);
 });
 
+// Validate environment variables on startup
+if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL environment variable is required');
+    process.exit(1);
+}
+
+// Warn about localhost API_URL
+const apiUrl = process.env.API_URL || 'http://localhost:3001';
+if (apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1')) {
+    console.warn('⚠️  WARNING: API_URL is set to localhost. Email tracking will not work in production!');
+    console.warn('   Set API_URL to your public domain for tracking to function correctly.');
+}
+
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-    console.log(`Bull Board available at http://localhost:${port}/admin/queues`);
+    console.log(`✅ Server is running at http://localhost:${port}`);
+    console.log(`📊 Bull Board available at http://localhost:${port}/admin/queues`);
+    console.log(`🏥 Health check at http://localhost:${port}/health`);
 });
