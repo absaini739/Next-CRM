@@ -122,6 +122,11 @@ if (apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1')) {
     console.warn('   Set API_URL to your public domain for tracking to function correctly.');
 }
 
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+if (frontendUrl.includes('localhost') || frontendUrl.includes('127.0.0.1')) {
+    console.log('ℹ️  FRONTEND_URL not set or is localhost. Defaulting to:', frontendUrl);
+}
+
 app.listen(port, () => {
     console.log(`✅ Server is running at http://localhost:${port}`);
     console.log(`🏥 Health check at http://localhost:${port}/health`);

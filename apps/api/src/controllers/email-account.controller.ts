@@ -158,10 +158,12 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
         }
 
         // Redirect to frontend success page
-        res.redirect(`http://localhost:3000/settings/email?success=true&email=${encodeURIComponent(userInfo.email)}`);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendUrl}/settings/email?success=true&email=${encodeURIComponent(userInfo.email)}`);
     } catch (error) {
         console.error('Error handling OAuth callback:', error);
-        res.redirect(`http://localhost:3000/settings/email?error=true`);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendUrl}/settings/email?error=true`);
     }
 };
 

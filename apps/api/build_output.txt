@@ -1,0 +1,9 @@
+error TS6059: File '/home/Abhi/Downloads/laravel-crm-next/apps/api/debug-gmail.ts' is not under 'rootDir' '/home/Abhi/Downloads/laravel-crm-next/apps/api/src'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Matched by default include pattern '**/*'
+error TS6059: File '/home/Abhi/Downloads/laravel-crm-next/apps/api/test-gmail-fetch.ts' is not under 'rootDir' '/home/Abhi/Downloads/laravel-crm-next/apps/api/src'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Matched by default include pattern '**/*'
+error TS6059: File '/home/Abhi/Downloads/laravel-crm-next/apps/api/test-sync.ts' is not under 'rootDir' '/home/Abhi/Downloads/laravel-crm-next/apps/api/src'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Matched by default include pattern '**/*'
