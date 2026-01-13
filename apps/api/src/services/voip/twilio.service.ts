@@ -100,7 +100,7 @@ export class TwilioService {
         );
 
         const voiceGrant = new VoiceGrant({
-            outgoingApplicationSid: provider.twiml_app_sid,
+            outgoingApplicationSid: provider.twiml_app_sid || undefined,
             incomingAllow: true,
         });
 
@@ -169,7 +169,7 @@ export class TwilioService {
         }
 
         updates.push(`updated_at = NOW()`);
-        values.push(callSid);
+        values.push(callSid || '');
 
         const query = `
             UPDATE call_logs 
