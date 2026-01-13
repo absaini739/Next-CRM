@@ -207,6 +207,42 @@ export async function autoLinkEmail(emailMessageId: number, options: { excludeEm
             });
 
             console.log(`✅ Linked email ${emailMessageId} to:`, linked);
+        } else if (emailMessage.folder === 'sent' && persons.length === 0 && leads.length === 0 && organizations.length === 0) {
+            // "those person i sent the email those are my contacts"
+            // Automatically create a Person for the first REAL recipient found
+            const realRecipients = emailAddresses; // Already filtered for account owner
+
+            if (realRecipients.length > 0) {
+                const targetEmail = realRecipients[0];
+                console.log(`✨ Creating automated Person for Sent recipient: ${targetEmail}`);
+
+                try {
+                    // Get account to find owner
+                    const account = await prisma.emailAccount.findUnique({
+                        where: { id: emailMessage.account_id }
+                    });
+
+                    const newPerson = await prisma.person.create({
+                        data: {
+                            name: targetEmail.split('@')[0], // Default name from email
+                            emails: [{ value: targetEmail, label: 'Work' }] as any,
+                            user_id: account?.user_id
+                        }
+                    });
+
+                    updateData.person_id = newPerson.id;
+                    linked.persons = [newPerson.id];
+
+                    await prisma.emailMessage.update({
+                        where: { id: emailMessageId },
+                        data: updateData,
+                    });
+
+                    console.log(`✅ Auto-created and linked Person ${newPerson.id} for email ${emailMessageId}`);
+                } catch (err: any) {
+                    console.error(`❌ Failed to auto-create Person for ${targetEmail}:`, err.message);
+                }
+            }
         } else {
             console.log(`ℹ️ No CRM entities found for email ${emailMessageId}`);
         }

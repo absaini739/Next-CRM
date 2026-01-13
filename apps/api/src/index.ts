@@ -138,9 +138,12 @@ app.listen(port, () => {
         console.error('Failed to start email scheduler:', err);
     });
 
+    // Background sync loop disabled - manual sync only via Refresh button
+    /*
     import('./services/email/email-sync.service').then(({ emailSyncService }) => {
         emailSyncService.startSyncLoop();
     }).catch(err => {
         console.error('Failed to start email sync loop:', err);
     });
+    */
 });
