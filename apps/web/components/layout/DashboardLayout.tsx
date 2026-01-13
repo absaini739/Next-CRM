@@ -2,6 +2,7 @@
 
 import Sidebar from './Sidebar';
 import Header from './Header';
+import CallModal from '../voip/CallModal';
 
 export default function DashboardLayout({
     children,
@@ -19,6 +20,7 @@ export default function DashboardLayout({
                     {children}
                 </main>
             </div>
+            <CallModal />
         </div>
     );
 }

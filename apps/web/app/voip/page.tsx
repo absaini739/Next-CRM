@@ -14,6 +14,7 @@ import {
     MicrophoneIcon,
     ArrowRightIcon
 } from '@heroicons/react/24/outline';
+import callManager from '@/lib/voip/callManager';
 
 function VoIPContent() {
     const router = useRouter();
@@ -122,10 +123,14 @@ function VoIPContent() {
                         />
                     </div>
                     <button
-                        onClick={() => {
+                        onClick={async () => {
                             if (phoneNumber) {
-                                toast.success(`Initiating call to ${phoneNumber}`);
-                                // TODO: Integrate with actual VoIP provider API
+                                try {
+                                    await callManager.makeCall(phoneNumber);
+                                    toast.success(`Calling ${phoneNumber}...`);
+                                } catch (error: any) {
+                                    toast.error(error.message || 'Failed to start call');
+                                }
                             } else {
                                 toast.error('Please enter a phone number');
                             }

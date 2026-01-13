@@ -44,7 +44,7 @@ class CallManager {
             this.setupEventListeners();
 
             await this.device.register();
-            
+
             console.log('✅ Voice device registered and ready');
             toast.success('Phone ready to make calls');
         } catch (error) {
@@ -80,10 +80,6 @@ class CallManager {
      */
     async makeCall(phoneNumber: string): Promise<void> {
         try {
-            if (!this.device) {
-                throw new Error('Device not initialized. Please refresh the page.');
-            }
-
             if (this.currentCall && this.currentCall.status() !== 'closed') {
                 throw new Error('Already on a call');
             }
@@ -94,8 +90,28 @@ class CallManager {
                 duration: 0,
             });
 
-            toast.info(`Calling ${phoneNumber}...`);
+            toast.info(`Calling ${phoneNumber}... (Simulated)`);
 
+            // If device is not initialized, simulate the call flow
+            if (!this.device) {
+                console.log('⚠️ Device not initialized, running in MOCK mode');
+
+                // Simulate ringing
+                setTimeout(() => {
+                    this.updateState({ status: 'ringing' });
+                }, 1000);
+
+                // Simulate connected
+                setTimeout(() => {
+                    this.updateState({ status: 'active' });
+                    this.startDurationCounter();
+                    toast.success('Call connected (Simulated)');
+                }, 3000);
+
+                return;
+            }
+
+            // Real call logic
             this.currentCall = await this.device.connect({
                 params: { To: phoneNumber }
             });
@@ -147,6 +163,28 @@ class CallManager {
      * End the current call
      */
     endCall(): void {
+        if (!this.device) {
+            // Mock mode end call
+            console.log('Ending mock call');
+            this.stopDurationCounter();
+            this.updateState({
+                status: 'ended',
+                duration: 0,
+                isMuted: false,
+                isOnHold: false,
+            });
+            toast.info('Call ended');
+
+            setTimeout(() => {
+                this.updateState({
+                    status: 'idle',
+                    phoneNumber: null,
+                    callSid: null,
+                });
+            }, 2000);
+            return;
+        }
+
         if (this.currentCall) {
             this.currentCall.disconnect();
         }
@@ -159,10 +197,10 @@ class CallManager {
         if (this.currentCall) {
             const isMuted = this.currentCall.isMuted();
             this.currentCall.mute(!isMuted);
-            
+
             this.updateState({ isMuted: !isMuted });
             toast.info(!isMuted ? 'Muted' : 'Unmuted');
-            
+
             return !isMuted;
         }
         return false;
