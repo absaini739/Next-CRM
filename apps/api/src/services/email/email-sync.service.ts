@@ -15,8 +15,8 @@ import { outlookService } from './outlook.service';
 export class EmailSyncService {
 
     // Maximum emails to sync per folder
-    private readonly MAX_EMAILS_PER_FOLDER = 20; // Strictly limit to 20 per folder sync
-    private readonly MAX_PROCESS_LIMIT_PER_FOLDER = 100; // Cap total messages processed to prevent loops
+    private readonly MAX_EMAILS_PER_FOLDER = 100; // Increased from 20 to 100
+    private readonly MAX_PROCESS_LIMIT_PER_FOLDER = 500; // Increased from 100 to 500
 
     // Batch size for API calls
     private readonly BATCH_SIZE = 20; // Reduced to 20 as requested
@@ -232,6 +232,16 @@ export class EmailSyncService {
                         labels: parsed.labels
                     }
                 });
+
+                // RETROACTIVE LINKING: If it's a 'sent' email and not linked, try linking it now
+                // This ensures "sending mail makes them my contact" works for historical data
+                const currentFolder = folderOverride || existing.folder;
+                if (currentFolder === 'sent' && !existing.person_id && !existing.lead_id) {
+                    const { autoLinkEmail } = await import('../email-linking.service');
+                    await autoLinkEmail(existing.id, {
+                        excludeEmails: accountEmail ? [accountEmail] : []
+                    });
+                }
                 return false; // Not a "newly synced" email for count
             } else {
                 // Create new message
@@ -321,6 +331,14 @@ export class EmailSyncService {
                                     is_starred: parsed.is_starred
                                 }
                             });
+
+                            // RETROACTIVE LINKING for Outlook Sent items
+                            if (folder === 'sentitems' && !existing.person_id && !existing.lead_id) {
+                                const { autoLinkEmail } = await import('../email-linking.service');
+                                await autoLinkEmail(existing.id, {
+                                    excludeEmails: account.email ? [account.email] : []
+                                });
+                            }
                         } else {
                             const result = await this.createEmailMessageSafe(account.id, parsed, undefined, account.email);
                             if (result) totalSynced++;
@@ -453,11 +471,12 @@ export class EmailSyncService {
         // HYPER-STRICT FILTER:
         // 1. Always keep Sent/Draft items
         // 2. ONLY keep Inbox/Other if the sender is in our "Sent Interaction" list
+        // (Removing CRM contact bypass as requested - only project-interacted people are whitelisted)
         if (folder !== 'sent' && folder !== 'draft') {
             const isWhitelisted = await this.isAddressWhitelisted(accountId, parsedMessage.from_email);
 
-            if (!isWhitelisted && linkResult?.isUnknown) {
-                console.log(`[Sync] HYPER-FILTERED: Deleting email from ${parsedMessage.from_email} (Not in Sent whitelist)`);
+            if (!isWhitelisted) {
+                console.log(`[Sync] HYPER-FILTERED: Deleting email from ${parsedMessage.from_email} (Not in project Sent whitelist)`);
                 await prisma.emailMessage.delete({ where: { id: newEmail.id } }).catch(() => { });
                 return null;
             }
@@ -576,6 +595,13 @@ export class EmailSyncService {
 
                         if (existing) {
                             // Update existing message
+                            // RETROACTIVE LINKING for IMAP Sent items
+                            if (folder === 'sent' && !existing.person_id && !existing.lead_id) {
+                                const { autoLinkEmail } = await import('../email-linking.service');
+                                await autoLinkEmail(existing.id, {
+                                    excludeEmails: account.email ? [account.email] : []
+                                });
+                            }
                         } else {
                             // Re-use safe creation method for consistency and contact filtering
                             const parsed: any = {

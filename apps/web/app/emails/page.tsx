@@ -502,7 +502,20 @@ export default function EmailsPage() {
                                                         </td>
                                                         <td className="px-4 py-3">
                                                             <div className={`text-sm truncate max-w-[200px] ${!email.is_read ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-slate-300'}`}>
-                                                                {email.from_name || email.from_email}
+                                                                {folder === 'sent' ? (
+                                                                    <span className="flex items-center">
+                                                                        <span className="text-xs text-gray-400 mr-1 uppercase">To:</span>
+                                                                        {(() => {
+                                                                            const recipients = Array.isArray(email.to) ? email.to : [];
+                                                                            if (recipients.length === 0) return 'Unknown';
+                                                                            const first = recipients[0];
+                                                                            return typeof first === 'string' ? first : (first.name || first.email || first.address || 'Unknown');
+                                                                        })()}
+                                                                        {Array.isArray(email.to) && email.to.length > 1 && ` (+${email.to.length - 1})`}
+                                                                    </span>
+                                                                ) : (
+                                                                    email.from_name || email.from_email
+                                                                )}
                                                             </div>
                                                         </td>
                                                         <td className="px-4 py-3">
@@ -524,13 +537,22 @@ export default function EmailsPage() {
                                                             })}
                                                         </td>
                                                         <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                                                            <button
-                                                                onClick={() => handleDelete(email.id)}
-                                                                className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                                                                title="Delete email"
-                                                            >
-                                                                <TrashIcon className="h-4 w-4" />
-                                                            </button>
+                                                            <div className="flex items-center space-x-1">
+                                                                <button
+                                                                    onClick={() => handleArchive(email.id)}
+                                                                    className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                                                                    title="Archive email"
+                                                                >
+                                                                    <ArchiveBoxIcon className="h-4 w-4" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDelete(email.id)}
+                                                                    className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                                                                    title="Delete email"
+                                                                >
+                                                                    <TrashIcon className="h-4 w-4" />
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))
