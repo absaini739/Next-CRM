@@ -13,14 +13,22 @@ import { PlusIcon, CheckCircleIcon, XCircleIcon, ArrowPathIcon } from '@heroicon
 
 interface EmailAccount {
     id: number;
-    provider: 'gmail' | 'outlook';
+    provider: 'gmail' | 'outlook' | 'other';
     email: string;
     display_name?: string;
     is_default: boolean;
     sync_enabled: boolean;
     last_sync_at?: string;
     created_at: string;
+    connection_type?: string;
+    smtp_host?: string;
+    smtp_port?: number;
+    imap_host?: string;
+    imap_port?: number;
+    app_password?: string;
 }
+
+import ConnectEmailModal from './ConnectEmailModal';
 
 export default function EmailPage() {
     const router = useRouter();
@@ -28,6 +36,7 @@ export default function EmailPage() {
     const [accounts, setAccounts] = useState<EmailAccount[]>([]);
     const [loading, setLoading] = useState(true);
     const [connecting, setConnecting] = useState(false);
+    const [showManualConnect, setShowManualConnect] = useState(false);
 
     useEffect(() => {
         fetchAccounts();
@@ -132,6 +141,15 @@ export default function EmailPage() {
                             <PlusIcon className="h-5 w-5 mr-2" />
                             Connect Outlook
                         </Button>
+                        <Button
+                            variant="secondary"
+                            className="flex items-center"
+                            onClick={() => setShowManualConnect(true)}
+                            disabled={connecting}
+                        >
+                            <PlusIcon className="h-5 w-5 mr-2" />
+                            App Password
+                        </Button>
                     </div>
                 </div>
 
@@ -165,6 +183,20 @@ export default function EmailPage() {
                                             <p className="text-sm text-gray-500 dark:text-slate-500">
                                                 {account.provider.charAt(0).toUpperCase() + account.provider.slice(1)} • Last synced: {account.last_sync_at ? new Date(account.last_sync_at).toLocaleString() : 'Never'}
                                             </p>
+                                            {account.connection_type === 'smtp_imap' && (
+                                                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 dark:text-slate-500">
+                                                    <span>SMTP: {account.smtp_host}:{account.smtp_port}</span>
+                                                    <span>IMAP: {account.imap_host}:{account.imap_port}</span>
+                                                    {account.app_password && (
+                                                        <span className="flex items-center gap-1">
+                                                            App PW:
+                                                            <code className="bg-white/50 dark:bg-black/20 px-1 rounded text-blue-500 select-all">
+                                                                {account.app_password}
+                                                            </code>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="flex items-center space-x-2">
@@ -248,6 +280,12 @@ export default function EmailPage() {
                         </div>
                     </div>
                 </Card>
+
+                <ConnectEmailModal
+                    isOpen={showManualConnect}
+                    onClose={() => setShowManualConnect(false)}
+                    onSuccess={fetchAccounts}
+                />
             </div>
         </DashboardLayout>
     );

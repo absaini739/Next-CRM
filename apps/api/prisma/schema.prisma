@@ -379,6 +379,17 @@ model EmailAccount {
   is_default Boolean @default(false)
   signature  String? @db.Text
 
+  // SMTP/IMAP Credentials
+  connection_type    String? @default("oauth") // 'oauth', 'smtp_imap'
+  smtp_host          String?
+  smtp_port          Int?
+  imap_host          String?
+  imap_port          Int?
+  smtp_username      String?
+  imap_username      String?
+  encrypted_password String? // AES-256 encrypted app password
+  encryption_type    String? // 'ssl' | 'tls' | 'starttls' | 'none'
+
   // Provider-specific data
   provider_data Json? // Store provider-specific IDs, labels, etc.
 
@@ -423,8 +434,9 @@ model EmailMessage {
   has_attachments Boolean @default(false)
 
   // Timestamps
-  sent_at     DateTime?
-  received_at DateTime?
+  sent_at      DateTime?
+  received_at  DateTime?
+  scheduled_at DateTime?
 
   // CRM Relations
   person_id Int?

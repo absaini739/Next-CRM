@@ -17,7 +17,8 @@ import {
     MagnifyingGlassIcon,
     FunnelIcon,
     PencilSquareIcon,
-    EnvelopeIcon
+    EnvelopeIcon,
+    ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 interface EmailAccount {
@@ -40,13 +41,6 @@ interface Email {
     created_at: string;
 }
 
-// Re-adding interface needed for state
-interface EmailAccount {
-    id: number;
-    email: string;
-    provider: string;
-    is_default: boolean;
-}
 
 import EmailDetail from '@/components/emails/EmailDetail';
 import ComposeEmail from '@/components/emails/ComposeEmail';
@@ -59,6 +53,7 @@ export default function EmailsPage() {
     const [counts, setCounts] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
     const [showCompose, setShowCompose] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState<number[]>([]);
     const [search, setSearch] = useState('');
 
@@ -144,6 +139,21 @@ export default function EmailsPage() {
             setCounts(response.data);
         } catch (error) {
             console.error('Failed to fetch counts');
+        }
+    };
+
+    const handleSync = async () => {
+        if (!selectedAccountId) return;
+        setIsSyncing(true);
+        const toastId = toast.loading('Syncing with email provider...');
+        try {
+            await api.post('/emails/sync', { account_id: parseInt(selectedAccountId) });
+            toast.success('Synchronization complete', { id: toastId });
+            await Promise.all([fetchEmails(), fetchCounts()]);
+        } catch (error) {
+            toast.error('Synchronization failed', { id: toastId });
+        } finally {
+            setIsSyncing(false);
         }
     };
 
@@ -423,10 +433,12 @@ export default function EmailsPage() {
                                     <Button
                                         variant="secondary"
                                         size="sm"
-                                        onClick={() => fetchEmails()}
-                                        className="whitespace-nowrap"
+                                        onClick={handleSync}
+                                        disabled={isSyncing || !selectedAccountId}
+                                        className="whitespace-nowrap flex items-center"
                                     >
-                                        Refresh
+                                        <ArrowPathIcon className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                                        {isSyncing ? 'Syncing...' : 'Refresh'}
                                     </Button>
                                 </div>
                             </Card>

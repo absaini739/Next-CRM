@@ -15,10 +15,14 @@ import { outlookService } from './outlook.service';
 export class EmailSyncService {
 
     // Maximum emails to sync per folder
-    private readonly MAX_EMAILS_PER_FOLDER = 500;
+    private readonly MAX_EMAILS_PER_FOLDER = 20; // Strictly limit to 20 per folder sync
+    private readonly MAX_PROCESS_LIMIT_PER_FOLDER = 100; // Cap total messages processed to prevent loops
 
     // Batch size for API calls
-    private readonly BATCH_SIZE = 50;
+    private readonly BATCH_SIZE = 20; // Reduced to 20 as requested
+
+    private interval: NodeJS.Timeout | null = null;
+    private isSyncing = false;
 
     /**
      * Sync emails for a specific account - BULLETPROOF VERSION
@@ -55,12 +59,16 @@ export class EmailSyncService {
         const results: Record<string, { synced: number; errors: number }> = {};
 
         try {
-            if (account.provider === 'gmail') {
+            const acc = account as any;
+            if (account.provider === 'gmail' && acc.connection_type !== 'smtp_imap') {
                 const gmailResults = await this.syncGmailAccountSafe(account);
                 Object.assign(results, gmailResults);
-            } else if (account.provider === 'outlook') {
+            } else if (account.provider === 'outlook' && acc.connection_type !== 'smtp_imap') {
                 const outlookResults = await this.syncOutlookAccountSafe(account);
                 Object.assign(results, outlookResults);
+            } else if (acc.connection_type === 'smtp_imap') {
+                const imapResults = await this.syncSmtpImapAccountSafe(account);
+                Object.assign(results, imapResults);
             }
 
             // Update last sync time
@@ -102,9 +110,14 @@ export class EmailSyncService {
      * Safe Gmail sync - catches all errors per folder
      */
     private async syncGmailAccountSafe(account: any): Promise<Record<string, { synced: number; errors: number }>> {
+        // Build "after:YYYY/MM/DD" query for 7 days ago
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const dateQuery = `after:${sevenDaysAgo.getFullYear()}/${(sevenDaysAgo.getMonth() + 1).toString().padStart(2, '0')}/${sevenDaysAgo.getDate().toString().padStart(2, '0')}`;
+
         const foldersToSync = [
-            { name: 'INBOX', query: 'in:inbox' },
-            { name: 'SENT', query: 'in:sent' },
+            { name: 'SENT', query: `in:sent ${dateQuery}` },
+            { name: 'INBOX', query: `in:inbox ${dateQuery}` },
             { name: 'DRAFTS', query: 'in:drafts' },
             { name: 'TRASH', query: 'in:trash' },
             { name: 'STARRED', query: 'is:starred' }
@@ -135,6 +148,7 @@ export class EmailSyncService {
         let totalErrors = 0;
         let pageToken: string | undefined = undefined;
         let pageNumber = 1;
+        let totalProcessed = 0;
 
         do {
             try {
@@ -153,9 +167,10 @@ export class EmailSyncService {
                 console.log(`      Page ${pageNumber}: ${messages.length} messages`);
 
                 for (const gmailMsg of messages) {
+                    totalProcessed++;
                     try {
-                        await this.processGmailMessageSafe(account.id, gmailMsg, folderLabel);
-                        totalSynced++;
+                        const synced = await this.processGmailMessageSafe(account.id, gmailMsg, folderLabel, account.email);
+                        if (synced) totalSynced++;
                     } catch (error: any) {
                         console.warn(`      ⚠️ Failed to process message: ${error.message}`);
                         totalErrors++;
@@ -165,9 +180,14 @@ export class EmailSyncService {
                 pageToken = result.nextPageToken;
                 pageNumber++;
 
-                // Safety limit
-                if (totalSynced + totalErrors >= this.MAX_EMAILS_PER_FOLDER) {
-                    console.log(`      ⚠️ Reached max limit of ${this.MAX_EMAILS_PER_FOLDER} emails`);
+                // Safety limit - either enough kept or too many processed
+                if (totalSynced >= this.MAX_EMAILS_PER_FOLDER) {
+                    console.log(`      ✓ Reached kept limit of ${this.MAX_EMAILS_PER_FOLDER} emails`);
+                    break;
+                }
+
+                if (totalProcessed >= this.MAX_PROCESS_LIMIT_PER_FOLDER) {
+                    console.log(`      ⚠️ Reached process cap of ${this.MAX_PROCESS_LIMIT_PER_FOLDER} emails`);
                     break;
                 }
             } catch (error: any) {
@@ -183,12 +203,12 @@ export class EmailSyncService {
     /**
      * Process a single Gmail message - SAFE VERSION
      */
-    private async processGmailMessageSafe(accountId: number, gmailMsg: any, folderOverride?: string) {
+    private async processGmailMessageSafe(accountId: number, gmailMsg: any, folderOverride?: string, accountEmail?: string): Promise<boolean> {
         const parsed = gmailService.parseMessage(gmailMsg);
 
         // Skip if no valid message ID
         if (!parsed.message_id || parsed.message_id.startsWith('error_')) {
-            return;
+            return false;
         }
 
         try {
@@ -212,15 +232,17 @@ export class EmailSyncService {
                         labels: parsed.labels
                     }
                 });
+                return false; // Not a "newly synced" email for count
             } else {
                 // Create new message
-                await this.createEmailMessageSafe(accountId, parsed, folderOverride);
+                const result = await this.createEmailMessageSafe(accountId, parsed, folderOverride, accountEmail);
+                return !!result;
             }
         } catch (error: any) {
             // Check for unique constraint violation (duplicate message)
             if (error.code === 'P2002') {
                 // Duplicate - just skip silently
-                return;
+                return false;
             }
             throw error;
         }
@@ -230,7 +252,7 @@ export class EmailSyncService {
      * Safe Outlook sync
      */
     private async syncOutlookAccountSafe(account: any): Promise<Record<string, { synced: number; errors: number }>> {
-        const foldersToSync = ['inbox', 'sentitems', 'drafts', 'deleteditems'];
+        const foldersToSync = ['sentitems', 'inbox', 'drafts', 'deleteditems'];
         const results: Record<string, { synced: number; errors: number }> = {};
 
         for (const folder of foldersToSync) {
@@ -255,13 +277,20 @@ export class EmailSyncService {
         let totalSynced = 0;
         let totalErrors = 0;
         let skip = 0;
+        let totalProcessed = 0;
+
+        // Build 7 day filter for Outlook
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const filterStr = `receivedDateTime ge ${sevenDaysAgo.toISOString()}`;
 
         try {
             do {
                 const result = await outlookService.fetchMessages(account.id, {
                     top: this.BATCH_SIZE,
                     folder: folder,
-                    skip: skip
+                    skip: skip,
+                    filter: filterStr
                 });
 
                 const messages = result.messages || result || [];
@@ -271,6 +300,7 @@ export class EmailSyncService {
                 }
 
                 for (const outlookMsg of messages) {
+                    totalProcessed++;
                     try {
                         const parsed = outlookService.parseMessage(outlookMsg);
 
@@ -292,9 +322,9 @@ export class EmailSyncService {
                                 }
                             });
                         } else {
-                            await this.createEmailMessageSafe(account.id, parsed);
+                            const result = await this.createEmailMessageSafe(account.id, parsed, undefined, account.email);
+                            if (result) totalSynced++;
                         }
-                        totalSynced++;
                     } catch (error: any) {
                         if (error.code !== 'P2002') { // Ignore duplicates
                             totalErrors++;
@@ -308,7 +338,13 @@ export class EmailSyncService {
                     break;
                 }
 
-                if (totalSynced + totalErrors >= this.MAX_EMAILS_PER_FOLDER) {
+                if (totalSynced >= this.MAX_EMAILS_PER_FOLDER) {
+                    console.log(`      ✓ Reached kept limit of ${this.MAX_EMAILS_PER_FOLDER} emails`);
+                    break;
+                }
+
+                if (totalProcessed >= this.MAX_PROCESS_LIMIT_PER_FOLDER) {
+                    console.log(`      ⚠️ Reached process cap of ${this.MAX_PROCESS_LIMIT_PER_FOLDER} emails`);
                     break;
                 }
             } while (true);
@@ -323,7 +359,7 @@ export class EmailSyncService {
     /**
      * Create email message - SAFE VERSION with thread handling
      */
-    private async createEmailMessageSafe(accountId: number, parsedMessage: any, folderOverride?: string) {
+    private async createEmailMessageSafe(accountId: number, parsedMessage: any, folderOverride?: string, accountEmail?: string) {
         let threadId: number | null = null;
 
         // Try to find or create thread (safely)
@@ -379,8 +415,11 @@ export class EmailSyncService {
             else if (parsedMessage.labels.includes('SPAM')) folder = 'spam';
         }
 
-        // Create email message
-        await prisma.emailMessage.create({
+        // Contact Filtering: Apply to ALL incoming emails to keep project clean
+        const { autoLinkEmail } = await import('../email-linking.service');
+
+        // Create it first to check linking (current architecture)
+        const newEmail = await prisma.emailMessage.create({
             data: {
                 account_id: accountId,
                 thread_id: threadId,
@@ -403,9 +442,28 @@ export class EmailSyncService {
                 has_attachments: parsedMessage.has_attachments,
                 sent_at: parsedMessage.sent_at || null,
                 received_at: parsedMessage.received_at,
-                provider_data: parsedMessage.provider_data || {}
             }
         });
+
+        // Link it, excluding the account owner's email to ensure a REAL contact is found
+        const linkResult = await autoLinkEmail(newEmail.id, {
+            excludeEmails: accountEmail ? [accountEmail] : []
+        });
+
+        // HYPER-STRICT FILTER:
+        // 1. Always keep Sent/Draft items
+        // 2. ONLY keep Inbox/Other if the sender is in our "Sent Interaction" list
+        if (folder !== 'sent' && folder !== 'draft') {
+            const isWhitelisted = await this.isAddressWhitelisted(accountId, parsedMessage.from_email);
+
+            if (!isWhitelisted && linkResult?.isUnknown) {
+                console.log(`[Sync] HYPER-FILTERED: Deleting email from ${parsedMessage.from_email} (Not in Sent whitelist)`);
+                await prisma.emailMessage.delete({ where: { id: newEmail.id } }).catch(() => { });
+                return null;
+            }
+        }
+
+        return newEmail;
     }
 
     /**
@@ -460,6 +518,158 @@ export class EmailSyncService {
 
         // Perform full sync
         return await this.syncAccount(accountId, { fullSync: true });
+    }
+
+    /**
+     * Clean up folder name mapping
+     */
+    private mapFolder(folder: string): string {
+        const map: Record<string, string> = {
+            'INBOX': 'inbox',
+            'Sent Items': 'sent',
+            '[Gmail]/Sent Mail': 'sent',
+            'Trash': 'trash',
+            '[Gmail]/Trash': 'trash',
+            'Drafts': 'draft',
+            '[Gmail]/Drafts': 'draft'
+        };
+        return map[folder] || 'inbox';
+    }
+
+    /**
+     * Sync SMTP/IMAP Account
+     */
+    private async syncSmtpImapAccountSafe(account: any): Promise<Record<string, { synced: number; errors: number }>> {
+        const foldersToSync = ['sent', 'inbox'];
+        const results: Record<string, { synced: number; errors: number }> = {};
+
+        // Dynamic import to avoid circular dependency issues if any
+        const { smtpImapService } = await import('./smtp-imap.service');
+
+        for (const folder of foldersToSync) {
+            console.log(`\n📁 Syncing ${folder}...`);
+            let totalSynced = 0;
+            let totalErrors = 0;
+
+            try {
+                // Fetch messages from the last 2 days to keep it fast and avoid timeouts
+                const twoDaysAgo = new Date();
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+                const messages = await smtpImapService.fetchMessages(account.id, {
+                    folder,
+                    since: twoDaysAgo
+                });
+
+                for (const msg of messages) {
+                    try {
+                        if (!msg.message_id) continue;
+
+                        const existing = await prisma.emailMessage.findUnique({
+                            where: {
+                                account_id_message_id: {
+                                    account_id: account.id,
+                                    message_id: msg.message_id!
+                                }
+                            }
+                        });
+
+                        if (existing) {
+                            // Update existing message
+                        } else {
+                            // Re-use safe creation method for consistency and contact filtering
+                            const parsed: any = {
+                                message_id: msg.message_id,
+                                from_email: (msg as any).from?.[0]?.address || 'unknown',
+                                from_name: (msg as any).from?.[0]?.name || '',
+                                to: (msg as any).to || [],
+                                cc: (msg as any).cc || [],
+                                bcc: (msg as any).bcc || [],
+                                subject: (msg as any).subject || 'No Subject',
+                                body_html: (msg as any).html || (msg as any).text || '',
+                                body_text: (msg as any).text || '',
+                                snippet: ((msg as any).text || '').substring(0, 200),
+                                received_at: (msg as any).date,
+                                folder: this.mapFolder(folder),
+                                provider_data: { uid: (msg as any).uid, flags: (msg as any).flags }
+                            };
+
+                            const result = await this.createEmailMessageSafe(account.id, parsed, folder, account.email);
+                            if (result) totalSynced++;
+                        }
+                    } catch (err: any) {
+                        console.error(`[Sync] Failed to process IMAP message:`, err.message);
+                        totalErrors++;
+                    }
+                }
+
+                results[folder] = { synced: totalSynced, errors: totalErrors };
+            } catch (error: any) {
+                console.error(`   ✗ ${folder}: Failed - ${error.message}`);
+                results[folder] = { synced: 0, errors: 1 };
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Start background sync loop
+     */
+    startSyncLoop(intervalMs: number = 2 * 60 * 1000) { // Default 2 minutes
+        if (this.interval) return;
+
+        console.log('🚀 Email Sync loop started');
+        this.interval = setInterval(() => {
+            if (!this.isSyncing) {
+                this.isSyncing = true;
+                this.syncAllAccounts().finally(() => {
+                    this.isSyncing = false;
+                });
+            }
+        }, intervalMs);
+
+        // Run once on start
+        this.syncAllAccounts();
+    }
+
+    /**
+     * Stop background sync loop
+     */
+    stopSyncLoop() {
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+    }
+    /**
+     * Check if an address is "Whitelisted" based on our "Sent" history
+     */
+    private async isAddressWhitelisted(accountId: number, email: string): Promise<boolean> {
+        if (!email) return false;
+
+        // Check if we have EVER sent an email TO this person from this account
+        const interaction = await prisma.emailMessage.findFirst({
+            where: {
+                account_id: accountId,
+                folder: 'sent',
+                OR: [
+                    {
+                        to: {
+                            path: ['$[*]', 'email'],
+                            string_contains: email.toLowerCase(),
+                        }
+                    },
+                    {
+                        cc: {
+                            path: ['$[*]', 'email'],
+                            string_contains: email.toLowerCase(),
+                        }
+                    }
+                ]
+            }
+        });
+
+        return !!interaction;
     }
 }
 

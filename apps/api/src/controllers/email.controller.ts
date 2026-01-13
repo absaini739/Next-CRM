@@ -18,7 +18,8 @@ const sendEmailSchema = z.object({
         filename: z.string(),
         content: z.string(), // base64
         contentType: z.string()
-    })).optional()
+    })).optional(),
+    scheduled_at: z.string().datetime().optional().or(z.string().optional())
 });
 
 // Get emails (inbox/sent/etc) with pagination
@@ -205,7 +206,6 @@ export const createEmail = async (req: Request, res: Response) => {
             data: {
                 account_id: account.id,
                 message_id: '', // Will update after sending
-                folder: 'sent',
                 from_email: account.email,
                 from_name: account.display_name,
                 to: data.to,
@@ -215,12 +215,19 @@ export const createEmail = async (req: Request, res: Response) => {
                 body_html: data.body,
                 snippet: data.body.substring(0, 200),
                 is_read: true,
-                sent_at: new Date(),
+                sent_at: data.scheduled_at && new Date(data.scheduled_at) > new Date() ? null : new Date(),
                 sent_from_crm: true,
                 sent_from_account_id: account.id,
-                tracking_enabled: data.tracking_enabled || false
+                tracking_enabled: data.tracking_enabled || false,
+                scheduled_at: data.scheduled_at ? new Date(data.scheduled_at) : null,
+                folder: data.scheduled_at && new Date(data.scheduled_at) > new Date() ? 'outbox' : 'sent'
             }
         });
+
+        // If scheduled for future, stop here and return
+        if (emailMessage.folder === 'outbox') {
+            return res.status(201).json(emailMessage);
+        }
 
         // If tracking enabled, inject tracking BEFORE sending
         let finalBody = data.body;
@@ -237,7 +244,7 @@ export const createEmail = async (req: Request, res: Response) => {
         let sentMessageId: string;
 
         // Send via provider with tracked body
-        if (account.provider === 'gmail') {
+        if (account.provider === 'gmail' && account.connection_type !== 'smtp_imap') {
             const info = await gmailService.sendEmail(account.id, {
                 to: data.to,
                 cc: data.cc,
@@ -247,7 +254,7 @@ export const createEmail = async (req: Request, res: Response) => {
                 isHtml: true
             });
             sentMessageId = info.id || '';
-        } else {
+        } else if (account.provider === 'outlook' && account.connection_type !== 'smtp_imap') {
             const info = await outlookService.sendEmail(account.id, {
                 to: data.to,
                 cc: data.cc,
@@ -257,6 +264,19 @@ export const createEmail = async (req: Request, res: Response) => {
                 isHtml: true
             });
             sentMessageId = info.id;
+        } else {
+            // SMTP/IMAP Sending
+            const { smtpImapService } = await import('../services/email/smtp-imap.service');
+            const info = await smtpImapService.sendEmail(account.id, {
+                to: data.to,
+                cc: data.cc,
+                bcc: data.bcc,
+                subject: data.subject,
+                body: finalBody,
+                isHtml: true,
+                // inReplyTo: data.inReplyTo // Add to schema if needed
+            });
+            sentMessageId = info.messageId;
         }
 
         // Update with actual message ID from provider
@@ -310,23 +330,71 @@ export const updateEmail = async (req: Request, res: Response) => {
 };
 
 // Delete email
+// Delete or Move to Trash
 export const deleteEmail = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);
         // @ts-ignore
         const userId = req.userId;
 
-        await prisma.emailMessage.deleteMany({
+        const email = await prisma.emailMessage.findFirst({
             where: {
                 id,
                 account: { user_id: userId }
             }
         });
 
-        res.json({ message: 'Email deleted successfully' });
+        if (!email) {
+            return res.status(404).json({ message: 'Email not found' });
+        }
+
+        if (email.folder === 'trash' || email.folder === 'deleteditems') {
+            // Permanently delete
+            await prisma.emailMessage.delete({
+                where: { id }
+            });
+            res.json({ message: 'Email permanently deleted' });
+        } else {
+            // Move to trash
+            await prisma.emailMessage.update({
+                where: { id },
+                data: { folder: 'trash' }
+            });
+            res.json({ message: 'Email moved to trash' });
+        }
     } catch (error) {
         console.error('Error deleting email:', error);
         res.status(500).json({ message: 'Error deleting email' });
+    }
+};
+
+// Archive email
+export const archiveEmail = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        // @ts-ignore
+        const userId = req.userId;
+
+        const email = await prisma.emailMessage.findFirst({
+            where: {
+                id,
+                account: { user_id: userId }
+            }
+        });
+
+        if (!email) {
+            return res.status(404).json({ message: 'Email not found' });
+        }
+
+        await prisma.emailMessage.update({
+            where: { id },
+            data: { folder: 'archive' }
+        });
+
+        res.json({ message: 'Email archived' });
+    } catch (error) {
+        console.error('Error archiving email:', error);
+        res.status(500).json({ message: 'Error archiving email' });
     }
 };
 
@@ -380,5 +448,136 @@ export const getAttachment = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('Error downloading attachment:', error);
         res.status(500).json({ message: 'Error downloading attachment' });
+    }
+};
+
+// Connect Manual Account (SMTP/IMAP)
+export const connectManual = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId;
+        const schema = z.object({
+            email: z.string().email(),
+            password: z.string().min(1),
+            provider: z.enum(['gmail', 'outlook', 'other']),
+            smtpHost: z.string(),
+            smtpPort: z.number(),
+            imapHost: z.string(),
+            imapPort: z.number(),
+            displayName: z.string().optional()
+        });
+
+        const data = schema.parse(req.body);
+
+        // Dynamic import
+        const { smtpImapService } = await import('../services/email/smtp-imap.service');
+        const { encryptionService } = await import('../services/security/encryption.service');
+        const { emailSyncService } = await import('../services/email/email-sync.service');
+
+        // Test Connection
+        const connectionTest = await smtpImapService.testConnection({
+            email: data.email,
+            password: data.password,
+            smtpHost: data.smtpHost,
+            smtpPort: data.smtpPort,
+            imapHost: data.imapHost,
+            imapPort: data.imapPort
+        });
+
+        if (!connectionTest.success) {
+            return res.status(400).json({
+                message: 'Connection failed',
+                error: connectionTest.error
+            });
+        }
+
+        // Encrypt password
+        const encryptedPassword = encryptionService.encrypt(data.password);
+
+        // Store Account
+        const account = await prisma.emailAccount.upsert({
+            where: {
+                user_id_email: {
+                    user_id: userId,
+                    email: data.email
+                }
+            },
+            update: {
+                connection_type: 'smtp_imap',
+                encrypted_password: encryptedPassword,
+                smtp_host: data.smtpHost,
+                smtp_port: data.smtpPort,
+                imap_host: data.imapHost,
+                imap_port: data.imapPort,
+                smtp_username: data.email,
+                imap_username: data.email,
+                display_name: data.displayName || data.email,
+                access_token: '', // Not used for SMTP
+                refresh_token: '', // Not used for SMTP
+                provider: data.provider
+            },
+            create: {
+                user_id: userId,
+                email: data.email,
+                provider: data.provider,
+                connection_type: 'smtp_imap',
+                encrypted_password: encryptedPassword,
+                smtp_host: data.smtpHost,
+                smtp_port: data.smtpPort,
+                imap_host: data.imapHost,
+                imap_port: data.imapPort,
+                smtp_username: data.email,
+                imap_username: data.email,
+                display_name: data.displayName || data.email,
+                access_token: '',
+                refresh_token: '',
+                is_default: false
+            }
+        });
+
+        // Trigger initial sync
+        emailSyncService.syncAccount(account.id, { fullSync: true }).catch(console.error);
+
+        res.json(account);
+    } catch (error) {
+        if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });
+        console.error('Error connecting manual account:', error);
+        res.status(500).json({
+            message: 'Error connecting account',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
+
+// Trigger manual sync
+export const syncEmails = async (req: Request, res: Response) => {
+    try {
+        const { account_id } = req.body;
+        // @ts-ignore
+        const userId = req.userId;
+
+        const { emailSyncService } = await import('../services/email/email-sync.service');
+
+        if (account_id) {
+            // Verify ownership
+            const account = await prisma.emailAccount.findFirst({
+                where: { id: parseInt(account_id), user_id: userId }
+            });
+
+            if (!account) {
+                return res.status(403).json({ message: 'Account not found or access denied' });
+            }
+
+            console.log(`[Manual Sync] Triggering sync for account: ${account.email}`);
+            const result = await emailSyncService.syncAccount(account.id);
+            return res.json(result);
+        } else {
+            console.log(`[Manual Sync] Triggering sync for all accounts of user: ${userId}`);
+            const result = await emailSyncService.syncAllAccounts();
+            return res.json(result);
+        }
+    } catch (error) {
+        console.error('Error triggering manual sync:', error);
+        res.status(500).json({ message: 'Error triggering manual sync' });
     }
 };

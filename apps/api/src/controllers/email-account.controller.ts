@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma';
 import { gmailService } from '../services/email/gmail.service';
 import { outlookService } from '../services/email/outlook.service';
 import { emailSyncService } from '../services/email/email-sync.service';
+import { encryptionService } from '../services/security/encryption.service';
 
 const connectAccountSchema = z.object({
     provider: z.enum(['gmail', 'outlook'])
@@ -185,12 +186,35 @@ export const getEmailAccounts = async (req: Request, res: Response) => {
                 is_default: true,
                 sync_enabled: true,
                 last_sync_at: true,
-                created_at: true
+                created_at: true,
+                connection_type: true,
+                smtp_host: true,
+                smtp_port: true,
+                imap_host: true,
+                imap_port: true,
+                encrypted_password: true
             },
             orderBy: { created_at: 'desc' }
         });
 
-        res.json(accounts);
+        const formattedAccounts = accounts.map(acc => {
+            let password = undefined;
+            if (acc.connection_type === 'smtp_imap' && acc.encrypted_password) {
+                try {
+                    password = encryptionService.decrypt(acc.encrypted_password);
+                } catch (e) {
+                    console.error('Decryption failed for account:', acc.id);
+                }
+            }
+
+            const { encrypted_password, ...rest } = acc;
+            return {
+                ...rest,
+                app_password: password
+            };
+        });
+
+        res.json(formattedAccounts);
     } catch (error) {
         console.error('Error fetching email accounts:', error);
         res.status(500).json({ message: 'Error fetching email accounts' });

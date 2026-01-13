@@ -28,7 +28,7 @@ function extractEmailAddresses(emailMessage: any): string[] {
     // Add to emails
     if (Array.isArray(emailMessage.to)) {
         emailMessage.to.forEach((recipient: any) => {
-            const email = typeof recipient === 'string' ? recipient : recipient.email;
+            const email = typeof recipient === 'string' ? recipient : (recipient.email || recipient.address);
             if (email) addresses.add(email.toLowerCase());
         });
     }
@@ -36,7 +36,7 @@ function extractEmailAddresses(emailMessage: any): string[] {
     // Add cc emails
     if (Array.isArray(emailMessage.cc)) {
         emailMessage.cc.forEach((recipient: any) => {
-            const email = typeof recipient === 'string' ? recipient : recipient.email;
+            const email = typeof recipient === 'string' ? recipient : (recipient.email || recipient.address);
             if (email) addresses.add(email.toLowerCase());
         });
     }
@@ -44,7 +44,7 @@ function extractEmailAddresses(emailMessage: any): string[] {
     // Add bcc emails (if available)
     if (Array.isArray(emailMessage.bcc)) {
         emailMessage.bcc.forEach((recipient: any) => {
-            const email = typeof recipient === 'string' ? recipient : recipient.email;
+            const email = typeof recipient === 'string' ? recipient : (recipient.email || recipient.address);
             if (email) addresses.add(email.toLowerCase());
         });
     }
@@ -55,7 +55,7 @@ function extractEmailAddresses(emailMessage: any): string[] {
 /**
  * Auto-link email to CRM entities based on email addresses
  */
-export async function autoLinkEmail(emailMessageId: number) {
+export async function autoLinkEmail(emailMessageId: number, options: { excludeEmails?: string[] } = {}) {
     try {
         // Get the email message
         const emailMessage = await prisma.emailMessage.findUnique({
@@ -63,16 +63,20 @@ export async function autoLinkEmail(emailMessageId: number) {
         });
 
         if (!emailMessage) {
-            console.error(`Email message ${emailMessageId} not found`);
             return null;
         }
 
         // Extract all email addresses
-        const emailAddresses = extractEmailAddresses(emailMessage);
+        let emailAddresses = extractEmailAddresses(emailMessage);
+
+        // Filter out excluded emails (e.g., the account owner's email)
+        if (options.excludeEmails && options.excludeEmails.length > 0) {
+            const excludeSet = new Set(options.excludeEmails.map(e => e.toLowerCase()));
+            emailAddresses = emailAddresses.filter(email => !excludeSet.has(email.toLowerCase()));
+        }
 
         if (emailAddresses.length === 0) {
-            console.log(`No email addresses found in message ${emailMessageId}`);
-            return null;
+            return { linked: null, isUnknown: true, emailAddresses: [] };
         }
 
         const linked: LinkedEntities = {
@@ -88,12 +92,29 @@ export async function autoLinkEmail(emailMessageId: number) {
             where: {
                 OR: emailAddresses.map(email => ({
                     emails: {
-                        path: '$[*].value',
-                        string_contains: email,
+                        array_contains: { value: email }
                     },
                 })),
             },
         });
+
+        // If array_contains doesn't work (depending on DB/Prisma version), fallback to path if needed,
+        // but array_contains is generally better for JSON arrays of objects in Prisma/Postgres.
+        if (persons.length === 0) {
+            // Second attempt: more flexible search if the first one failed
+            // Note: Use string array for path segments to avoid Prisma validation error
+            const allPersons = await prisma.person.findMany({
+                where: {
+                    OR: emailAddresses.map(email => ({
+                        emails: {
+                            path: ['$[*]', 'value'],
+                            string_contains: email,
+                        },
+                    })),
+                },
+            });
+            persons.push(...allPersons);
+        }
 
         // 2. Find matching Leads
         const leads = await prisma.lead.findMany({
@@ -124,6 +145,41 @@ export async function autoLinkEmail(emailMessageId: number) {
                 ],
             },
         });
+
+        // 5. Interaction Check: Have we ever sent an email TO these addresses?
+        // This satisfies "those person i sent the email those are my contacts"
+        let isKnownInteraction = false;
+        if (persons.length === 0 && leads.length === 0) {
+            const interaction = await prisma.emailMessage.findFirst({
+                where: {
+                    folder: 'sent',
+                    OR: emailAddresses.map(email => ({
+                        to: {
+                            path: ['$[*]', 'email'],
+                            string_contains: email
+                        }
+                    }))
+                }
+            });
+            isKnownInteraction = !!interaction;
+        }
+
+        // 6. Thread Awareness: Is this a reply to an existing message we kept?
+        let isReplyToKnown = false;
+        if (!isKnownInteraction && persons.length === 0 && leads.length === 0) {
+            if (emailMessage.in_reply_to || (emailMessage.references as string[])?.length > 0) {
+                const refs = (emailMessage.references as string[]) || [];
+                const parent = await prisma.emailMessage.findFirst({
+                    where: {
+                        OR: [
+                            { message_id: emailMessage.in_reply_to || undefined },
+                            { message_id: { in: refs } }
+                        ]
+                    }
+                });
+                isReplyToKnown = !!parent;
+            }
+        }
 
         // Link to first found entity of each type
         const updateData: any = {};
@@ -157,7 +213,7 @@ export async function autoLinkEmail(emailMessageId: number) {
 
         return {
             linked,
-            isUnknown: Object.keys(updateData).length === 0,
+            isUnknown: Object.keys(updateData).length === 0 && !isKnownInteraction && !isReplyToKnown,
             emailAddresses,
         };
     } catch (error) {

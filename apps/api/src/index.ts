@@ -130,4 +130,17 @@ if (frontendUrl.includes('localhost') || frontendUrl.includes('127.0.0.1')) {
 app.listen(port, () => {
     console.log(`✅ Server is running at http://localhost:${port}`);
     console.log(`🏥 Health check at http://localhost:${port}/health`);
+
+    // Start background services
+    import('./services/email/email-scheduler.service').then(({ emailSchedulerService }) => {
+        emailSchedulerService.start();
+    }).catch(err => {
+        console.error('Failed to start email scheduler:', err);
+    });
+
+    import('./services/email/email-sync.service').then(({ emailSyncService }) => {
+        emailSyncService.startSyncLoop();
+    }).catch(err => {
+        console.error('Failed to start email sync loop:', err);
+    });
 });
