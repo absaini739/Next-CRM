@@ -17,7 +17,7 @@ import {
     EnvelopeIcon,
     ArrowsRightLeftIcon
 } from '@heroicons/react/24/outline';
-import { useAuth } from '@/context/AuthContext';
+import { usePermissions } from '@/lib/usePermissions';
 
 const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon, permission: 'dashboard' },
@@ -51,40 +51,7 @@ const navigation = [
 export default function Sidebar() {
     const pathname = usePathname();
     const [isExpanded, setIsExpanded] = useState(false);
-    const { user } = useAuth();
-
-    const hasPermission = (permissionPath?: string) => {
-        if (!permissionPath) return true;
-        if (!user || !user.role) return false;
-
-        // Administrator has all permissions
-        if (user.role.name.toLowerCase() === 'administrator' || user.role.permissions?.all === true) {
-            return true;
-        }
-
-        const permissions = user.role.permissions;
-        if (!permissions) return false;
-
-        // Split path (e.g., 'contacts.persons')
-        const parts = permissionPath.split('.');
-
-        let current = permissions;
-        for (const part of parts) {
-            if (current[part]) {
-                // If it's the last part and it's an array of permissions (like ['view', 'create'])
-                if (Array.isArray(current[part])) {
-                    return current[part].includes('view');
-                }
-                // If it's an object, keep going
-                current = current[part];
-            } else {
-                return false;
-            }
-        }
-
-        // If we reached here, and it's an array or has 'view'
-        return true;
-    };
+    const { hasPermission } = usePermissions();
 
     const filteredNavigation = navigation.filter(item => hasPermission(item.permission));
 

@@ -11,12 +11,16 @@ import { PlusIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { usePermissions } from '@/lib/usePermissions';
 
 export default function UsersPage() {
+    const { hasPermission, canPerformAction } = usePermissions();
     const [users, setUsers] = useState<any[]>([]);
     const [roles, setRoles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editingUserId, setEditingUserId] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -63,20 +67,49 @@ export default function UsersPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await api.post('/auth/register', {
-                ...formData,
-                role_id: parseInt(formData.role_id)
-            });
-            toast.success('User created successfully');
+            if (isEditMode && editingUserId) {
+                // Update existing user
+                const updateData: any = {
+                    name: formData.name,
+                    role_id: parseInt(formData.role_id)
+                };
+                // Only include password if it's provided
+                if (formData.password) {
+                    updateData.password = formData.password;
+                }
+                await api.put(`/auth/users/${editingUserId}`, updateData);
+                toast.success('User updated successfully');
+            } else {
+                // Create new user
+                await api.post('/auth/register', {
+                    ...formData,
+                    role_id: parseInt(formData.role_id)
+                });
+                toast.success('User created successfully');
+            }
             setIsModalOpen(false);
+            setIsEditMode(false);
+            setEditingUserId(null);
             setFormData({ name: '', email: '', password: '', role_id: roles[0]?.id.toString() || '' });
             fetchUsers();
         } catch (error: any) {
-            const message = error.response?.data?.message || 'Failed to create user';
+            const message = error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} user`;
             toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleEditUser = (user: any) => {
+        setIsEditMode(true);
+        setEditingUserId(user.id);
+        setFormData({
+            name: user.name,
+            email: user.email,
+            password: '', // Don't pre-fill password
+            role_id: user.role_id.toString()
+        });
+        setIsModalOpen(true);
     };
 
     const handleDeleteUser = async (id: number) => {
@@ -116,26 +149,34 @@ export default function UsersPage() {
             label: 'Actions',
             render: (_: any, user: any) => (
                 <div className="flex space-x-2">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        title="Edit User"
-                        className="text-gray-400 dark:text-slate-400 hover:text-blue-600"
-                    >
-                        <PencilIcon className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        title="Delete User"
-                        className="text-gray-400 dark:text-slate-400 hover:text-red-600"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteUser(user.id);
-                        }}
-                    >
-                        <TrashIcon className="h-4 w-4" />
-                    </Button>
+                    {canPerformAction('settings.user.users', 'edit') && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Edit User"
+                            className="text-gray-400 dark:text-slate-400 hover:text-blue-600"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditUser(user);
+                            }}
+                        >
+                            <PencilIcon className="h-4 w-4" />
+                        </Button>
+                    )}
+                    {canPerformAction('settings.user.users', 'delete') && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Delete User"
+                            className="text-gray-400 dark:text-slate-400 hover:text-red-600"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteUser(user.id);
+                            }}
+                        >
+                            <TrashIcon className="h-4 w-4" />
+                        </Button>
+                    )}
                 </div>
             )
         }
@@ -151,14 +192,21 @@ export default function UsersPage() {
                             Manage system users and their access roles
                         </p>
                     </div>
-                    <Button
-                        variant="primary"
-                        className="flex items-center"
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        <PlusIcon className="h-5 w-5 mr-2" />
-                        Add User
-                    </Button>
+                    {canPerformAction('settings.user.users', 'create') && (
+                        <Button
+                            variant="primary"
+                            className="flex items-center"
+                            onClick={() => {
+                                setIsEditMode(false);
+                                setEditingUserId(null);
+                                setFormData({ name: '', email: '', password: '', role_id: roles[0]?.id.toString() || '' });
+                                setIsModalOpen(true);
+                            }}
+                        >
+                            <PlusIcon className="h-5 w-5 mr-2" />
+                            Add User
+                        </Button>
+                    )}
                 </div>
 
                 <Card>
@@ -174,8 +222,13 @@ export default function UsersPage() {
 
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Create New User"
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setIsEditMode(false);
+                    setEditingUserId(null);
+                    setFormData({ name: '', email: '', password: '', role_id: roles[0]?.id.toString() || '' });
+                }}
+                title={isEditMode ? 'Edit User' : 'Create New User'}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <Input
@@ -192,16 +245,17 @@ export default function UsersPage() {
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        required
+                        required={!isEditMode}
+                        disabled={isEditMode}
                         placeholder="john@example.com"
                     />
                     <Input
-                        label="Password"
+                        label={isEditMode ? 'Password (leave blank to keep current)' : 'Password'}
                         name="password"
                         type="password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        required
+                        required={!isEditMode}
                         placeholder="••••••••"
                     />
                     <Select
@@ -225,7 +279,7 @@ export default function UsersPage() {
                             type="submit"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Creating...' : 'Create User'}
+                            {isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update User' : 'Create User')}
                         </Button>
                     </div>
                 </form>

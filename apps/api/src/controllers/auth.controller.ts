@@ -51,7 +51,20 @@ export const register = async (req: Request, res: Response) => {
         res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return res.status(400).json({ errors: error.errors });
+            // Extract readable error messages
+            const errorMessages = error.errors.map(err => {
+                if (err.path.includes('email')) {
+                    return 'Please enter a valid email address (e.g., user@example.com)';
+                }
+                if (err.path.includes('password')) {
+                    return 'Password must be at least 6 characters';
+                }
+                if (err.path.includes('name')) {
+                    return 'Name must be at least 2 characters';
+                }
+                return err.message;
+            });
+            return res.status(400).json({ message: errorMessages[0] || 'Validation error' });
         }
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -158,5 +171,34 @@ export const deleteUser = async (req: Request, res: Response) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error deleting user' });
+    }
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { name, role_id, password } = req.body;
+
+        // Build update data
+        const updateData: any = {};
+        if (name) updateData.name = name;
+        if (role_id) updateData.role_id = role_id;
+
+        // Only hash and update password if provided
+        if (password) {
+            updateData.password = await bcrypt.hash(password, 10);
+        }
+
+        const user = await prisma.user.update({
+            where: { id },
+            data: updateData,
+            include: { role: true }
+        });
+
+        const { password: _, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating user' });
     }
 };

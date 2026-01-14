@@ -9,9 +9,11 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { usePermissions } from '@/lib/usePermissions';
 
 export default function RolesPage() {
     const router = useRouter();
+    const { canPerformAction } = usePermissions();
     const [roles, setRoles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -74,14 +76,16 @@ export default function RolesPage() {
                             Manage user roles and their permissions
                         </p>
                     </div>
-                    <Button
-                        variant="primary"
-                        onClick={() => router.push('/settings/roles/create')}
-                        className="flex items-center"
-                    >
-                        <PlusIcon className="h-5 w-5 mr-2" />
-                        Create Role
-                    </Button>
+                    {canPerformAction('settings.user.roles', 'create') && (
+                        <Button
+                            variant="primary"
+                            onClick={() => router.push('/settings/roles/create')}
+                            className="flex items-center"
+                        >
+                            <PlusIcon className="h-5 w-5 mr-2" />
+                            Create Role
+                        </Button>
+                    )}
                 </div>
 
                 {/* Roles Grid */}
@@ -103,14 +107,16 @@ export default function RolesPage() {
                                 </div>
 
                                 <div className="flex items-center justify-end space-x-2 pt-3 border-t">
-                                    <button
-                                        onClick={() => router.push(`/settings/roles/${role.id}/edit`)}
-                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                                        title="Edit"
-                                    >
-                                        <PencilIcon className="h-5 w-5" />
-                                    </button>
-                                    {role.name !== 'Administrator' && (
+                                    {canPerformAction('settings.user.roles', 'edit') && (
+                                        <button
+                                            onClick={() => router.push(`/settings/roles/${role.id}/edit`)}
+                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                            title="Edit"
+                                        >
+                                            <PencilIcon className="h-5 w-5" />
+                                        </button>
+                                    )}
+                                    {role.name !== 'Administrator' && canPerformAction('settings.user.roles', 'delete') && (
                                         <button
                                             onClick={() => handleDelete(role.id, role.name)}
                                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg"

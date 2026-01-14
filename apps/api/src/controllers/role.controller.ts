@@ -121,7 +121,10 @@ export const getRole = async (req: Request, res: Response) => {
 // Create role
 export const createRole = async (req: Request, res: Response) => {
     try {
+        console.log('[Create Role] Request body:', JSON.stringify(req.body, null, 2));
         const data = roleSchema.parse(req.body);
+        console.log('[Create Role] Parsed data:', JSON.stringify(data, null, 2));
+        console.log('[Create Role] Permissions:', JSON.stringify(data.permissions, null, 2));
 
         const role = await prisma.role.create({
             data: {
@@ -132,6 +135,7 @@ export const createRole = async (req: Request, res: Response) => {
             }
         });
 
+        console.log('[Create Role] Created role:', JSON.stringify(role, null, 2));
         res.status(201).json(role);
     } catch (error) {
         if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });

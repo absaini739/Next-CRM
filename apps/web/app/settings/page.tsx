@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
+import { usePermissions } from '@/lib/usePermissions';
 import {
     UsersIcon,
     ShieldCheckIcon,
@@ -26,6 +27,7 @@ interface SettingSection {
     icon: any;
     color: string;
     route?: string;
+    permission?: string; // Permission required to view this setting
 }
 
 const settingSections: SettingSection[] = [
@@ -35,7 +37,8 @@ const settingSections: SettingSection[] = [
         description: 'Manage users, roles, and permissions',
         icon: UsersIcon,
         color: 'bg-blue-100 text-blue-600',
-        route: '/settings/users'
+        route: '/settings/users',
+        permission: 'settings.user.users'
     },
     {
         id: 'roles',
@@ -43,7 +46,8 @@ const settingSections: SettingSection[] = [
         description: 'Configure access control and security',
         icon: ShieldCheckIcon,
         color: 'bg-green-100 text-green-600',
-        route: '/settings/roles'
+        route: '/settings/roles',
+        permission: 'settings.user.roles'
     },
     {
         id: 'pipelines',
@@ -51,7 +55,8 @@ const settingSections: SettingSection[] = [
         description: 'Customize lead and deal pipelines',
         icon: FunnelIcon,
         color: 'bg-purple-100 text-purple-600',
-        route: '/pipelines'
+        route: '/pipelines',
+        permission: 'settings.lead.pipelines'
     },
     {
         id: 'email',
@@ -59,7 +64,8 @@ const settingSections: SettingSection[] = [
         description: 'Connect your email accounts',
         icon: EnvelopeIcon,
         color: 'bg-orange-100 text-orange-600',
-        route: '/settings/email'
+        route: '/settings/email',
+        permission: 'settings.automation.emailAccounts'
     },
     {
         id: 'data-transfer',
@@ -67,7 +73,8 @@ const settingSections: SettingSection[] = [
         description: 'Import and export your CRM data',
         icon: ArrowsRightLeftIcon,
         color: 'bg-indigo-100 text-indigo-600',
-        route: '/data-transfer'
+        route: '/data-transfer',
+        permission: 'settings.otherSettings.dataTransfer'
     },
 
     {
@@ -76,7 +83,8 @@ const settingSections: SettingSection[] = [
         description: 'Configure email and push notifications',
         icon: BellIcon,
         color: 'bg-red-100 text-red-600',
-        route: '/settings/notifications'
+        route: '/settings/notifications',
+        permission: 'settings'
     },
     {
         id: 'custom-fields',
@@ -84,7 +92,8 @@ const settingSections: SettingSection[] = [
         description: 'Add custom fields to your CRM entities',
         icon: WrenchScrewdriverIcon,
         color: 'bg-pink-100 text-pink-600',
-        route: '/settings/custom-fields'
+        route: '/settings/custom-fields',
+        permission: 'settings'
     },
 
     {
@@ -93,7 +102,8 @@ const settingSections: SettingSection[] = [
         description: 'Two-factor auth, IP restrictions, audit logs',
         icon: LockClosedIcon,
         color: 'bg-gray-100 text-gray-600',
-        route: '/settings/security'
+        route: '/settings/security',
+        permission: 'settings'
     },
     {
         id: 'company',
@@ -101,7 +111,8 @@ const settingSections: SettingSection[] = [
         description: 'Update company information and branding',
         icon: BuildingOfficeIcon,
         color: 'bg-cyan-100 text-cyan-600',
-        route: '/settings/company'
+        route: '/settings/company',
+        permission: 'settings'
     },
 
 
@@ -112,7 +123,8 @@ const settingSections: SettingSection[] = [
         description: 'Create and manage email templates',
         icon: DocumentTextIcon,
         color: 'bg-amber-100 text-amber-600',
-        route: '/settings/templates'
+        route: '/settings/templates',
+        permission: 'settings.automation.emailTemplates'
     },
     {
         id: 'business-hours',
@@ -120,7 +132,8 @@ const settingSections: SettingSection[] = [
         description: 'Set working hours and holidays',
         icon: ClockIcon,
         color: 'bg-rose-100 text-rose-600',
-        route: '/settings/business-hours'
+        route: '/settings/business-hours',
+        permission: 'settings'
     },
 
 
@@ -128,8 +141,14 @@ const settingSections: SettingSection[] = [
 
 export default function SettingsPage() {
     const [searchQuery, setSearchQuery] = useState('');
+    const { hasPermission, isAdmin, user } = usePermissions();
 
-    const filteredSections = settingSections.filter(section =>
+    // Filter sections by permissions first, then by search query
+    const permissionFilteredSections = settingSections.filter(section => {
+        return hasPermission(section.permission);
+    });
+
+    const filteredSections = permissionFilteredSections.filter(section =>
         section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         section.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -193,7 +212,14 @@ export default function SettingsPage() {
 
                 {filteredSections.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-gray-500 dark:text-slate-500">No settings found matching your search.</p>
+                        {permissionFilteredSections.length === 0 ? (
+                            <div>
+                                <p className="text-gray-500 dark:text-slate-500 mb-2">You don't have access to any settings.</p>
+                                <p className="text-sm text-gray-400 dark:text-slate-600">Contact your administrator to request access.</p>
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 dark:text-slate-500">No settings found matching your search.</p>
+                        )}
                     </div>
                 )}
             </div>
