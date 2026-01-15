@@ -31,6 +31,7 @@ const PERMISSIONS_TREE = {
     products: { label: 'Products', permissions: ['create', 'edit', 'delete', 'view'] },
     settings: {
         label: 'Settings',
+        permissions: ['view'],
         children: {
             user: {
                 label: 'User',
@@ -72,6 +73,7 @@ const PERMISSIONS_TREE = {
     },
     voip: {
         label: 'VoIP',
+        permissions: ['view'],
         children: {
             providers: { label: 'Providers', permissions: ['create', 'edit', 'delete'] },
             trunks: { label: 'Trunks', permissions: ['create', 'edit', 'delete'] },
