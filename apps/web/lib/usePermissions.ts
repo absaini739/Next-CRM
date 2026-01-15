@@ -34,7 +34,9 @@ export function usePermissions() {
             if (current && current[part] !== undefined) {
                 current = current[part];
             } else {
-                return false;
+                // Path doesn't exist - check if any child permissions exist
+                // This handles cases like checking 'voip' when user has 'voip.providers.create'
+                return hasAnyChildPermissions(current, part);
             }
         }
 
@@ -46,6 +48,27 @@ export function usePermissions() {
             return Object.keys(current).length > 0;
         }
         return !!current;
+    };
+
+    /**
+     * Helper function to check if any child permissions exist under a given path
+     */
+    const hasAnyChildPermissions = (obj: any, searchKey: string): boolean => {
+        if (!obj || typeof obj !== 'object') return false;
+
+        // Direct match
+        if (obj[searchKey] !== undefined) {
+            const value = obj[searchKey];
+            if (Array.isArray(value)) {
+                return value.length > 0;
+            }
+            if (typeof value === 'object' && value !== null) {
+                return Object.keys(value).length > 0;
+            }
+            return !!value;
+        }
+
+        return false;
     };
 
     const hasAnyPermission = (permissionPaths: string[]): boolean => {

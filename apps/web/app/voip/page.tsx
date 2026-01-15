@@ -15,10 +15,12 @@ import {
     ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import callManager from '@/lib/voip/callManager';
+import { usePermissions } from '@/lib/usePermissions';
 
 function VoIPContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { hasPermission } = usePermissions();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [stats, setStats] = useState({
         providers: 0,
@@ -26,6 +28,26 @@ function VoIPContent() {
         routes: 0,
         recordings: 0,
     });
+
+    // Check if user has VoIP permissions
+    if (!hasPermission('voip')) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                    <PhoneIcon className="mx-auto h-12 w-12 text-gray-400 dark:text-slate-500 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">
+                        Access Denied
+                    </h3>
+                    <p className="text-gray-600 dark:text-slate-400">
+                        You don't have permission to access VoIP features.
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">
+                        Contact your administrator to request access.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     useEffect(() => {
         fetchStats();
