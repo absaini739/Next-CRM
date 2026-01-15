@@ -1,5 +1,4 @@
-'use client';
-
+import { useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
 /**
@@ -11,7 +10,7 @@ export function usePermissions() {
     /**
      * Check if user has a specific permission
      */
-    const hasPermission = (permissionPath?: string): boolean => {
+    const hasPermission = useCallback((permissionPath?: string): boolean => {
         // If no permission required, allow
         if (!permissionPath) return true;
 
@@ -27,15 +26,12 @@ export function usePermissions() {
         if (!permissions || typeof permissions !== 'object') return false;
 
         // CASE 1: Check for exact match in flat keys
-        // e.g. checking 'settings.automation.emailAccounts' and user has that key
         if (permissions[permissionPath]) {
             const value = permissions[permissionPath];
             if (Array.isArray(value) && value.length > 0) return true;
         }
 
         // CASE 2: Check for parent path access
-        // e.g. checking 'settings' and user has 'settings.user.users'
-        // We need to see if ANY key starts with "permissionPath."
         const prefix = permissionPath + '.';
         const hasChildPermission = Object.keys(permissions).some(key =>
             key.startsWith(prefix) &&
@@ -44,38 +40,17 @@ export function usePermissions() {
         );
 
         return hasChildPermission;
-    };
+    }, [user]);
 
-    /**
-     * Helper function to check if any child permissions exist under a given path
-     */
-    const hasAnyChildPermissions = (obj: any, searchKey: string): boolean => {
-        if (!obj || typeof obj !== 'object') return false;
-
-        // Direct match
-        if (obj[searchKey] !== undefined) {
-            const value = obj[searchKey];
-            if (Array.isArray(value)) {
-                return value.length > 0;
-            }
-            if (typeof value === 'object' && value !== null) {
-                return Object.keys(value).length > 0;
-            }
-            return !!value;
-        }
-
-        return false;
-    };
-
-    const hasAnyPermission = (permissionPaths: string[]): boolean => {
+    const hasAnyPermission = useCallback((permissionPaths: string[]): boolean => {
         return permissionPaths.some(path => hasPermission(path));
-    };
+    }, [hasPermission]);
 
-    const hasAllPermissions = (permissionPaths: string[]): boolean => {
+    const hasAllPermissions = useCallback((permissionPaths: string[]): boolean => {
         return permissionPaths.every(path => hasPermission(path));
-    };
+    }, [hasPermission]);
 
-    const canPerformAction = (resource: string, action: string): boolean => {
+    const canPerformAction = useCallback((resource: string, action: string): boolean => {
         // Admin can do everything
         if (user?.role?.name.toLowerCase() === 'administrator') {
             return true;
@@ -85,13 +60,12 @@ export function usePermissions() {
         if (!permissions) return false;
 
         // Check for exact resource match in flat keys
-        // e.g. resource='settings.user.users'
         if (permissions[resource] && Array.isArray(permissions[resource])) {
             return permissions[resource].includes(action);
         }
 
         return false;
-    };
+    }, [user]);
 
     return {
         hasPermission,

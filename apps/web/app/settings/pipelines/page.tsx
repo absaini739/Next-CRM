@@ -22,12 +22,20 @@ export default function PipelinesPage() {
         { id: 4, name: 'Lost', order: 4 },
     ]);
 
+    const handleLeadStageChange = (id: number, name: string) => {
+        setLeadStages(prev => prev.map(stage => (stage.id === id ? { ...stage, name } : stage)));
+    };
+
+    const handleDealStageChange = (id: number, name: string) => {
+        setDealStages(prev => prev.map(stage => (stage.id === id ? { ...stage, name } : stage)));
+    };
+
     return (
         <DashboardLayout>
             <div className="space-y-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Pipeline Configuration</h1>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
+                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
                         Customize your lead and deal pipeline stages
                     </p>
                 </div>
@@ -37,7 +45,11 @@ export default function PipelinesPage() {
                         {leadStages.map((stage, index) => (
                             <div key={stage.id} className="flex items-center space-x-4">
                                 <span className="text-sm text-gray-500 dark:text-slate-500 w-8">{index + 1}.</span>
-                                <Input value={stage.name} className="flex-1" onChange={() => { }} />
+                                <Input
+                                    value={stage.name}
+                                    className="flex-1"
+                                    onChange={(e) => handleLeadStageChange(stage.id, e.target.value)}
+                                />
                                 <Button variant="danger" size="sm">
                                     <TrashIcon className="h-4 w-4" />
                                 </Button>
@@ -55,7 +67,11 @@ export default function PipelinesPage() {
                         {dealStages.map((stage, index) => (
                             <div key={stage.id} className="flex items-center space-x-4">
                                 <span className="text-sm text-gray-500 dark:text-slate-500 w-8">{index + 1}.</span>
-                                <Input value={stage.name} className="flex-1" />
+                                <Input
+                                    value={stage.name}
+                                    className="flex-1"
+                                    onChange={(e) => handleDealStageChange(stage.id, e.target.value)}
+                                />
                                 <Button variant="danger" size="sm">
                                     <TrashIcon className="h-4 w-4" />
                                 </Button>

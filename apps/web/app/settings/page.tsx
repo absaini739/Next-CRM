@@ -59,7 +59,7 @@ const settingSections: SettingSection[] = [
         title: 'Pipeline Configuration',
         description: 'Customize lead and deal pipelines',
         icon: FunnelIcon,
-        href: '/settings/pipelines',
+        href: '/pipelines',
         color: 'bg-purple-500',
         permission: 'settings.pipelines'
     },
@@ -67,7 +67,7 @@ const settingSections: SettingSection[] = [
         title: 'Email Integration',
         description: 'Connect your email accounts',
         icon: EnvelopeIcon,
-        href: '/settings/email-accounts',
+        href: '/settings/email',
         color: 'bg-orange-500',
         permission: 'settings.emailIntegration'
     },
@@ -75,7 +75,7 @@ const settingSections: SettingSection[] = [
         title: 'Data Transfer',
         description: 'Import and export your CRM data',
         icon: ArrowsRightLeftIcon,
-        href: '/settings/data-transfer',
+        href: '/data-transfer',
         color: 'bg-blue-500',
         permission: 'settings.dataTransfer'
     },
@@ -115,7 +115,7 @@ const settingSections: SettingSection[] = [
         title: 'Email Templates',
         description: 'Create and manage email templates',
         icon: DocumentTextIcon,
-        href: '/settings/email-templates',
+        href: '/settings/templates',
         color: 'bg-yellow-500',
         permission: 'settings.emailTemplates'
     },
