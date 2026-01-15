@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -21,13 +21,57 @@ import {
     BuildingOfficeIcon,
     ShoppingBagIcon,
     Cog6ToothIcon,
+    HomeIcon,
+    CurrencyDollarIcon,
+    CalendarIcon,
+    PhoneIcon,
+    ShieldCheckIcon,
+    ArrowsRightLeftIcon,
+    BellIcon,
+    LockClosedIcon,
+    ClockIcon,
 } from '@heroicons/react/24/outline';
+
+// All searchable features in the CRM
+const SEARCHABLE_FEATURES = [
+    // Main Menu Items
+    { name: 'Dashboard', href: '/', icon: HomeIcon, category: 'Main' },
+    { name: 'Persons', href: '/persons', icon: UsersIcon, category: 'Main' },
+    { name: 'Organizations', href: '/organizations', icon: BuildingOfficeIcon, category: 'Main' },
+    { name: 'Leads', href: '/leads', icon: FunnelIcon, category: 'Main' },
+    { name: 'Deals', href: '/deals', icon: CurrencyDollarIcon, category: 'Main' },
+    { name: 'Products', href: '/products', icon: ShoppingBagIcon, category: 'Main' },
+    { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon, category: 'Main' },
+    { name: 'Tasks', href: '/tasks', icon: CalendarIcon, category: 'Main' },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon, category: 'Main' },
+    { name: 'Activities', href: '/activities', icon: CalendarIcon, category: 'Main' },
+    { name: 'VoIP', href: '/voip', icon: PhoneIcon, category: 'Main' },
+    { name: 'Email', href: '/emails', icon: EnvelopeIcon, category: 'Main' },
+    { name: 'Settings', href: '/settings', icon: Cog6ToothIcon, category: 'Main' },
+
+    // Settings Sub-Pages
+    { name: 'My Permissions', href: '/settings/my-permissions', icon: ShieldCheckIcon, category: 'Settings' },
+    { name: 'User Management', href: '/settings/users', icon: UsersIcon, category: 'Settings' },
+    { name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheckIcon, category: 'Settings' },
+    { name: 'Pipeline Configuration', href: '/settings/pipelines', icon: FunnelIcon, category: 'Settings' },
+    { name: 'Email Integration', href: '/settings/email-accounts', icon: EnvelopeIcon, category: 'Settings' },
+    { name: 'Data Transfer', href: '/settings/data-transfer', icon: ArrowsRightLeftIcon, category: 'Settings' },
+    { name: 'Notifications', href: '/settings/notifications', icon: BellIcon, category: 'Settings' },
+    { name: 'Custom Fields', href: '/settings/custom-fields', icon: Cog6ToothIcon, category: 'Settings' },
+    { name: 'Security Settings', href: '/settings/security', icon: LockClosedIcon, category: 'Settings' },
+    { name: 'Company Profile', href: '/settings/company', icon: BuildingOfficeIcon, category: 'Settings' },
+    { name: 'Email Templates', href: '/settings/email-templates', icon: DocumentTextIcon, category: 'Settings' },
+    { name: 'Business Hours', href: '/settings/business-hours', icon: ClockIcon, category: 'Settings' },
+];
 
 export default function Header() {
     const { user, logout } = useAuth();
     const { darkMode, toggleDarkMode } = useTheme();
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<typeof SEARCHABLE_FEATURES>([]);
+    const [showResults, setShowResults] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
 
     const quickCreateItems = [
         { name: 'Lead', icon: FunnelIcon, href: '/leads/new' },
@@ -40,12 +84,47 @@ export default function Header() {
         { name: 'User', icon: UserCircleIcon, href: '/settings/users/new' },
     ];
 
+    // Search features as user types
+    useEffect(() => {
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            const results = SEARCHABLE_FEATURES.filter(feature =>
+                feature.name.toLowerCase().includes(query) ||
+                feature.category.toLowerCase().includes(query)
+            );
+            setSearchResults(results);
+            setShowResults(true);
+        } else {
+            setSearchResults([]);
+            setShowResults(false);
+        }
+    }, [searchQuery]);
+
+    // Close search results when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setShowResults(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        if (searchQuery.trim()) {
-            // TODO: Implement global search
-            console.log('Searching for:', searchQuery);
+        if (searchResults.length > 0) {
+            router.push(searchResults[0].href);
+            setSearchQuery('');
+            setShowResults(false);
         }
+    };
+
+    const handleResultClick = (href: string) => {
+        router.push(href);
+        setSearchQuery('');
+        setShowResults(false);
     };
 
     const getUserInitial = () => {
@@ -64,16 +143,51 @@ export default function Header() {
                 </Link>
 
                 {/* Center: Search Bar */}
-                <div className="flex-1 max-w-2xl mx-8">
+                <div className="flex-1 max-w-2xl mx-8" ref={searchRef}>
                     <form onSubmit={handleSearch} className="relative">
                         <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-slate-400" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Mega Search"
+                            placeholder="Search features... (Dashboard, Leads, Settings, etc.)"
                             className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200"
                         />
+
+                        {/* Search Results Dropdown */}
+                        {showResults && searchResults.length > 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                                {searchResults.map((result) => {
+                                    const Icon = result.icon;
+                                    return (
+                                        <button
+                                            key={result.href}
+                                            onClick={() => handleResultClick(result.href)}
+                                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-left border-b border-gray-100 dark:border-slate-700 last:border-b-0"
+                                        >
+                                            <Icon className="h-5 w-5 text-gray-400 dark:text-slate-400 flex-shrink-0" />
+                                            <div className="flex-1">
+                                                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {result.name}
+                                                </div>
+                                                <div className="text-xs text-gray-500 dark:text-slate-400">
+                                                    {result.category}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* No Results */}
+                        {showResults && searchQuery && searchResults.length === 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg p-4 z-50">
+                                <p className="text-sm text-gray-500 dark:text-slate-400 text-center">
+                                    No features found for "{searchQuery}"
+                                </p>
+                            </div>
+                        )}
                     </form>
                 </div>
 
