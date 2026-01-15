@@ -56,7 +56,6 @@ export default function EmailsPage() {
     const [isSyncing, setIsSyncing] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState<number[]>([]);
     const [search, setSearch] = useState('');
-    const [strictMode, setStrictMode] = useState(false);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -93,7 +92,7 @@ export default function EmailsPage() {
             fetchEmails();
             fetchCounts();
         }
-    }, [selectedAccountId, folder, search, view, strictMode]);
+    }, [selectedAccountId, folder, search, view]);
 
     useEffect(() => {
         if (selectedAccountId && view === 'list') {
@@ -119,8 +118,7 @@ export default function EmailsPage() {
                     folder,
                     search,
                     page: currentPage,
-                    limit: itemsPerPage,
-                    strict: folder === 'inbox' ? strictMode : false
+                    limit: itemsPerPage
                 }
             });
             setEmails(response.data.data);
@@ -488,20 +486,6 @@ export default function EmailsPage() {
                                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
                                         </div>
-                                        {folder === 'inbox' && (
-                                            <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                                                <input
-                                                    type="checkbox"
-                                                    id="strict-mode"
-                                                    checked={strictMode}
-                                                    onChange={(e) => setStrictMode(e.target.checked)}
-                                                    className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 h-4 w-4"
-                                                />
-                                                <label htmlFor="strict-mode" className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer">
-                                                    Strict Filtering
-                                                </label>
-                                            </div>
-                                        )}
                                         <Button
                                             variant="secondary"
                                             size="sm"

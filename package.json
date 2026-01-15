@@ -1,5 +1,5 @@
 {
-    "name": "laravel-crm-next",
+    "name": "ispecia-crm",
     "private": true,
     "workspaces": [
         "apps/*"

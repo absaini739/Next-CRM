@@ -32,6 +32,15 @@ interface SettingSection {
 
 const settingSections: SettingSection[] = [
     {
+        id: 'my-permissions',
+        title: 'My Permissions',
+        description: 'View your assigned role and access permissions',
+        icon: ShieldCheckIcon,
+        color: 'bg-indigo-100 text-indigo-600',
+        route: '/settings/my-permissions',
+        permission: undefined // Always visible to all users
+    },
+    {
         id: 'users',
         title: 'User Management',
         description: 'Manage users, roles, and permissions',

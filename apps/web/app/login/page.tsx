@@ -30,7 +30,7 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-950 dark:to-slate-900">
             <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-slate-700">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Laravel CRM</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ispecia CRM</h1>
                     <p className="text-gray-600 dark:text-slate-400 dark:text-slate-400 mt-2">Sign in to your account</p>
                 </div>
 

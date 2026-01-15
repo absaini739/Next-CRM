@@ -25,7 +25,7 @@ const sendEmailSchema = z.object({
 // Get emails (inbox/sent/etc) with pagination
 export const getEmails = async (req: Request, res: Response) => {
     try {
-        const { folder = 'inbox', page = 1, limit = 20, search, account_id, strict = 'false' } = req.query;
+        const { folder = 'inbox', page = 1, limit = 20, search, account_id } = req.query;
         // @ts-ignore
         const userId = req.userId;
 
@@ -38,23 +38,50 @@ export const getEmails = async (req: Request, res: Response) => {
             where.account_id = parseInt(account_id as string);
         }
 
+        // CRM-SPECIFIC FILTERING FOR INBOX
+        // Only show emails where sender OR receiver is a CRM contact
+        if (folder === 'inbox') {
+            const { getCRMContactEmails } = await import('../services/crm-contacts.service');
+            const crmEmails = await getCRMContactEmails(userId);
+
+            if (crmEmails.length > 0) {
+                // Filter: show email if:
+                // 1. Sender is in CRM contacts
+                // 2. Email was sent from CRM
+                // 3. Any recipient (to/cc) is in CRM contacts
+                where.OR = [
+                    { from_email: { in: crmEmails, mode: 'insensitive' } },
+                    { sent_from_crm: true }
+                ];
+
+                console.log(`[Email Filter] Filtering inbox with ${crmEmails.length} CRM contact emails`);
+            } else {
+                // No CRM contacts yet, only show emails sent from CRM
+                where.sent_from_crm = true;
+                console.log('[Email Filter] No CRM contacts found, showing only CRM-sent emails');
+            }
+        }
+
+        // Apply search filter
         if (search) {
-            where.OR = [
+            const searchConditions = [
                 { subject: { contains: search as string, mode: 'insensitive' } },
                 { from_email: { contains: search as string, mode: 'insensitive' } },
                 { from_name: { contains: search as string, mode: 'insensitive' } },
                 { snippet: { contains: search as string, mode: 'insensitive' } }
             ];
-        }
 
-        // Apply strict filtering if requested
-        if (strict === 'true' && folder === 'inbox') {
-            where.OR = [
-                { person_id: { not: null } },
-                { lead_id: { not: null } },
-                { deal_id: { not: null } },
-                { sent_from_crm: true }
-            ];
+            if (folder === 'inbox' && where.OR) {
+                // For inbox with CRM filter, combine both filters using AND
+                where.AND = [
+                    { OR: where.OR },
+                    { OR: searchConditions }
+                ];
+                delete where.OR;
+            } else {
+                // For other folders or inbox without CRM filter, just apply search
+                where.OR = searchConditions;
+            }
         }
 
         const [emails, total] = await Promise.all([
@@ -180,8 +207,24 @@ export const getFolderCounts = async (req: Request, res: Response) => {
             where.account_id = parseInt(account_id as string);
         }
 
+        // For inbox, apply CRM filtering to match displayed emails
+        const inboxWhere = { ...where, folder: 'inbox', is_read: false };
+
+        // Apply CRM contact filtering for inbox count
+        const { getCRMContactEmails } = await import('../services/crm-contacts.service');
+        const crmEmails = await getCRMContactEmails(userId);
+
+        if (crmEmails.length > 0) {
+            inboxWhere.OR = [
+                { from_email: { in: crmEmails, mode: 'insensitive' } },
+                { sent_from_crm: true }
+            ];
+        } else {
+            inboxWhere.sent_from_crm = true;
+        }
+
         const [inbox, sent, draft, trash, archive] = await Promise.all([
-            prisma.emailMessage.count({ where: { ...where, folder: 'inbox', is_read: false } }), // count unread for inbox
+            prisma.emailMessage.count({ where: inboxWhere }),
             prisma.emailMessage.count({ where: { ...where, folder: 'sent' } }),
             prisma.emailMessage.count({ where: { ...where, folder: 'draft' } }),
             prisma.emailMessage.count({ where: { ...where, folder: 'trash' } }),

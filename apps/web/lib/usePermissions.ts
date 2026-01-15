@@ -26,11 +26,6 @@ export function usePermissions() {
         const permissions = user.role.permissions;
         if (!permissions || typeof permissions !== 'object') return false;
 
-        // For settings permissions, check if user has ANY settings permission
-        if (permissionPath === 'settings') {
-            return permissions.settings !== undefined;
-        }
-
         // Split the path and navigate through the permissions object
         const parts = permissionPath.split('.');
         let current: any = permissions;

@@ -6,8 +6,8 @@ import Providers from "../providers/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Laravel CRM - Next.js",
-  description: "CRM System ported from Laravel",
+  title: "ispecia CRM - Next.js",
+  description: "CRM System branded for ispecia",
 };
 
 export default function RootLayout({
