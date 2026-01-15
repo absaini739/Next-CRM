@@ -26,28 +26,24 @@ export function usePermissions() {
         const permissions = user.role.permissions;
         if (!permissions || typeof permissions !== 'object') return false;
 
-        // Split the path and navigate through the permissions object
-        const parts = permissionPath.split('.');
-        let current: any = permissions;
-
-        for (const part of parts) {
-            if (current && current[part] !== undefined) {
-                current = current[part];
-            } else {
-                // Path doesn't exist - check if any child permissions exist
-                // This handles cases like checking 'voip' when user has 'voip.providers.create'
-                return hasAnyChildPermissions(current, part);
-            }
+        // CASE 1: Check for exact match in flat keys
+        // e.g. checking 'settings.automation.emailAccounts' and user has that key
+        if (permissions[permissionPath]) {
+            const value = permissions[permissionPath];
+            if (Array.isArray(value) && value.length > 0) return true;
         }
 
-        // If we found something (array, object, or truthy value), grant access
-        if (Array.isArray(current)) {
-            return current.length > 0;
-        }
-        if (typeof current === 'object' && current !== null) {
-            return Object.keys(current).length > 0;
-        }
-        return !!current;
+        // CASE 2: Check for parent path access
+        // e.g. checking 'settings' and user has 'settings.user.users'
+        // We need to see if ANY key starts with "permissionPath."
+        const prefix = permissionPath + '.';
+        const hasChildPermission = Object.keys(permissions).some(key =>
+            key.startsWith(prefix) &&
+            Array.isArray(permissions[key]) &&
+            permissions[key].length > 0
+        );
+
+        return hasChildPermission;
     };
 
     /**
@@ -88,21 +84,10 @@ export function usePermissions() {
         const permissions = user?.role?.permissions;
         if (!permissions) return false;
 
-        // Navigate to the resource
-        const parts = resource.split('.');
-        let current: any = permissions;
-
-        for (const part of parts) {
-            if (current && current[part] !== undefined) {
-                current = current[part];
-            } else {
-                return false;
-            }
-        }
-
-        // Check if action exists in array
-        if (Array.isArray(current)) {
-            return current.includes(action);
+        // Check for exact resource match in flat keys
+        // e.g. resource='settings.user.users'
+        if (permissions[resource] && Array.isArray(permissions[resource])) {
+            return permissions[resource].includes(action);
         }
 
         return false;

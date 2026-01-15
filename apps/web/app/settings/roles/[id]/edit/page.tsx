@@ -66,7 +66,12 @@ const PERMISSIONS_TREE = {
                 children: {
                     webForms: { label: 'Web Forms', permissions: ['view', 'create', 'edit', 'delete'] },
                     tags: { label: 'Tags', permissions: ['create', 'edit', 'delete'] },
-                    dataTransfer: { label: 'Data Transfer', permissions: ['import', 'export'] }
+                    dataTransfer: { label: 'Data Transfer', permissions: ['import', 'export'] },
+                    notifications: { label: 'Notifications', permissions: ['view', 'edit'] },
+                    customFields: { label: 'Custom Fields', permissions: ['view', 'create', 'edit', 'delete'] },
+                    security: { label: 'Security', permissions: ['view', 'edit'] },
+                    company: { label: 'Company', permissions: ['view', 'edit'] },
+                    businessHours: { label: 'Business Hours', permissions: ['view', 'edit'] }
                 }
             }
         }

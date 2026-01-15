@@ -29,6 +29,17 @@ function VoIPContent() {
         recordings: 0,
     });
 
+    useEffect(() => {
+        if (hasPermission('voip')) {
+            fetchStats();
+        }
+        // Pre-fill phone number from URL parameter
+        const dialParam = searchParams.get('dial');
+        if (dialParam) {
+            setPhoneNumber(dialParam);
+        }
+    }, [searchParams]);
+
     // Check if user has VoIP permissions
     if (!hasPermission('voip')) {
         return (
@@ -48,15 +59,6 @@ function VoIPContent() {
             </div>
         );
     }
-
-    useEffect(() => {
-        fetchStats();
-        // Pre-fill phone number from URL parameter
-        const dialParam = searchParams.get('dial');
-        if (dialParam) {
-            setPhoneNumber(dialParam);
-        }
-    }, [searchParams]);
 
     const fetchStats = async () => {
         try {

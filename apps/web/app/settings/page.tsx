@@ -93,7 +93,7 @@ const settingSections: SettingSection[] = [
         icon: BellIcon,
         color: 'bg-red-100 text-red-600',
         route: '/settings/notifications',
-        permission: 'settings'
+        permission: 'settings.otherSettings.notifications'
     },
     {
         id: 'custom-fields',
@@ -102,7 +102,7 @@ const settingSections: SettingSection[] = [
         icon: WrenchScrewdriverIcon,
         color: 'bg-pink-100 text-pink-600',
         route: '/settings/custom-fields',
-        permission: 'settings'
+        permission: 'settings.otherSettings.customFields'
     },
 
     {
@@ -112,7 +112,7 @@ const settingSections: SettingSection[] = [
         icon: LockClosedIcon,
         color: 'bg-gray-100 text-gray-600',
         route: '/settings/security',
-        permission: 'settings'
+        permission: 'settings.otherSettings.security'
     },
     {
         id: 'company',
@@ -121,7 +121,7 @@ const settingSections: SettingSection[] = [
         icon: BuildingOfficeIcon,
         color: 'bg-cyan-100 text-cyan-600',
         route: '/settings/company',
-        permission: 'settings'
+        permission: 'settings.otherSettings.company'
     },
 
 
@@ -142,7 +142,7 @@ const settingSections: SettingSection[] = [
         icon: ClockIcon,
         color: 'bg-rose-100 text-rose-600',
         route: '/settings/business-hours',
-        permission: 'settings'
+        permission: 'settings.otherSettings.businessHours'
     },
 
 
