@@ -21,14 +21,14 @@ import { usePermissions } from '@/lib/usePermissions';
 
 const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon, permission: 'dashboard' },
-    { name: 'Persons', href: '/persons', icon: UsersIcon, permission: 'contacts.persons' },
-    { name: 'Organizations', href: '/organizations', icon: BuildingOfficeIcon, permission: 'contacts.organizations' },
+    { name: 'Persons', href: '/persons', icon: UsersIcon, permission: 'persons' },
+    { name: 'Organizations', href: '/organizations', icon: BuildingOfficeIcon, permission: 'organizations' },
     { name: 'Leads', href: '/leads', icon: FunnelIcon, permission: 'leads' },
     { name: 'Deals', href: '/deals', icon: CurrencyDollarIcon, permission: 'deals' },
     { name: 'Products', href: '/products', icon: ShoppingBagIcon, permission: 'products' },
     { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon, permission: 'quotes' },
-    { name: 'Tasks', href: '/tasks', icon: CalendarIcon, permission: 'activities' },
-    { name: 'Calendar', href: '/calendar', icon: CalendarIcon, permission: 'activities' },
+    { name: 'Tasks', href: '/tasks', icon: CalendarIcon, permission: 'tasks' },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon, permission: 'calendar' },
     { name: 'Activities', href: '/activities', icon: CalendarIcon, permission: 'activities' },
     {
         name: 'VoIP',
@@ -43,7 +43,7 @@ const navigation = [
             { name: 'Recordings', href: '/voip/recordings' },
         ]
     },
-    { name: 'Email', href: '/emails', icon: EnvelopeIcon, permission: 'mail' },
+    { name: 'Email', href: '/emails', icon: EnvelopeIcon, permission: 'email' },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon }, // Always show settings, but content inside will be filtered
 ];
 

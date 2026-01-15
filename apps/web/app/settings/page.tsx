@@ -17,135 +17,116 @@ import {
     BuildingOfficeIcon,
     DocumentTextIcon,
     ClockIcon,
-    Cog6ToothIcon
+    PlusCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface SettingSection {
-    id: string;
+    id?: string;
     title: string;
     description: string;
     icon: any;
     color: string;
-    route?: string;
+    href: string;
     permission?: string; // Permission required to view this setting
 }
 
 const settingSections: SettingSection[] = [
     {
-        id: 'my-permissions',
         title: 'My Permissions',
         description: 'View your assigned role and access permissions',
         icon: ShieldCheckIcon,
-        color: 'bg-indigo-100 text-indigo-600',
-        route: '/settings/my-permissions',
-        permission: undefined // Always visible to all users
+        href: '/settings/my-permissions',
+        color: 'bg-purple-500',
+        // Always visible - no permission required
     },
     {
-        id: 'users',
         title: 'User Management',
         description: 'Manage users, roles, and permissions',
         icon: UsersIcon,
-        color: 'bg-blue-100 text-blue-600',
-        route: '/settings/users',
-        permission: 'settings.user.users'
+        href: '/settings/users',
+        color: 'bg-blue-500',
+        permission: 'settings.users'
     },
     {
-        id: 'roles',
         title: 'Roles & Permissions',
         description: 'Configure access control and security',
         icon: ShieldCheckIcon,
-        color: 'bg-green-100 text-green-600',
-        route: '/settings/roles',
-        permission: 'settings.user.roles'
+        href: '/settings/roles',
+        color: 'bg-green-500',
+        permission: 'settings.roles'
     },
     {
-        id: 'pipelines',
         title: 'Pipeline Configuration',
         description: 'Customize lead and deal pipelines',
         icon: FunnelIcon,
-        color: 'bg-purple-100 text-purple-600',
-        route: '/pipelines',
-        permission: 'settings.lead.pipelines'
+        href: '/settings/pipelines',
+        color: 'bg-purple-500',
+        permission: 'settings.pipelines'
     },
     {
-        id: 'email',
         title: 'Email Integration',
         description: 'Connect your email accounts',
         icon: EnvelopeIcon,
-        color: 'bg-orange-100 text-orange-600',
-        route: '/settings/email',
-        permission: 'settings.automation.emailAccounts'
+        href: '/settings/email-accounts',
+        color: 'bg-orange-500',
+        permission: 'settings.emailIntegration'
     },
     {
-        id: 'data-transfer',
         title: 'Data Transfer',
         description: 'Import and export your CRM data',
         icon: ArrowsRightLeftIcon,
-        color: 'bg-indigo-100 text-indigo-600',
-        route: '/data-transfer',
-        permission: 'settings.otherSettings.dataTransfer'
+        href: '/settings/data-transfer',
+        color: 'bg-blue-500',
+        permission: 'settings.dataTransfer'
     },
-
     {
-        id: 'notifications',
         title: 'Notifications',
         description: 'Configure email and push notifications',
         icon: BellIcon,
-        color: 'bg-red-100 text-red-600',
-        route: '/settings/notifications',
-        permission: 'settings.otherSettings.notifications'
+        href: '/settings/notifications',
+        color: 'bg-red-500',
+        permission: 'settings.notifications'
     },
     {
-        id: 'custom-fields',
         title: 'Custom Fields',
         description: 'Add custom fields to your CRM entities',
-        icon: WrenchScrewdriverIcon,
-        color: 'bg-pink-100 text-pink-600',
-        route: '/settings/custom-fields',
-        permission: 'settings.otherSettings.customFields'
+        icon: PlusCircleIcon,
+        href: '/settings/custom-fields',
+        color: 'bg-pink-500',
+        permission: 'settings.customFields'
     },
-
     {
-        id: 'security',
         title: 'Security Settings',
         description: 'Two-factor auth, IP restrictions, audit logs',
         icon: LockClosedIcon,
-        color: 'bg-gray-100 text-gray-600',
-        route: '/settings/security',
-        permission: 'settings.otherSettings.security'
+        href: '/settings/security',
+        color: 'bg-red-500',
+        permission: 'settings.security'
     },
     {
-        id: 'company',
         title: 'Company Profile',
         description: 'Update company information and branding',
         icon: BuildingOfficeIcon,
-        color: 'bg-cyan-100 text-cyan-600',
-        route: '/settings/company',
-        permission: 'settings.otherSettings.company'
+        href: '/settings/company',
+        color: 'bg-cyan-500',
+        permission: 'settings.company'
     },
-
-
-
     {
-        id: 'templates',
         title: 'Email Templates',
         description: 'Create and manage email templates',
         icon: DocumentTextIcon,
-        color: 'bg-amber-100 text-amber-600',
-        route: '/settings/templates',
-        permission: 'settings.automation.emailTemplates'
+        href: '/settings/email-templates',
+        color: 'bg-yellow-500',
+        permission: 'settings.emailTemplates'
     },
     {
-        id: 'business-hours',
         title: 'Business Hours',
         description: 'Set working hours and holidays',
         icon: ClockIcon,
-        color: 'bg-rose-100 text-rose-600',
-        route: '/settings/business-hours',
-        permission: 'settings.otherSettings.businessHours'
-    },
-
-
+        href: '/settings/business-hours',
+        color: 'bg-indigo-500',
+        permission: 'settings.businessHours'
+    }
 ];
 
 export default function SettingsPage() {
@@ -207,14 +188,10 @@ export default function SettingsPage() {
                             </Card>
                         );
 
-                        return section.route ? (
-                            <Link key={section.id} href={section.route}>
+                        return (
+                            <Link key={section.href} href={section.href}>
                                 {CardContent}
                             </Link>
-                        ) : (
-                            <div key={section.id}>
-                                {CardContent}
-                            </div>
                         );
                     })}
                 </div>

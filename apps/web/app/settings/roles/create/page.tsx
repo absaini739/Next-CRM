@@ -10,84 +10,56 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { FolderIcon, DocumentIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
-// Permission tree structure matching Krayin CRM completely
+// Permission tree structure matching application structure
 const PERMISSIONS_TREE = {
     dashboard: { label: 'Dashboard', permissions: ['view'] },
+    persons: { label: 'Persons', permissions: ['create', 'view', 'edit', 'delete'] },
+    organizations: { label: 'Organizations', permissions: ['create', 'view', 'edit', 'delete'] },
     leads: { label: 'Leads', permissions: ['create', 'view', 'edit', 'delete'] },
     deals: { label: 'Deals', permissions: ['create', 'view', 'edit', 'delete'] },
+    products: { label: 'Products', permissions: ['create', 'view', 'edit', 'delete'] },
     quotes: { label: 'Quotes', permissions: ['create', 'edit', 'print', 'delete'] },
-    mail: {
-        label: 'Mail',
-        permissions: ['inbox', 'draft', 'outbox', 'sent', 'trash', 'create', 'view', 'edit', 'delete']
-    },
-    activities: { label: 'Activities', permissions: ['create', 'edit', 'delete'] },
-    contacts: {
-        label: 'Contacts',
-        children: {
-            persons: { label: 'Persons', permissions: ['create', 'edit', 'delete', 'view'] },
-            organizations: { label: 'Organizations', permissions: ['create', 'edit', 'delete'] }
-        }
-    },
-    products: { label: 'Products', permissions: ['create', 'edit', 'delete', 'view'] },
-    settings: {
-        label: 'Settings',
-        permissions: ['view'],
-        children: {
-            user: {
-                label: 'User',
-                children: {
-                    groups: { label: 'Groups', permissions: ['create', 'edit', 'delete'] },
-                    roles: { label: 'Roles', permissions: ['create', 'edit', 'delete'] },
-                    users: { label: 'Users', permissions: ['create', 'edit', 'delete'] }
-                }
-            },
-            lead: {
-                label: 'Lead',
-                children: {
-                    pipelines: { label: 'Pipelines', permissions: ['create', 'edit', 'delete'] },
-                    sources: { label: 'Sources', permissions: ['create', 'edit', 'delete'] },
-                    types: { label: 'Types', permissions: ['create', 'edit', 'delete'] }
-                }
-            },
-            automation: {
-                label: 'Automation',
-                children: {
-                    attributes: { label: 'Attributes', permissions: ['create', 'edit', 'delete'] },
-                    webhook: { label: 'Webhook', permissions: ['create', 'edit', 'delete'] },
-                    workflows: { label: 'Workflows', permissions: ['create', 'edit', 'delete'] },
-                    events: { label: 'Event', permissions: ['create', 'edit', 'delete'] },
-                    campaigns: { label: 'Campaigns', permissions: ['create', 'edit', 'delete'] },
-                    emailTemplates: { label: 'Email Templates', permissions: ['create', 'edit', 'delete'] },
-                    emailAccounts: { label: 'Email Accounts', permissions: ['create', 'edit', 'delete'] }
-                }
-            },
-            otherSettings: {
-                label: 'Other Settings',
-                children: {
-                    webForms: { label: 'Web Forms', permissions: ['view', 'create', 'edit', 'delete'] },
-                    tags: { label: 'Tags', permissions: ['create', 'edit', 'delete'] },
-                    dataTransfer: { label: 'Data Transfer', permissions: ['import', 'export'] },
-                    notifications: { label: 'Notifications', permissions: ['view', 'edit'] },
-                    customFields: { label: 'Custom Fields', permissions: ['view', 'create', 'edit', 'delete'] },
-                    security: { label: 'Security', permissions: ['view', 'edit'] },
-                    company: { label: 'Company', permissions: ['view', 'edit'] },
-                    businessHours: { label: 'Business Hours', permissions: ['view', 'edit'] }
-                }
-            }
-        }
-    },
+    tasks: { label: 'Tasks', permissions: ['create', 'view', 'edit', 'delete'] },
+    calendar: { label: 'Calendar', permissions: ['view', 'create', 'edit', 'delete'] },
+    activities: { label: 'Activities', permissions: ['create', 'view', 'edit', 'delete'] },
     voip: {
         label: 'VoIP',
-        permissions: ['view'],
         children: {
-            providers: { label: 'Providers', permissions: ['create', 'edit', 'delete'] },
-            trunks: { label: 'Trunks', permissions: ['create', 'edit', 'delete'] },
-            inboundRoutes: { label: 'Inbound Routes', permissions: ['create', 'edit', 'delete'] },
+            providers: { label: 'Providers', permissions: ['create', 'edit', 'delete', 'view'] },
+            trunks: { label: 'Trunks', permissions: ['create', 'edit', 'delete', 'view'] },
+            inboundRoutes: { label: 'Inbound Routes', permissions: ['create', 'edit', 'delete', 'view'] },
             callRecordings: { label: 'Call Recordings', permissions: ['play', 'download', 'delete'] },
             calls: { label: 'Calls', permissions: ['initiate', 'all_calls'] }
         }
     },
-    configuration: { label: 'Configuration', permissions: ['view', 'edit'] }
+    email: {
+        label: 'Email',
+        permissions: ['inbox', 'draft', 'outbox', 'sent', 'trash', 'create', 'view', 'edit', 'delete']
+    },
+    settings: {
+        label: 'Settings',
+        children: {
+            users: { label: 'User Management', permissions: ['create', 'view', 'edit', 'delete'] },
+            roles: { label: 'Roles & Permissions', permissions: ['create', 'view', 'edit', 'delete'] },
+            pipelines: { label: 'Pipeline Configuration', permissions: ['create', 'view', 'edit', 'delete'] },
+            sources: { label: 'Lead Sources', permissions: ['create', 'view', 'edit', 'delete'] },
+            types: { label: 'Lead Types', permissions: ['create', 'view', 'edit', 'delete'] },
+            emailIntegration: { label: 'Email Integration', permissions: ['create', 'view', 'edit', 'delete'] },
+            dataTransfer: { label: 'Data Transfer', permissions: ['import', 'export'] },
+            notifications: { label: 'Notifications', permissions: ['view', 'edit'] },
+            customFields: { label: 'Custom Fields', permissions: ['create', 'view', 'edit', 'delete'] },
+            security: { label: 'Security Settings', permissions: ['view', 'edit'] },
+            company: { label: 'Company Profile', permissions: ['view', 'edit'] },
+            emailTemplates: { label: 'Email Templates', permissions: ['create', 'view', 'edit', 'delete'] },
+            businessHours: { label: 'Business Hours', permissions: ['view', 'edit'] },
+            webForms: { label: 'Web Forms', permissions: ['view', 'create', 'edit', 'delete'] },
+            tags: { label: 'Tags', permissions: ['create', 'view', 'edit', 'delete'] },
+            attributes: { label: 'Attributes', permissions: ['create', 'view', 'edit', 'delete'] },
+            webhooks: { label: 'Webhooks', permissions: ['create', 'view', 'edit', 'delete'] },
+            workflows: { label: 'Workflows', permissions: ['create', 'view', 'edit', 'delete'] },
+            campaigns: { label: 'Campaigns', permissions: ['create', 'view', 'edit', 'delete'] }
+        }
+    }
 };
 
 interface PermissionNode {
