@@ -29,6 +29,11 @@ const PRIORITIES = [
 export default function TaskForm({ task, selectedDate, onClose, onSuccess }: TaskFormProps) {
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<any[]>([]);
+    const [persons, setPersons] = useState<any[]>([]);
+    const [organizations, setOrganizations] = useState<any[]>([]);
+    const [leads, setLeads] = useState<any[]>([]);
+    const [deals, setDeals] = useState<any[]>([]);
+
     const [formData, setFormData] = useState({
         title: task?.title || '',
         description: task?.description || '',
@@ -47,11 +52,15 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
         organization_id: task?.organization_id || '',
         lead_id: task?.lead_id || '',
         deal_id: task?.deal_id || '',
-        tags: task?.tags?.join(', ') || '',
+        tags: Array.isArray(task?.tags) ? task.tags.join(', ') : '',
     });
 
     useEffect(() => {
         fetchUsers();
+        fetchPersons();
+        fetchOrganizations();
+        fetchLeads();
+        fetchDeals();
     }, []);
 
     const fetchUsers = async () => {
@@ -60,6 +69,44 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
             setUsers(response.data);
         } catch (error) {
             console.error('Failed to fetch users');
+        }
+    };
+
+    const fetchPersons = async () => {
+        try {
+            const response = await api.get('/persons');
+            setPersons(response.data);
+        } catch (error) {
+            console.error('Failed to fetch persons');
+        }
+    };
+
+    const fetchOrganizations = async () => {
+        try {
+            const response = await api.get('/organizations');
+            setOrganizations(response.data);
+        } catch (error) {
+            console.error('Failed to fetch organizations');
+        }
+    };
+
+    const fetchLeads = async () => {
+        try {
+            const response = await api.get('/leads');
+            setLeads(response.data);
+        } catch (error) {
+            console.error('Failed to fetch leads');
+        }
+    };
+
+    const fetchDeals = async () => {
+        try {
+            const response = await api.get('/deals');
+            // Filter deals where status is 'won' as requested
+            const wonDeals = response.data.filter((d: any) => d.status === 'won');
+            setDeals(wonDeals);
+        } catch (error) {
+            console.error('Failed to fetch deals');
         }
     };
 
@@ -98,14 +145,14 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6 border-b flex items-center justify-between sticky top-0 bg-white z-10">
-                    <h2 className="text-xl font-semibold">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-800 z-10">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                         {task ? 'Edit Task' : 'Create New Task'}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                     >
                         ✕
                     </button>
@@ -114,7 +161,7 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     {/* Title */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Title *
                         </label>
                         <input
@@ -122,21 +169,21 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                             required
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             placeholder="Enter task title"
                         />
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Description
                         </label>
                         <textarea
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             placeholder="Enter task description"
                         />
                     </div>
@@ -144,14 +191,14 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                     {/* Task Type and Priority */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Task Type *
                             </label>
                             <select
                                 required
                                 value={formData.task_type}
                                 onChange={(e) => setFormData({ ...formData, task_type: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             >
                                 {TASK_TYPES.map(type => (
                                     <option key={type.value} value={type.value}>{type.label}</option>
@@ -160,14 +207,14 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Priority *
                             </label>
                             <select
                                 required
                                 value={formData.priority}
                                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             >
                                 {PRIORITIES.map(priority => (
                                     <option key={priority.value} value={priority.value}>{priority.label}</option>
@@ -179,26 +226,26 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                     {/* Due Date and Time */}
                     <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Due Date
                             </label>
                             <input
                                 type="date"
                                 value={formData.due_date}
                                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Time
                             </label>
                             <input
                                 type="time"
                                 value={formData.due_time}
                                 onChange={(e) => setFormData({ ...formData, due_time: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             />
                         </div>
                     </div>
@@ -206,14 +253,14 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                     {/* Assigned To and Duration */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Assign To *
                             </label>
                             <select
                                 required
                                 value={formData.assigned_to_id}
                                 onChange={(e) => setFormData({ ...formData, assigned_to_id: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             >
                                 <option value="">Select user</option>
                                 {users.map(user => (
@@ -223,14 +270,14 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Estimated Duration (minutes)
                             </label>
                             <input
                                 type="number"
                                 value={formData.estimated_duration}
                                 onChange={(e) => setFormData({ ...formData, estimated_duration: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                                 placeholder="e.g., 60"
                             />
                         </div>
@@ -239,13 +286,13 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                     {/* Status (only for edit) */}
                     {task && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Status
                             </label>
                             <select
                                 value={formData.status}
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             >
                                 <option value="to_do">To Do</option>
                                 <option value="in_progress">In Progress</option>
@@ -257,79 +304,91 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
 
                     {/* Tags */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Tags
                         </label>
                         <input
                             type="text"
                             value={formData.tags}
                             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             placeholder="Enter tags separated by commas"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Separate multiple tags with commas</p>
                     </div>
 
                     {/* CRM Relations (Optional) */}
-                    <div className="border-t pt-6">
-                        <h3 className="text-sm font-medium text-gray-700 mb-4">Link to CRM Entity (Optional)</h3>
+                    <div className="border-t border-gray-200 dark:border-slate-700 pt-6">
+                        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Link to CRM Entity (Optional)</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Person ID
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Person
                                 </label>
-                                <input
-                                    type="number"
+                                <select
                                     value={formData.person_id}
                                     onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
-                                    placeholder="Person ID"
-                                />
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                >
+                                    <option value="">Select Person</option>
+                                    {persons.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Organization ID
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Organization
                                 </label>
-                                <input
-                                    type="number"
+                                <select
                                     value={formData.organization_id}
                                     onChange={(e) => setFormData({ ...formData, organization_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
-                                    placeholder="Organization ID"
-                                />
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                >
+                                    <option value="">Select Organization</option>
+                                    {organizations.map(o => (
+                                        <option key={o.id} value={o.id}>{o.name}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Lead ID
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Lead
                                 </label>
-                                <input
-                                    type="number"
+                                <select
                                     value={formData.lead_id}
                                     onChange={(e) => setFormData({ ...formData, lead_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
-                                    placeholder="Lead ID"
-                                />
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                >
+                                    <option value="">Select Lead</option>
+                                    {leads.map(l => (
+                                        <option key={l.id} value={l.id}>{l.title}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Deal ID
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Deal (Won)
                                 </label>
-                                <input
-                                    type="number"
+                                <select
                                     value={formData.deal_id}
                                     onChange={(e) => setFormData({ ...formData, deal_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
-                                    placeholder="Deal ID"
-                                />
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                >
+                                    <option value="">Select Won Deal</option>
+                                    {deals.map(d => (
+                                        <option key={d.id} value={d.id}>{d.title}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-end space-x-3 pt-6 border-t">
+                    <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-slate-700">
                         <Button
                             type="button"
                             variant="secondary"
