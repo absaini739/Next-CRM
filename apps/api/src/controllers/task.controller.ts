@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { NotificationService } from '../services/notification.service';
 
 const taskSchema = z.object({
     title: z.string(),
@@ -21,6 +22,7 @@ const taskSchema = z.object({
     recurrence_end_date: z.string().optional(),
     tags: z.array(z.string()).optional(),
     checklist: z.array(z.object({ text: z.string(), completed: z.boolean() })).optional(),
+    progress: z.number().min(0).max(100).default(0),
 });
 
 // Get all tasks with filters
@@ -179,21 +181,81 @@ export const createTask = async (req: Request, res: Response) => {
             }
         }
 
+        const [assigner, assignee] = await Promise.all([
+            prisma.user.findUnique({ where: { id: userId }, include: { role: true } }),
+            prisma.user.findUnique({ where: { id: assignedToId! }, include: { role: true } })
+        ]);
+
+        const assignedByRole = assigner?.role.name || 'new';
+        const assignedToRole = assignee?.role.name || 'new';
+
+        // Role Weight Mapping
+        const roleWeights: Record<string, number> = {
+            'Administrator': 100,
+            'Manager': 80,
+            'Lead': 60,
+            'Employee': 40,
+            'new': 20
+        };
+
+        const assignerWeight = roleWeights[assignedByRole] || 0;
+        const assigneeWeight = roleWeights[assignedToRole] || 0;
+
+        // Hierarchy Validation
+        let canAssign = false;
+        if (assignedByRole === 'Administrator') {
+            canAssign = true;
+        } else if (assignedByRole === 'Manager' && assigneeWeight < 80) {
+            canAssign = true;
+        } else if (assignedByRole === 'Lead' && assigneeWeight < 60) {
+            canAssign = true;
+        }
+
+        if (!canAssign) {
+            return res.status(403).json({
+                message: `You (${assignedByRole}) do not have permission to assign tasks to ${assignedToRole}.`
+            });
+        }
+
         const task = await prisma.task.create({
             data: {
-                ...data,
+                title: data.title,
+                description: data.description,
+                task_type: data.task_type,
+                priority: data.priority,
+                status: data.status,
                 assigned_to_id: assignedToId!,
                 assigned_by_id: userId,
                 due_date: data.due_date ? new Date(data.due_date) : null,
+                due_time: data.due_time,
+                estimated_duration: data.estimated_duration,
+                person_id: data.person_id,
+                organization_id: data.organization_id,
+                lead_id: data.lead_id,
+                deal_id: data.deal_id,
+                is_recurring: data.is_recurring,
+                recurrence_pattern: data.recurrence_pattern,
                 recurrence_end_date: data.recurrence_end_date ? new Date(data.recurrence_end_date) : null,
                 tags: data.tags || [],
-                checklist: data.checklist || []
+                checklist: data.checklist || [],
+                progress: data.progress || 0,
+                assigned_by_role: assignedByRole,
+                assigned_to_role: assignedToRole
             },
             include: {
                 assigned_to: { select: { id: true, name: true, email: true } },
                 assigned_by: { select: { id: true, name: true, email: true } }
             }
         });
+
+        // Trigger Notification
+        if (assignedToId !== userId) {
+            await NotificationService.notify(
+                assignedToId!,
+                `New task assigned by ${assigner?.name}: ${task.title}`,
+                task.id
+            );
+        }
 
         res.status(201).json(task);
     } catch (error) {
@@ -210,6 +272,58 @@ export const updateTask = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);
         const data = req.body;
+        // @ts-ignore
+        const userId = Number(req.userId);
+
+        // Fetch existing task to check permissions and get current assignee
+        const existingTask = await prisma.task.findUnique({
+            where: { id },
+            include: {
+                assigned_to: { select: { id: true, name: true } },
+                assigned_by: { select: { id: true, name: true } }
+            }
+        });
+
+        if (!existingTask) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // Fetch user roles for hierarchy check
+        const currentUser = await prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
+        const currentUserRole = currentUser?.role.name || 'new';
+
+        // Role Weight Mapping
+        const roleWeights: Record<string, number> = {
+            'Administrator': 100,
+            'Manager': 80,
+            'Lead': 60,
+            'Employee': 40,
+            'new': 20
+        };
+
+        const currentWeight = roleWeights[currentUserRole] || 0;
+
+        // If trying to reassign
+        if (data.assigned_to_id && data.assigned_to_id !== existingTask.assigned_to_id) {
+            const newAssignee = await prisma.user.findUnique({ where: { id: data.assigned_to_id }, include: { role: true } });
+            const newAssigneeRole = newAssignee?.role.name || 'new';
+            const newAssigneeWeight = roleWeights[newAssigneeRole] || 0;
+
+            let canReassign = false;
+            if (currentUserRole === 'Administrator') {
+                canReassign = true;
+            } else if (currentUserRole === 'Manager' && newAssigneeWeight < 80) {
+                canReassign = true;
+            } else if (currentUserRole === 'Lead' && newAssigneeWeight < 60) {
+                canReassign = true;
+            }
+
+            if (!canReassign) {
+                return res.status(403).json({
+                    message: `You (${currentUserRole}) do not have permission to reassign tasks to ${newAssigneeRole}.`
+                });
+            }
+        }
 
         const task = await prisma.task.update({
             where: { id },
@@ -217,13 +331,48 @@ export const updateTask = async (req: Request, res: Response) => {
                 ...data,
                 due_date: data.due_date ? new Date(data.due_date) : undefined,
                 recurrence_end_date: data.recurrence_end_date ? new Date(data.recurrence_end_date) : undefined,
-                completed_at: data.status === 'completed' && !data.completed_at ? new Date() : undefined
+                completed_at: data.status === 'completed' && !data.completed_at ? new Date() : undefined,
+                progress: data.status === 'completed' ? 100 : data.progress
             },
             include: {
                 assigned_to: { select: { id: true, name: true, email: true } },
                 assigned_by: { select: { id: true, name: true, email: true } }
             }
         });
+
+        // Trigger Notifications for updates
+        const updater = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        const updaterName = updater?.name || 'A user';
+
+        // Notify Assignee if Assignor (or someone else) updates the task
+        if (task.assigned_to_id !== userId) {
+            let message = `Task "${task.title}" updated by ${updaterName}`;
+            if (data.status === 'completed') {
+                message = `Task "${task.title}" completed by ${updaterName}`;
+            } else if (data.assigned_to_id && data.assigned_to_id !== existingTask.assigned_to_id) {
+                message = `You have been assigned to task: "${task.title}" by ${updaterName}`;
+            } else if (data.status && data.status !== existingTask.status) {
+                message = `Task "${task.title}" status changed to ${data.status} by ${updaterName}`;
+            } else if (data.progress !== undefined && data.progress !== existingTask.progress) {
+                message = `Task "${task.title}" progress updated to ${data.progress}% by ${updaterName}`;
+            }
+
+            await NotificationService.notify(task.assigned_to_id, message, task.id);
+        }
+
+        // Notify Assignor if Assignee updates the task
+        if (task.assigned_by_id !== userId && userId === existingTask.assigned_to_id) {
+            let message = `Assignee ${updaterName} updated task "${task.title}"`;
+            if (data.status === 'completed') {
+                message = `Assignee ${updaterName} completed task "${task.title}"`;
+            } else if (data.status && data.status !== existingTask.status) {
+                message = `Assignee ${updaterName} changed status of "${task.title}" to ${data.status}`;
+            } else if (data.progress !== undefined && data.progress !== existingTask.progress) {
+                message = `Assignee ${updaterName} updated progress of "${task.title}" to ${data.progress}%`;
+            }
+
+            await NotificationService.notify(task.assigned_by_id, message, task.id);
+        }
 
         res.json(task);
     } catch (error) {
@@ -294,8 +443,7 @@ export const getTodayTasks = async (req: Request, res: Response) => {
                 due_date: {
                     gte: today,
                     lt: tomorrow
-                },
-                status: { not: 'completed' }
+                }
             },
             include: {
                 person: { select: { id: true, name: true } },

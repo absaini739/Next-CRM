@@ -7,35 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User & Auth
 model User {
-  id             Int      @id @default(autoincrement())
-  name           String
-  email          String   @unique
-  password       String?
-  status         Boolean  @default(false)
-  role_id        Int
-  remember_token String?
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
-
-  role            Role            @relation(fields: [role_id], references: [id])
-  persons         Person[]
-  organizations   Organization[]
-  leads           Lead[]
-  leadsAssignedTo Lead[]          @relation("LeadsAssignedTo")
-  deals           Deal[]
-  quotes          Quote[]
-  activities      Activity[]
-  emails          Email[]
-  email_accounts  EmailAccount[]  @relation("UserEmailAccounts")
-  emailTemplates  EmailTemplate[]
-  tasksAssignedTo Task[]          @relation("TasksAssignedTo")
-  tasksAssignedBy Task[]          @relation("TasksAssignedBy")
-  taskComments    TaskComment[]
-  taskTimeLogs    TaskTimeLog[]
-  calendarEvents  CalendarEvent[]
-  callRecordings  CallRecording[]
+  id                  Int             @id @default(autoincrement())
+  name                String
+  email               String          @unique
+  password            String?
+  status              Boolean         @default(false)
+  role_id             Int
+  remember_token      String?
+  created_at          DateTime        @default(now())
+  updated_at          DateTime        @updatedAt
+  deal_updates        Boolean         @default(true)
+  email_notifications Boolean         @default(true)
+  push_notifications  Boolean         @default(true)
+  reports_to_id       Int?
+  task_reminders      Boolean         @default(true)
+  activities          Activity[]
+  calendarEvents      CalendarEvent[]
+  callRecordings      CallRecording[]
+  deals               Deal[]
+  email_accounts      EmailAccount[]  @relation("UserEmailAccounts")
+  emailTemplates      EmailTemplate[]
+  emails              Email[]
+  leadsAssignedTo     Lead[]          @relation("LeadsAssignedTo")
+  leads               Lead[]
+  notifications       Notification[]
+  organizations       Organization[]
+  persons             Person[]
+  quotes              Quote[]
+  taskComments        TaskComment[]
+  taskTimeLogs        TaskTimeLog[]
+  tasksAssignedBy     Task[]          @relation("TasksAssignedBy")
+  tasksAssignedTo     Task[]          @relation("TasksAssignedTo")
+  reports_to          User?           @relation("Hierarchy", fields: [reports_to_id], references: [id])
+  subordinates        User[]          @relation("Hierarchy")
+  role                Role            @relation(fields: [role_id], references: [id])
 
   @@map("users")
 }
@@ -45,11 +51,10 @@ model Role {
   name            String
   description     String?
   permission_type String
-  permissions     Json? // Stores array of permission strings/objects
+  permissions     Json?
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
-
-  users User[]
+  users           User[]
 
   @@map("roles")
 }
@@ -57,411 +62,366 @@ model Role {
 model Group {
   id          Int      @id @default(autoincrement())
   name        String   @unique
-  description String?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+  description String?
 
   @@map("groups")
 }
 
-// Contacts
 model Person {
-  id              Int      @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   name            String
-  emails          Json // Stores array of {value, label}
-  contact_numbers Json? // Stores array of {value, label}
+  emails          Json
+  contact_numbers Json?
   organization_id Int?
-  user_id         Int? // Owner
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  organization   Organization?   @relation(fields: [organization_id], references: [id])
-  user           User?           @relation(fields: [user_id], references: [id])
-  leads          Lead[]
-  deals          Deal[]
-  quotes         Quote[]
-  activities     Activity[]
-  sentEmails     Email[]
-  email_messages EmailMessage[]  @relation("EmailMessagePerson")
-  tasks          Task[]
-  calendarEvents CalendarEvent[]
+  user_id         Int?
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  activities      Activity[]
+  calendarEvents  CalendarEvent[]
+  deals           Deal[]
+  email_messages  EmailMessage[]  @relation("EmailMessagePerson")
+  sentEmails      Email[]
+  leads           Lead[]
+  organization    Organization?   @relation(fields: [organization_id], references: [id])
+  user            User?           @relation(fields: [user_id], references: [id])
+  quotes          Quote[]
+  tasks           Task[]
 
   @@map("persons")
 }
 
 model Organization {
-  id         Int      @id @default(autoincrement())
-  name       String
-  email      String?
-  phone      String?
-  website    String?
-  address    Json?
-  user_id    Int? // Owner
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
+  id             Int             @id @default(autoincrement())
+  name           String
+  address        Json?
+  user_id        Int?
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+  email          String?
+  phone          String?
+  website        String?
+  activities     Activity[]
+  calendarEvents CalendarEvent[]
+  deals          Deal[]
+  leads          Lead[]
   user           User?           @relation(fields: [user_id], references: [id])
   persons        Person[]
-  leads          Lead[]
-  deals          Deal[]
   quotes         Quote[]
-  activities     Activity[]
   tasks          Task[]
-  calendarEvents CalendarEvent[]
 
   @@map("organizations")
 }
 
-// Sales
 model Lead {
-  id              Int      @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   title           String
   description     String?
-  first_name      String?
-  last_name       String?
-  company_name    String?
-  job_title       String?
-  website         String?
-  linkedin_url    String?
-  location        String?
-  primary_email   String?
-  secondary_email String?
-  phone           String?
-  mobile          String?
-  lead_rating     String?
-  no_employees    String?
-  lead_value      Decimal? @db.Decimal(10, 2)
-  status          Int? // 0 = lost, 1 = won, null = in progress
+  lead_value      Decimal?        @db.Decimal(10, 2)
+  status          Int?
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  user_id         Int?
   person_id       Int?
-  organization_id Int?
-  user_id         Int? // Owner
-  assigned_to_id  Int? // Assigned User
-  pipeline_id     Int?
-  stage_id        Int?
   lead_source_id  Int?
   lead_type_id    Int?
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  person         Person?         @relation(fields: [person_id], references: [id])
-  organization   Organization?   @relation(fields: [organization_id], references: [id])
-  user           User?           @relation(fields: [user_id], references: [id])
-  assigned_to    User?           @relation("LeadsAssignedTo", fields: [assigned_to_id], references: [id])
-  pipeline       LeadPipeline?   @relation(fields: [pipeline_id], references: [id])
-  stage          LeadStage?      @relation(fields: [stage_id], references: [id])
-  source         LeadSource?     @relation(fields: [lead_source_id], references: [id])
-  type           LeadType?       @relation(fields: [lead_type_id], references: [id])
-  deals          Deal[]
-  quotes         Quote[]
-  activities     Activity[]
-  emails         Email[]
-  email_messages EmailMessage[]  @relation("EmailMessageLead")
-  tasks          Task[]
-  calendarEvents CalendarEvent[]
+  organization_id Int?
+  pipeline_id     Int?
+  stage_id        Int?
+  company_name    String?
+  first_name      String?
+  job_title       String?
+  last_name       String?
+  lead_rating     String?
+  linkedin_url    String?
+  location        String?
+  mobile          String?
+  no_employees    String?
+  phone           String?
+  primary_email   String?
+  secondary_email String?
+  website         String?
+  assigned_to_id  Int?
+  activities      Activity[]
+  calendarEvents  CalendarEvent[]
+  deals           Deal[]
+  email_messages  EmailMessage[]  @relation("EmailMessageLead")
+  emails          Email[]
+  assigned_to     User?           @relation("LeadsAssignedTo", fields: [assigned_to_id], references: [id])
+  source          LeadSource?     @relation(fields: [lead_source_id], references: [id])
+  type            LeadType?       @relation(fields: [lead_type_id], references: [id])
+  organization    Organization?   @relation(fields: [organization_id], references: [id])
+  person          Person?         @relation(fields: [person_id], references: [id])
+  pipeline        LeadPipeline?   @relation(fields: [pipeline_id], references: [id])
+  stage           LeadStage?      @relation(fields: [stage_id], references: [id])
+  user            User?           @relation(fields: [user_id], references: [id])
+  quotes          Quote[]
+  tasks           Task[]
 
   @@map("leads")
 }
 
 model LeadPipeline {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   name       String
-  is_default Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  stages LeadStage[]
-  leads  Lead[]
+  created_at DateTime    @default(now())
+  is_default Boolean     @default(false)
+  updated_at DateTime    @updatedAt
+  stages     LeadStage[]
+  leads      Lead[]
 
   @@map("lead_pipelines")
 }
 
 model LeadStage {
-  id          Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
+  created_at  DateTime     @default(now())
   pipeline_id Int
-  sort_order  Int      @default(0)
-  probability Int      @default(0)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  pipeline LeadPipeline @relation(fields: [pipeline_id], references: [id], onDelete: Cascade)
-  leads    Lead[]
+  probability Int          @default(0)
+  sort_order  Int          @default(0)
+  updated_at  DateTime     @updatedAt
+  pipeline    LeadPipeline @relation(fields: [pipeline_id], references: [id], onDelete: Cascade)
+  leads       Lead[]
 
   @@map("lead_stages")
 }
 
 model Deal {
-  id                  Int       @id @default(autoincrement())
+  id                  Int             @id @default(autoincrement())
   title               String
   description         String?
-  deal_value          Decimal?  @db.Decimal(10, 2)
+  deal_value          Decimal?        @db.Decimal(10, 2)
+  status              String          @default("open")
   expected_close_date DateTime?
-  status              String    @default("open") // open, won, lost
+  created_at          DateTime        @default(now())
+  updated_at          DateTime        @updatedAt
+  user_id             Int?
   person_id           Int?
-  organization_id     Int?
   lead_id             Int?
-  user_id             Int? // Owner
+  organization_id     Int?
   pipeline_id         Int?
   stage_id            Int?
-  created_at          DateTime  @default(now())
-  updated_at          DateTime  @updatedAt
-
-  person         Person?         @relation(fields: [person_id], references: [id])
-  organization   Organization?   @relation(fields: [organization_id], references: [id])
-  lead           Lead?           @relation(fields: [lead_id], references: [id])
-  user           User?           @relation(fields: [user_id], references: [id])
-  pipeline       DealPipeline?   @relation(fields: [pipeline_id], references: [id])
-  stage          DealStage?      @relation(fields: [stage_id], references: [id])
-  quotes         Quote[]
-  activities     Activity[]
-  emails         Email[]
-  email_messages EmailMessage[]  @relation("EmailMessageDeal")
-  tasks          Task[]
-  calendarEvents CalendarEvent[]
+  activities          Activity[]
+  calendarEvents      CalendarEvent[]
+  lead                Lead?           @relation(fields: [lead_id], references: [id])
+  organization        Organization?   @relation(fields: [organization_id], references: [id])
+  person              Person?         @relation(fields: [person_id], references: [id])
+  pipeline            DealPipeline?   @relation(fields: [pipeline_id], references: [id])
+  stage               DealStage?      @relation(fields: [stage_id], references: [id])
+  user                User?           @relation(fields: [user_id], references: [id])
+  email_messages      EmailMessage[]  @relation("EmailMessageDeal")
+  emails              Email[]
+  quotes              Quote[]
+  tasks               Task[]
 
   @@map("deals")
 }
 
 model DealPipeline {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   name       String
-  is_default Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  stages DealStage[]
-  deals  Deal[]
+  is_default Boolean     @default(false)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  stages     DealStage[]
+  deals      Deal[]
 
   @@map("deal_pipelines")
 }
 
 model DealStage {
-  id          Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
   pipeline_id Int
-  sort_order  Int      @default(0)
-  probability Int      @default(0)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  pipeline DealPipeline @relation(fields: [pipeline_id], references: [id], onDelete: Cascade)
-  deals    Deal[]
+  sort_order  Int          @default(0)
+  probability Int          @default(0)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  pipeline    DealPipeline @relation(fields: [pipeline_id], references: [id], onDelete: Cascade)
+  deals       Deal[]
 
   @@map("deal_stages")
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
+  sku         String?     @unique
   name        String
-  sku         String?  @unique
   description String?
-  price       Decimal? @db.Decimal(10, 2)
   quantity    Int?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  quoteItems QuoteItem[]
+  price       Decimal?    @db.Decimal(10, 2)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  quoteItems  QuoteItem[]
 
   @@map("products")
 }
 
 model Quote {
-  id              Int       @id @default(autoincrement())
-  quote_number    String    @unique
+  id              Int           @id @default(autoincrement())
   subject         String?
   description     String?
-  sub_total       Decimal?  @db.Decimal(10, 2)
-  discount_amount Decimal?  @db.Decimal(10, 2)
-  tax_amount      Decimal?  @db.Decimal(10, 2)
-  adjustment      Decimal?  @db.Decimal(10, 2)
-  grand_total     Decimal?  @db.Decimal(10, 2)
-  valid_until     DateTime?
+  discount_amount Decimal?      @db.Decimal(10, 2)
+  tax_amount      Decimal?      @db.Decimal(10, 2)
+  sub_total       Decimal?      @db.Decimal(10, 2)
+  grand_total     Decimal?      @db.Decimal(10, 2)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
   person_id       Int?
-  organization_id Int?
-  lead_id         Int?
+  user_id         Int?
+  adjustment      Decimal?      @db.Decimal(10, 2)
   deal_id         Int?
-  user_id         Int? // Owner
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-
-  person       Person?       @relation(fields: [person_id], references: [id])
-  organization Organization? @relation(fields: [organization_id], references: [id])
-  lead         Lead?         @relation(fields: [lead_id], references: [id])
-  deal         Deal?         @relation(fields: [deal_id], references: [id])
-  user         User?         @relation(fields: [user_id], references: [id])
-  items        QuoteItem[]
+  lead_id         Int?
+  organization_id Int?
+  quote_number    String        @unique
+  valid_until     DateTime?
+  items           QuoteItem[]
+  deal            Deal?         @relation(fields: [deal_id], references: [id])
+  lead            Lead?         @relation(fields: [lead_id], references: [id])
+  organization    Organization? @relation(fields: [organization_id], references: [id])
+  person          Person?       @relation(fields: [person_id], references: [id])
+  user            User?         @relation(fields: [user_id], references: [id])
 
   @@map("quotes")
 }
 
 model QuoteItem {
   id          Int      @id @default(autoincrement())
-  quote_id    Int
-  product_id  Int?
-  description String?
   quantity    Int      @default(1)
   price       Decimal  @db.Decimal(10, 2)
-  discount    Decimal? @db.Decimal(10, 2)
-  tax         Decimal? @db.Decimal(10, 2)
-  amount      Decimal  @db.Decimal(10, 2)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-
-  quote   Quote    @relation(fields: [quote_id], references: [id], onDelete: Cascade)
-  product Product? @relation(fields: [product_id], references: [id])
+  product_id  Int?
+  quote_id    Int
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?
+  discount    Decimal? @db.Decimal(10, 2)
+  tax         Decimal? @db.Decimal(10, 2)
+  product     Product? @relation(fields: [product_id], references: [id])
+  quote       Quote    @relation(fields: [quote_id], references: [id], onDelete: Cascade)
 
   @@map("quote_items")
 }
 
-// Email
 model Email {
-  id           Int       @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   from         String
-  to           Json // Array of email addresses
-  cc           Json? // Array of email addresses
-  bcc          Json? // Array of email addresses
+  to           Json
+  cc           Json?
+  bcc          Json?
   subject      String
   body         String
-  folder       String    @default("inbox") // inbox, draft, outbox, sent, archive, trash
-  is_read      Boolean   @default(false)
-  is_starred   Boolean   @default(false)
+  folder       String            @default("inbox")
+  is_read      Boolean           @default(false)
+  is_starred   Boolean           @default(false)
   sent_at      DateTime?
-  scheduled_at DateTime?
+  created_at   DateTime          @default(now())
+  updated_at   DateTime          @updatedAt
   user_id      Int
   person_id    Int?
   lead_id      Int?
   deal_id      Int?
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-
-  user        User              @relation(fields: [user_id], references: [id])
-  person      Person?           @relation(fields: [person_id], references: [id])
-  lead        Lead?             @relation(fields: [lead_id], references: [id])
-  deal        Deal?             @relation(fields: [deal_id], references: [id])
-  attachments EmailAttachment[]
+  scheduled_at DateTime?
+  attachments  EmailAttachment[]
+  deal         Deal?             @relation(fields: [deal_id], references: [id])
+  lead         Lead?             @relation(fields: [lead_id], references: [id])
+  person       Person?           @relation(fields: [person_id], references: [id])
+  user         User              @relation(fields: [user_id], references: [id])
 
   @@map("emails")
 }
 
 model EmailAttachment {
   id         Int      @id @default(autoincrement())
-  email_id   Int
   filename   String
+  email_id   Int
+  created_at DateTime @default(now())
   file_path  String
   file_size  Int?
   mime_type  String?
-  created_at DateTime @default(now())
-
-  email Email @relation(fields: [email_id], references: [id], onDelete: Cascade)
+  email      Email    @relation(fields: [email_id], references: [id], onDelete: Cascade)
 
   @@map("email_attachments")
 }
 
-// Email Integration Models
 model EmailAccount {
-  id           Int     @id @default(autoincrement())
-  user_id      Int
-  provider     String // 'gmail', 'outlook'
-  email        String
-  display_name String?
-
-  // OAuth tokens
-  access_token  String    @db.Text
-  refresh_token String?   @db.Text
-  token_expiry  DateTime?
-
-  // Sync settings
-  last_sync_at   DateTime?
-  sync_enabled   Boolean   @default(true)
-  sync_from_date DateTime? // Only sync emails from this date
-
-  // Account settings
-  is_default Boolean @default(false)
-  signature  String? @db.Text
-
-  // SMTP/IMAP Credentials
-  connection_type    String? @default("oauth") // 'oauth', 'smtp_imap'
-  smtp_host          String?
-  smtp_port          Int?
+  id                 Int            @id @default(autoincrement())
+  user_id            Int
+  provider           String
+  email              String
+  display_name       String?
+  access_token       String
+  refresh_token      String?
+  token_expiry       DateTime?
+  last_sync_at       DateTime?
+  sync_enabled       Boolean        @default(true)
+  sync_from_date     DateTime?
+  is_default         Boolean        @default(false)
+  signature          String?
+  provider_data      Json?
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  connection_type    String?        @default("oauth")
+  encrypted_password String?
+  encryption_type    String?
   imap_host          String?
   imap_port          Int?
-  smtp_username      String?
   imap_username      String?
-  encrypted_password String? // AES-256 encrypted app password
-  encryption_type    String? // 'ssl' | 'tls' | 'starttls' | 'none'
-
-  // Provider-specific data
-  provider_data Json? // Store provider-specific IDs, labels, etc.
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  user          User           @relation("UserEmailAccounts", fields: [user_id], references: [id], onDelete: Cascade)
-  messages      EmailMessage[]
-  sent_messages EmailMessage[] @relation("SentFromAccount")
+  smtp_host          String?
+  smtp_port          Int?
+  smtp_username      String?
+  user               User           @relation("UserEmailAccounts", fields: [user_id], references: [id], onDelete: Cascade)
+  messages           EmailMessage[]
+  sent_messages      EmailMessage[] @relation("SentFromAccount")
 
   @@unique([user_id, email])
   @@map("email_accounts")
 }
 
 model EmailMessage {
-  id         Int  @id @default(autoincrement())
-  account_id Int
-  thread_id  Int?
-
-  // Email identifiers
-  message_id  String // Provider's message ID
-  in_reply_to String? // Message ID this is replying to
-  references  Json? // Array of message IDs in thread
-
-  // Email content
-  from_email String
-  from_name  String?
-  to         Json // Array of {email, name}
-  cc         Json? // Array of {email, name}
-  bcc        Json? // Array of {email, name}
-  subject    String
-  body_text  String? @db.Text
-  body_html  String? @db.Text
-  snippet    String? // First 200 chars for preview
-
-  // Metadata
-  folder          String  @default("inbox") // inbox, sent, draft, trash, archive
-  labels          Json? // Array of label names/IDs
-  is_read         Boolean @default(false)
-  is_starred      Boolean @default(false)
-  is_draft        Boolean @default(false)
-  has_attachments Boolean @default(false)
-
-  // Timestamps
-  sent_at      DateTime?
-  received_at  DateTime?
-  scheduled_at DateTime?
-
-  // CRM Relations
-  person_id Int?
-  lead_id   Int?
-  deal_id   Int?
-
-  // Tracking
-  sent_from_crm        Boolean @default(false)
-  sent_from_account_id Int? // Which account was used to send
-  tracking_enabled     Boolean @default(false)
-
-  // Provider data
-  provider_data Json? // Raw data from provider
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  account           EmailAccount             @relation(fields: [account_id], references: [id], onDelete: Cascade)
-  sent_from_account EmailAccount?            @relation("SentFromAccount", fields: [sent_from_account_id], references: [id])
-  thread            EmailThread?             @relation(fields: [thread_id], references: [id])
-  person            Person?                  @relation("EmailMessagePerson", fields: [person_id], references: [id])
-  lead              Lead?                    @relation("EmailMessageLead", fields: [lead_id], references: [id])
-  deal              Deal?                    @relation("EmailMessageDeal", fields: [deal_id], references: [id])
-  attachments       EmailMessageAttachment[]
-  tracking_events   EmailTracking[]
+  id                   Int                      @id @default(autoincrement())
+  account_id           Int
+  thread_id            Int?
+  message_id           String
+  in_reply_to          String?
+  references           Json?
+  from_email           String
+  from_name            String?
+  to                   Json
+  cc                   Json?
+  bcc                  Json?
+  subject              String
+  body_text            String?
+  body_html            String?
+  snippet              String?
+  folder               String                   @default("inbox")
+  labels               Json?
+  is_read              Boolean                  @default(false)
+  is_starred           Boolean                  @default(false)
+  is_draft             Boolean                  @default(false)
+  has_attachments      Boolean                  @default(false)
+  sent_at              DateTime?
+  received_at          DateTime?
+  person_id            Int?
+  lead_id              Int?
+  deal_id              Int?
+  sent_from_crm        Boolean                  @default(false)
+  sent_from_account_id Int?
+  tracking_enabled     Boolean                  @default(false)
+  provider_data        Json?
+  created_at           DateTime                 @default(now())
+  updated_at           DateTime                 @updatedAt
+  scheduled_at         DateTime?
+  attachments          EmailMessageAttachment[]
+  account              EmailAccount             @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  deal                 Deal?                    @relation("EmailMessageDeal", fields: [deal_id], references: [id])
+  lead                 Lead?                    @relation("EmailMessageLead", fields: [lead_id], references: [id])
+  person               Person?                  @relation("EmailMessagePerson", fields: [person_id], references: [id])
+  sent_from_account    EmailAccount?            @relation("SentFromAccount", fields: [sent_from_account_id], references: [id])
+  thread               EmailThread?             @relation(fields: [thread_id], references: [id])
+  tracking_events      EmailTracking[]
 
   @@unique([account_id, message_id])
   @@index([account_id, folder])
@@ -473,164 +433,132 @@ model EmailMessage {
 }
 
 model EmailThread {
-  id                 Int      @id @default(autoincrement())
+  id                 Int            @id @default(autoincrement())
   subject            String
-  participant_emails Json // Array of all emails in thread
+  participant_emails Json
   last_message_at    DateTime
-  message_count      Int      @default(0)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  messages EmailMessage[]
+  message_count      Int            @default(0)
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  messages           EmailMessage[]
 
   @@map("email_threads")
 }
 
 model EmailMessageAttachment {
-  id         Int @id @default(autoincrement())
-  message_id Int
-
-  filename     String
-  content_type String
-  size         Int // bytes
-
-  // Storage
-  storage_path String? // Local file path or cloud URL
-  inline       Boolean @default(false)
-  content_id   String? // For inline images
-
-  // Provider data
-  attachment_id String? // Provider's attachment ID
-
-  created_at DateTime @default(now())
-
-  message EmailMessage @relation(fields: [message_id], references: [id], onDelete: Cascade)
+  id            Int          @id @default(autoincrement())
+  message_id    Int
+  filename      String
+  content_type  String
+  size          Int
+  storage_path  String?
+  inline        Boolean      @default(false)
+  content_id    String?
+  attachment_id String?
+  created_at    DateTime     @default(now())
+  message       EmailMessage @relation(fields: [message_id], references: [id], onDelete: Cascade)
 
   @@map("email_message_attachments")
 }
 
 model EmailTracking {
-  id         Int    @id @default(autoincrement())
+  id         Int          @id @default(autoincrement())
   message_id Int
-  event_type String // 'open', 'click'
-
-  // For opens
+  event_type String
   ip_address String?
-  user_agent String? @db.Text
-
-  // For clicks
-  link_url String? @db.Text
-
-  // Geolocation (optional)
-  country String?
-  city    String?
-
-  tracked_at DateTime @default(now())
-
-  message EmailMessage @relation(fields: [message_id], references: [id], onDelete: Cascade)
+  user_agent String?
+  link_url   String?
+  country    String?
+  city       String?
+  tracked_at DateTime     @default(now())
+  message    EmailMessage @relation(fields: [message_id], references: [id], onDelete: Cascade)
 
   @@index([message_id, event_type])
   @@map("email_tracking")
 }
 
 model EmailTemplate {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   user_id     Int
   name        String
   subject     String
-  body        String @db.Text
+  body        String
   description String?
-  variables   Json? // Stores array of variable names like ['name', 'company']
-  is_shared   Boolean @default(false) // For team templates
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  variables   Json?
+  is_shared   Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("email_templates")
 }
 
-
-// Activities & Tasks
 model Activity {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String?
-  type        String // call, meeting, task, email, note
-  start_at    DateTime?
-  end_at      DateTime?
-  completed   Boolean   @default(false)
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
-
+  id              Int           @id @default(autoincrement())
+  title           String
+  description     String?
+  type            String
+  start_at        DateTime?
+  end_at          DateTime?
+  completed       Boolean       @default(false)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
   user_id         Int
   person_id       Int?
-  organization_id Int?
   lead_id         Int?
   deal_id         Int?
-
-  user         User          @relation(fields: [user_id], references: [id])
-  person       Person?       @relation(fields: [person_id], references: [id])
-  organization Organization? @relation(fields: [organization_id], references: [id])
-  lead         Lead?         @relation(fields: [lead_id], references: [id])
-  deal         Deal?         @relation(fields: [deal_id], references: [id])
+  organization_id Int?
+  deal            Deal?         @relation(fields: [deal_id], references: [id])
+  lead            Lead?         @relation(fields: [lead_id], references: [id])
+  organization    Organization? @relation(fields: [organization_id], references: [id])
+  person          Person?       @relation(fields: [person_id], references: [id])
+  user            User          @relation(fields: [user_id], references: [id])
 
   @@map("activities")
 }
 
-// Task Management
 model Task {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String?
-  task_type   String // call, meeting, email, follow-up, deadline, custom
-  priority    String  @default("medium") // low, medium, high, urgent
-  status      String  @default("to_do") // to_do, in_progress, completed, cancelled
-
-  due_date           DateTime?
-  due_time           String?
-  estimated_duration Int? // in minutes
-  actual_duration    Int? // in minutes
-
-  // Assignment
-  assigned_to_id Int
-  assigned_by_id Int
-
-  // CRM Relations
-  person_id       Int?
-  organization_id Int?
-  lead_id         Int?
-  deal_id         Int?
-
-  // Recurrence
-  is_recurring        Boolean   @default(false)
-  recurrence_pattern  String? // daily, weekly, monthly, custom
+  id                  Int             @id @default(autoincrement())
+  title               String
+  description         String?
+  task_type           String
+  priority            String          @default("medium")
+  status              String          @default("to_do")
+  due_date            DateTime?
+  due_time            String?
+  estimated_duration  Int?
+  actual_duration     Int?
+  assigned_to_id      Int
+  assigned_by_id      Int
+  person_id           Int?
+  organization_id     Int?
+  lead_id             Int?
+  deal_id             Int?
+  is_recurring        Boolean         @default(false)
+  recurrence_pattern  String?
   recurrence_end_date DateTime?
-  parent_task_id      Int? // for recurring task instances
-
-  // Metadata
-  tags        Json? // array of tags
-  attachments Json? // array of file URLs
-  checklist   Json? // array of checklist items
-
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  completed_at DateTime?
-
-  // Relations
-  assigned_to     User            @relation("TasksAssignedTo", fields: [assigned_to_id], references: [id])
-  assigned_by     User            @relation("TasksAssignedBy", fields: [assigned_by_id], references: [id])
-  person          Person?         @relation(fields: [person_id], references: [id])
-  organization    Organization?   @relation(fields: [organization_id], references: [id])
-  lead            Lead?           @relation(fields: [lead_id], references: [id])
-  deal            Deal?           @relation(fields: [deal_id], references: [id])
-  parent_task     Task?           @relation("RecurringTasks", fields: [parent_task_id], references: [id])
-  child_tasks     Task[]          @relation("RecurringTasks")
-  comments        TaskComment[]
-  time_logs       TaskTimeLog[]
-  calendar_events CalendarEvent[]
+  parent_task_id      Int?
+  tags                Json?
+  attachments         Json?
+  checklist           Json?
+  created_at          DateTime        @default(now())
+  updated_at          DateTime        @updatedAt
+  completed_at        DateTime?
+  assigned_by_role    String
+  assigned_to_role    String
+  progress            Int             @default(0)
+  calendar_events     CalendarEvent[]
+  notifications       Notification[]
+  comments            TaskComment[]
+  time_logs           TaskTimeLog[]
+  assigned_by         User            @relation("TasksAssignedBy", fields: [assigned_by_id], references: [id])
+  assigned_to         User            @relation("TasksAssignedTo", fields: [assigned_to_id], references: [id])
+  deal                Deal?           @relation(fields: [deal_id], references: [id])
+  lead                Lead?           @relation(fields: [lead_id], references: [id])
+  organization        Organization?   @relation(fields: [organization_id], references: [id])
+  parent_task         Task?           @relation("RecurringTasks", fields: [parent_task_id], references: [id])
+  child_tasks         Task[]          @relation("RecurringTasks")
+  person              Person?         @relation(fields: [person_id], references: [id])
 
   @@map("tasks")
 }
@@ -641,9 +569,8 @@ model TaskComment {
   user_id    Int
   comment    String
   created_at DateTime @default(now())
-
-  task Task @relation(fields: [task_id], references: [id], onDelete: Cascade)
-  user User @relation(fields: [user_id], references: [id])
+  task       Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id])
 
   @@map("task_comments")
 }
@@ -652,49 +579,40 @@ model TaskTimeLog {
   id        Int      @id @default(autoincrement())
   task_id   Int
   user_id   Int
-  duration  Int // in minutes
+  duration  Int
   note      String?
   logged_at DateTime @default(now())
-
-  task Task @relation(fields: [task_id], references: [id], onDelete: Cascade)
-  user User @relation(fields: [user_id], references: [id])
+  task      Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [user_id], references: [id])
 
   @@map("task_time_logs")
 }
 
-// Calendar
 model CalendarEvent {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  event_type  String // meeting, call, deadline, personal
-  start_date  DateTime
-  end_date    DateTime
-  all_day     Boolean  @default(false)
-  location    String?
-
-  user_id Int
-  task_id Int? // linked task if applicable
-
-  // CRM Relations
-  person_id       Int?
-  organization_id Int?
-  lead_id         Int?
-  deal_id         Int?
-
-  // Recurrence
-  is_recurring       Boolean @default(false)
+  id                 Int           @id @default(autoincrement())
+  title              String
+  description        String?
+  event_type         String
+  start_date         DateTime
+  end_date           DateTime
+  all_day            Boolean       @default(false)
+  location           String?
+  user_id            Int
+  task_id            Int?
+  person_id          Int?
+  organization_id    Int?
+  lead_id            Int?
+  deal_id            Int?
+  is_recurring       Boolean       @default(false)
   recurrence_pattern String?
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  user         User          @relation(fields: [user_id], references: [id])
-  task         Task?         @relation(fields: [task_id], references: [id])
-  person       Person?       @relation(fields: [person_id], references: [id])
-  organization Organization? @relation(fields: [organization_id], references: [id])
-  lead         Lead?         @relation(fields: [lead_id], references: [id])
-  deal         Deal?         @relation(fields: [deal_id], references: [id])
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
+  deal               Deal?         @relation(fields: [deal_id], references: [id])
+  lead               Lead?         @relation(fields: [lead_id], references: [id])
+  organization       Organization? @relation(fields: [organization_id], references: [id])
+  person             Person?       @relation(fields: [person_id], references: [id])
+  task               Task?         @relation(fields: [task_id], references: [id])
+  user               User          @relation(fields: [user_id], references: [id])
 
   @@map("calendar_events")
 }
@@ -719,61 +637,49 @@ model LeadType {
   @@map("lead_types")
 }
 
-// VoIP Models
 model VoipProvider {
-  id            Int    @id @default(autoincrement())
-  name          String
-  provider_type String // 'twilio', 'telnyx', 'sip'
-
-  // Twilio fields
+  id             Int         @id @default(autoincrement())
+  name           String
+  provider_type  String
   account_sid    String?
   auth_token     String?
   api_key_sid    String?
   api_key_secret String?
   twiml_app_sid  String?
-
-  // Telnyx fields
   api_key        String?
   connection_id  String?
   webhook_secret String?
-
-  // Generic SIP fields
-  sip_server   String?
-  sip_port     Int?
-  sip_username String?
-  sip_password String?
-  transport    String? // 'UDP', 'TCP', 'TLS'
-
-  // Common fields
-  from_number String
-  active      Boolean @default(true)
-
-  trunks     VoipTrunk[]
-  created_at DateTime    @default(now())
-  updated_at DateTime    @updatedAt
+  sip_server     String?
+  sip_port       Int?
+  sip_username   String?
+  sip_password   String?
+  transport      String?
+  from_number    String
+  active         Boolean     @default(true)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+  trunks         VoipTrunk[]
 
   @@map("voip_providers")
 }
 
 model VoipTrunk {
-  id          Int          @id @default(autoincrement())
-  name        String
-  provider_id Int
-  provider    VoipProvider @relation(fields: [provider_id], references: [id], onDelete: Cascade)
-
+  id                    Int            @id @default(autoincrement())
+  name                  String
+  provider_id           Int
   sip_domain            String
-  sip_port              Int     @default(5060)
-  transport_protocol    String  @default("UDP") // 'UDP', 'TCP', 'TLS'
-  auth_method           String  @default("username") // 'username', 'ip'
+  sip_port              Int            @default(5060)
+  transport_protocol    String         @default("UDP")
+  auth_method           String         @default("username")
   sip_username          String?
   sip_password          String?
-  registration_required Boolean @default(false)
-  options_context       String? @db.Text
-  active                Boolean @default(true)
-
-  inbound_routes InboundRoute[]
-  created_at     DateTime       @default(now())
-  updated_at     DateTime       @updatedAt
+  registration_required Boolean        @default(false)
+  options_context       String?
+  active                Boolean        @default(true)
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
+  inbound_routes        InboundRoute[]
+  provider              VoipProvider   @relation(fields: [provider_id], references: [id], onDelete: Cascade)
 
   @@map("voip_trunks")
 }
@@ -781,33 +687,44 @@ model VoipTrunk {
 model InboundRoute {
   id               Int       @id @default(autoincrement())
   name             String
-  did_pattern      String // e.g., +15551234567 or 555*
-  destination_type String // 'user', 'queue', 'ivr', etc.
+  did_pattern      String
+  destination_type String
   destination_id   String
   trunk_id         Int
-  trunk            VoipTrunk @relation(fields: [trunk_id], references: [id], onDelete: Cascade)
   priority         Int       @default(1)
   active           Boolean   @default(true)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  trunk            VoipTrunk @relation(fields: [trunk_id], references: [id], onDelete: Cascade)
 
   @@map("inbound_routes")
 }
 
 model CallRecording {
-  id            Int     @id @default(autoincrement())
-  recording_sid String  @unique
+  id            Int      @id @default(autoincrement())
+  recording_sid String   @unique
   from_number   String
   to_number     String
-  direction     String // 'inbound', 'outbound'
+  direction     String
   user_id       Int?
-  user          User?   @relation(fields: [user_id], references: [id])
-  duration      Int // in seconds
+  duration      Int
   recording_url String?
-  status        String  @default("completed")
-
-  created_at DateTime @default(now())
+  status        String   @default("completed")
+  created_at    DateTime @default(now())
+  user          User?    @relation(fields: [user_id], references: [id])
 
   @@map("call_recordings")
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  task_id    Int?
+  message    String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+  task       Task?    @relation(fields: [task_id], references: [id])
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
 }

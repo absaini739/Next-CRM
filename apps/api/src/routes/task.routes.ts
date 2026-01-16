@@ -17,8 +17,4 @@ router.post('/', taskController.createTask);
 router.put('/:id', taskController.updateTask);
 router.delete('/:id', taskController.deleteTask);
 
-// Task comments and time logs
-router.post('/:id/comments', taskController.addComment);
-router.post('/:id/time-log', taskController.logTime);
-
 export default router;

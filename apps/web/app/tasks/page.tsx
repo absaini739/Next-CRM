@@ -229,7 +229,7 @@ export default function TasksPage() {
                             </div>
                             <div className="space-y-3">
                                 {groupedTasks.to_do.map(task => (
-                                    <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
+                                    <TaskCard key={task.id} task={task} onClick={() => router.push(`/tasks/${task.id}`)} />
                                 ))}
                                 {groupedTasks.to_do.length === 0 && (
                                     <div className="text-center py-8 text-gray-500 dark:text-slate-500 text-sm">No tasks</div>
@@ -246,7 +246,7 @@ export default function TasksPage() {
                             </div>
                             <div className="space-y-3">
                                 {groupedTasks.in_progress.map(task => (
-                                    <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
+                                    <TaskCard key={task.id} task={task} onClick={() => router.push(`/tasks/${task.id}`)} />
                                 ))}
                                 {groupedTasks.in_progress.length === 0 && (
                                     <div className="text-center py-8 text-gray-500 dark:text-slate-500 text-sm">No tasks</div>
@@ -263,7 +263,7 @@ export default function TasksPage() {
                             </div>
                             <div className="space-y-3">
                                 {groupedTasks.completed.map(task => (
-                                    <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
+                                    <TaskCard key={task.id} task={task} onClick={() => router.push(`/tasks/${task.id}`)} />
                                 ))}
                                 {groupedTasks.completed.length === 0 && (
                                     <div className="text-center py-8 text-gray-500 dark:text-slate-500 text-sm">No tasks</div>
@@ -292,7 +292,7 @@ export default function TasksPage() {
                                     {tasks.map(task => (
                                         <tr
                                             key={task.id}
-                                            onClick={() => setSelectedTask(task)}
+                                            onClick={() => router.push(`/tasks/${task.id}`)}
                                             className="hover:bg-gray-50 cursor-pointer"
                                         >
                                             <td className="px-6 py-4">
@@ -342,18 +342,6 @@ export default function TasksPage() {
                     onSuccess={() => {
                         fetchTasks();
                         setShowCreateModal(false);
-                    }}
-                />
-            )}
-
-            {/* Task Detail/Edit Modal */}
-            {selectedTask && (
-                <TaskForm
-                    task={selectedTask}
-                    onClose={() => setSelectedTask(null)}
-                    onSuccess={() => {
-                        fetchTasks();
-                        setSelectedTask(null);
                     }}
                 />
             )}

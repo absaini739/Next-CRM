@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
 
 interface TaskFormProps {
     task?: any;
@@ -27,6 +28,7 @@ const PRIORITIES = [
 ];
 
 export default function TaskForm({ task, selectedDate, onClose, onSuccess }: TaskFormProps) {
+    const { user: currentUser } = useAuth();
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<any[]>([]);
     const [persons, setPersons] = useState<any[]>([]);
@@ -53,6 +55,7 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
         lead_id: task?.lead_id || '',
         deal_id: task?.deal_id || '',
         tags: Array.isArray(task?.tags) ? task.tags.join(', ') : '',
+        progress: task?.progress || 0,
     });
 
     useEffect(() => {
@@ -63,10 +66,34 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
         fetchDeals();
     }, []);
 
+    const isAssigner = task?.assigned_by_id === currentUser?.id;
+    const userRole = currentUser?.role?.name || 'new';
+    const isAdmin = userRole === 'Administrator';
+    const isManager = userRole === 'Manager';
+    const isLead = userRole === 'Lead';
+    const isEmployee = userRole === 'Employee';
+
+    // Only Admin, Manager, and Lead can assign/create tasks for others
+    const canCreateOrAssign = isAdmin || isManager || isLead;
+
+    // canEditCore remains for general editing of task details
+    const canEditCore = canCreateOrAssign || isAssigner;
+
     const fetchUsers = async () => {
         try {
+            // Updated to fetch users with roles and hierarchy info
             const response = await api.get('/auth/users');
-            setUsers(response.data);
+            const allUsers = response.data;
+
+            if (canEditCore) {
+                setUsers(allUsers);
+            } else {
+                // Only self-assignment if no permission
+                setUsers(allUsers.filter((u: any) => u.id === currentUser?.id));
+                if (!formData.assigned_to_id) {
+                    setFormData(prev => ({ ...prev, assigned_to_id: currentUser?.id.toString() }));
+                }
+            }
         } catch (error) {
             console.error('Failed to fetch users');
         }
@@ -102,9 +129,7 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
     const fetchDeals = async () => {
         try {
             const response = await api.get('/deals');
-            // Filter deals where status is 'won' as requested
-            const wonDeals = response.data.filter((d: any) => d.status === 'won');
-            setDeals(wonDeals);
+            setDeals(response.data);
         } catch (error) {
             console.error('Failed to fetch deals');
         }
@@ -159,36 +184,47 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    {/* Title */}
+                    {/* Title - Deal Selection */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Title *
+                            Select Deal * {!canEditCore && task && <span className="text-xs font-normal text-gray-400">(Read Only)</span>}
                         </label>
-                        <input
-                            type="text"
+                        <select
                             required
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                            placeholder="Enter task title"
-                        />
+                            value={formData.deal_id}
+                            onChange={(e) => {
+                                const selectedDeal = deals.find(d => d.id === parseInt(e.target.value));
+                                setFormData({
+                                    ...formData,
+                                    deal_id: e.target.value,
+                                    title: selectedDeal ? selectedDeal.title : formData.title
+                                });
+                            }}
+                            disabled={!canEditCore && !!task}
+                            className={`w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${!canEditCore && !!task ? 'cursor-not-allowed opacity-75' : ''}`}
+                        >
+                            <option value="">Select Deal</option>
+                            {deals.map(d => (
+                                <option key={d.id} value={d.id}>{d.title}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Description */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Description
+                            Description {!canEditCore && task && <span className="text-xs font-normal text-gray-400">(Read Only)</span>}
                         </label>
                         <textarea
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                            disabled={!canEditCore && !!task}
+                            className={`w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${!canEditCore && !!task ? 'cursor-not-allowed opacity-75' : ''}`}
                             placeholder="Enter task description"
                         />
                     </div>
 
-                    {/* Task Type and Priority */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -198,7 +234,8 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                                 required
                                 value={formData.task_type}
                                 onChange={(e) => setFormData({ ...formData, task_type: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                disabled={!canEditCore && !!task}
+                                className={`w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${!canEditCore && !!task ? 'cursor-not-allowed opacity-75' : ''}`}
                             >
                                 {TASK_TYPES.map(type => (
                                     <option key={type.value} value={type.value}>{type.label}</option>
@@ -214,7 +251,8 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                                 required
                                 value={formData.priority}
                                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                disabled={!canEditCore && !!task}
+                                className={`w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${!canEditCore && !!task ? 'cursor-not-allowed opacity-75' : ''}`}
                             >
                                 {PRIORITIES.map(priority => (
                                     <option key={priority.value} value={priority.value}>{priority.label}</option>
@@ -223,7 +261,6 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                         </div>
                     </div>
 
-                    {/* Due Date and Time */}
                     <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -233,7 +270,8 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                                 type="date"
                                 value={formData.due_date}
                                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                disabled={!canEditCore && !!task}
+                                className={`w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${!canEditCore && !!task ? 'cursor-not-allowed opacity-75' : ''}`}
                             />
                         </div>
 
@@ -245,7 +283,8 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                                 type="time"
                                 value={formData.due_time}
                                 onChange={(e) => setFormData({ ...formData, due_time: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                disabled={!canEditCore && !!task}
+                                className={`w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${!canEditCore && !!task ? 'cursor-not-allowed opacity-75' : ''}`}
                             />
                         </div>
                     </div>
@@ -260,7 +299,8 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                                 required
                                 value={formData.assigned_to_id}
                                 onChange={(e) => setFormData({ ...formData, assigned_to_id: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                                disabled={!canEditCore && !!task}
+                                className={`w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${!canEditCore && !!task ? 'cursor-not-allowed opacity-75' : ''}`}
                             >
                                 <option value="">Select user</option>
                                 {users.map(user => (
@@ -271,15 +311,20 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Estimated Duration (minutes)
+                                Progress ({formData.progress}%)
                             </label>
-                            <input
-                                type="number"
-                                value={formData.estimated_duration}
-                                onChange={(e) => setFormData({ ...formData, estimated_duration: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                                placeholder="e.g., 60"
-                            />
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    step="5"
+                                    value={formData.progress}
+                                    onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) })}
+                                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                />
+                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 w-10">{formData.progress}%</span>
+                            </div>
                         </div>
                     </div>
 
@@ -317,92 +362,35 @@ export default function TaskForm({ task, selectedDate, onClose, onSuccess }: Tas
                         <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Separate multiple tags with commas</p>
                     </div>
 
-                    {/* CRM Relations (Optional) */}
-                    <div className="border-t border-gray-200 dark:border-slate-700 pt-6">
-                        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Link to CRM Entity (Optional)</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Person
-                                </label>
-                                <select
-                                    value={formData.person_id}
-                                    onChange={(e) => setFormData({ ...formData, person_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                                >
-                                    <option value="">Select Person</option>
-                                    {persons.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Organization
-                                </label>
-                                <select
-                                    value={formData.organization_id}
-                                    onChange={(e) => setFormData({ ...formData, organization_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                                >
-                                    <option value="">Select Organization</option>
-                                    {organizations.map(o => (
-                                        <option key={o.id} value={o.id}>{o.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Lead
-                                </label>
-                                <select
-                                    value={formData.lead_id}
-                                    onChange={(e) => setFormData({ ...formData, lead_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                                >
-                                    <option value="">Select Lead</option>
-                                    {leads.map(l => (
-                                        <option key={l.id} value={l.id}>{l.title}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Deal (Won)
-                                </label>
-                                <select
-                                    value={formData.deal_id}
-                                    onChange={(e) => setFormData({ ...formData, deal_id: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                                >
-                                    <option value="">Select Won Deal</option>
-                                    {deals.map(d => (
-                                        <option key={d.id} value={d.id}>{d.title}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Actions */}
-                    <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-slate-700">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={onClose}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            disabled={loading}
-                        >
-                            {loading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
-                        </Button>
+                    <div className="flex flex-col space-y-3 pt-6 border-t border-gray-200 dark:border-slate-700">
+                        {isEmployee && !task && (
+                            <p className="text-xs text-red-500 font-medium text-center">
+                                Employees are not authorized to create or assign tasks.
+                            </p>
+                        )}
+                        {!canCreateOrAssign && task && (
+                            <p className="text-xs text-amber-500 font-medium text-center">
+                                You only have permission to update your current tasks, not reassign them.
+                            </p>
+                        )}
+                        <div className="flex justify-end space-x-3">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={onClose}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                disabled={loading || (isEmployee && !task)}
+                            >
+                                {loading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </div>

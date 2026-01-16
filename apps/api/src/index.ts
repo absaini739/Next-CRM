@@ -41,6 +41,7 @@ import callRecordingRoutes from './routes/call-recording.routes';
 import emailAccountRoutes from './routes/email-account.routes';
 import emailTemplateRoutes from './routes/email-template.routes';
 import trackingRoutes from './routes/tracking.routes';
+import notificationRoutes from './routes/notification.routes';
 import callRoutes from './routes/call.routes';
 
 app.use('/auth', authRoutes);
@@ -66,6 +67,7 @@ app.use('/email-accounts', emailAccountRoutes);
 app.use('/email-templates', emailTemplateRoutes);
 app.use('/track', trackingRoutes);
 app.use('/voip', callRoutes);
+app.use('/notifications', notificationRoutes);
 
 
 

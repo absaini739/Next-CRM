@@ -19,7 +19,7 @@ const PERMISSIONS_TREE = {
     deals: { label: 'Deals', permissions: ['create', 'view', 'edit', 'delete'] },
     products: { label: 'Products', permissions: ['create', 'view', 'edit', 'delete'] },
     quotes: { label: 'Quotes', permissions: ['create', 'edit', 'print', 'delete'] },
-    tasks: { label: 'Tasks', permissions: ['create', 'view', 'edit', 'delete'] },
+    tasks: { label: 'Tasks', permissions: ['create', 'view', 'edit', 'delete', 'assign', 'manage_all'] },
     calendar: { label: 'Calendar', permissions: ['view', 'create', 'edit', 'delete'] },
     activities: { label: 'Activities', permissions: ['create', 'view', 'edit', 'delete'] },
     voip: {

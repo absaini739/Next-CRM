@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import LeadsByStagesChart from '@/components/charts/LeadsByStagesChart';
 import RevenueDonutChart from '@/components/charts/RevenueDonutChart';
 import LeadsOverTimeChart from '@/components/charts/LeadsOverTimeChart';
+import MyTasksPanel from '@/components/dashboard/MyTasksPanel';
 import {
   UserGroupIcon,
   CurrencyDollarIcon,
@@ -137,6 +138,11 @@ export default function DashboardPage() {
             icon={<UserGroupIcon className="h-8 w-8 text-teal-600" />}
             bgColor="bg-teal-50"
           />
+        </div>
+
+        {/* My Tasks Panel */}
+        <div className="grid grid-cols-1 gap-6">
+          <MyTasksPanel />
         </div>
 
         {/* Charts Row 1 */}

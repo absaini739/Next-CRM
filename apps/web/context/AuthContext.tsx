@@ -17,6 +17,13 @@ interface User {
     email: string;
     role_id: number;
     role?: Role;
+    status?: boolean;
+    created_at?: string;
+    updated_at?: string;
+    deal_updates?: boolean;
+    email_notifications?: boolean;
+    push_notifications?: boolean;
+    task_reminders?: boolean;
 }
 
 interface AuthContextType {
@@ -24,6 +31,8 @@ interface AuthContextType {
     loading: boolean;
     login: (token: string, user: User) => void;
     logout: () => void;
+    updateUserData: (userData: User) => void;
+    fetchMe: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,6 +40,8 @@ const AuthContext = createContext<AuthContextType>({
     loading: true,
     login: () => { },
     logout: () => { },
+    updateUserData: () => { },
+    fetchMe: async () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -38,27 +49,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    const fetchMe = async () => {
+        const token = Cookies.get('token');
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const { data } = await api.get('/auth/me');
+            setUser(data);
+        } catch (error) {
+            console.error('Failed to fetch user', error);
+            Cookies.remove('token');
+            setUser(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchUser = async () => {
-            const token = Cookies.get('token');
-            if (!token) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const { data } = await api.get('/auth/me'); // Ensure API endpoint exists
-                setUser(data);
-            } catch (error) {
-                console.error('Failed to fetch user', error);
-                Cookies.remove('token');
-                setUser(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUser();
+        fetchMe();
     }, []);
 
     const login = (token: string, userData: User) => {
@@ -73,8 +84,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         window.location.href = '/login';
     };
 
+    const updateUserData = (userData: User) => {
+        setUser(userData);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, updateUserData, fetchMe }}>
             {children}
         </AuthContext.Provider>
     );

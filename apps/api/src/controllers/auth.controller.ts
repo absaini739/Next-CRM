@@ -174,6 +174,33 @@ export const deleteUser = async (req: Request, res: Response) => {
     }
 };
 
+export const updateMe = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId;
+        const { name, deal_updates, email_notifications, push_notifications, task_reminders } = req.body;
+
+        const updateData: any = {};
+        if (name) updateData.name = name;
+        if (typeof deal_updates === 'boolean') updateData.deal_updates = deal_updates;
+        if (typeof email_notifications === 'boolean') updateData.email_notifications = email_notifications;
+        if (typeof push_notifications === 'boolean') updateData.push_notifications = push_notifications;
+        if (typeof task_reminders === 'boolean') updateData.task_reminders = task_reminders;
+
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+            include: { role: true }
+        });
+
+        const { password: _, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating profile' });
+    }
+};
+
 export const updateUser = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);
