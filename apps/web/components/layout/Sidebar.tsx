@@ -15,7 +15,8 @@ import {
     Cog6ToothIcon,
     PhoneIcon,
     EnvelopeIcon,
-    ArrowsRightLeftIcon
+    ArrowsRightLeftIcon,
+    ListBulletIcon
 } from '@heroicons/react/24/outline';
 import { usePermissions } from '@/lib/usePermissions';
 
@@ -24,6 +25,7 @@ const navigation = [
     { name: 'Persons', href: '/persons', icon: UsersIcon, permission: 'persons' },
     { name: 'Organizations', href: '/organizations', icon: BuildingOfficeIcon, permission: 'organizations' },
     { name: 'Leads', href: '/leads', icon: FunnelIcon, permission: 'leads' },
+    { name: 'All Leads', href: '/leads-list', icon: ListBulletIcon, permission: 'leads' },
     { name: 'Deals', href: '/deals', icon: CurrencyDollarIcon, permission: 'deals' },
     { name: 'Products', href: '/products', icon: ShoppingBagIcon, permission: 'products' },
     { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon, permission: 'quotes' },
@@ -66,7 +68,9 @@ export default function Sidebar() {
             {/* Navigation */}
             <nav className="flex-1 px-2 py-4 space-y-1">
                 {filteredNavigation.map((item) => {
-                    const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+                    const isActive = item.href === '/'
+                        ? pathname === '/'
+                        : pathname === item.href || pathname.startsWith(item.href + '/');
                     const Icon = item.icon;
                     return (
                         <Link

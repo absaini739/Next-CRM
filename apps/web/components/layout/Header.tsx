@@ -107,12 +107,14 @@ export default function Header() {
         }
     }, [user]);
 
-    const markRead = async (id: number, taskId?: number) => {
+    const markRead = async (id: number, taskId?: number, leadId?: number) => {
         try {
             await api.put(`/notifications/${id}/read`);
             fetchNotifications();
             if (taskId) {
                 router.push(`/tasks/${taskId}`);
+            } else if (leadId) {
+                router.push(`/leads-list?leadId=${leadId}`);
             }
         } catch (error) {
             console.error('Failed to mark notification as read');
@@ -341,7 +343,7 @@ export default function Header() {
                                             <div
                                                 key={notif.id}
                                                 className={`p-4 border-b border-gray-50 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer ${!notif.is_read ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
-                                                onClick={() => markRead(notif.id, notif.task_id)}
+                                                onClick={() => markRead(notif.id, notif.task_id, notif.lead_id)}
                                             >
                                                 <div className="flex items-start gap-3">
                                                     <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${!notif.is_read ? 'bg-blue-500' : 'bg-transparent'}`} />

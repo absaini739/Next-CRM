@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma';
 import { gmailService } from './gmail.service';
 import { outlookService } from './outlook.service';
+import { NotificationService } from '../notification.service';
 
 /**
  * BULLETPROOF Email Sync Service
@@ -374,6 +375,8 @@ export class EmailSyncService {
         return { synced: totalSynced, errors: totalErrors };
     }
 
+
+
     /**
      * Create email message - SAFE VERSION with thread handling
      */
@@ -467,6 +470,27 @@ export class EmailSyncService {
         await autoLinkEmail(newEmail.id, {
             excludeEmails: accountEmail ? [accountEmail] : []
         });
+
+        // Trigger Notification for Inbox emails
+        if (folder === 'inbox' && !parsedMessage.is_read) {
+            try {
+                // Fetch account to get user_id
+                const account = await prisma.emailAccount.findUnique({
+                    where: { id: accountId },
+                    select: { user_id: true }
+                });
+
+                if (account?.user_id) {
+                    await NotificationService.notify(
+                        account.user_id,
+                        `New email from ${parsedMessage.from_name || parsedMessage.from_email}: ${parsedMessage.subject}`,
+                        'email'
+                    );
+                }
+            } catch (err) {
+                console.error('[Sync] Failed to send notification:', err);
+            }
+        }
 
         return newEmail;
     }

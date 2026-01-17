@@ -253,6 +253,7 @@ export const createTask = async (req: Request, res: Response) => {
             await NotificationService.notify(
                 assignedToId!,
                 `New task assigned by ${assigner?.name}: ${task.title}`,
+                'task',
                 task.id
             );
         }
@@ -357,7 +358,7 @@ export const updateTask = async (req: Request, res: Response) => {
                 message = `Task "${task.title}" progress updated to ${data.progress}% by ${updaterName}`;
             }
 
-            await NotificationService.notify(task.assigned_to_id, message, task.id);
+            await NotificationService.notify(task.assigned_to_id, message, 'task', task.id);
         }
 
         // Notify Assignor if Assignee updates the task
@@ -371,7 +372,7 @@ export const updateTask = async (req: Request, res: Response) => {
                 message = `Assignee ${updaterName} updated progress of "${task.title}" to ${data.progress}%`;
             }
 
-            await NotificationService.notify(task.assigned_by_id, message, task.id);
+            await NotificationService.notify(task.assigned_by_id, message, 'task', task.id);
         }
 
         res.json(task);
@@ -400,14 +401,22 @@ export const getMyTasks = async (req: Request, res: Response) => {
     try {
         // @ts-ignore
         const userId = req.userId;
-        const { status } = req.query;
+        const { status, mode } = req.query;
 
-        const where: any = { assigned_to_id: userId };
+        const where: any = {};
+
+        if (mode === 'assigned_by_me') {
+            where.assigned_by_id = userId;
+        } else {
+            where.assigned_to_id = userId;
+        }
+
         if (status) where.status = status;
 
         const tasks = await prisma.task.findMany({
             where,
             include: {
+                assigned_to: { select: { id: true, name: true } },
                 assigned_by: { select: { id: true, name: true } },
                 person: { select: { id: true, name: true } },
                 lead: { select: { id: true, title: true } },

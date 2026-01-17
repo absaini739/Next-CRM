@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -32,6 +33,7 @@ interface Email {
     id: number;
     from_name: string;
     from_email: string;
+    to?: any;
     subject: string;
     snippet: string;
     folder: string;
@@ -46,6 +48,15 @@ import EmailDetail from '@/components/emails/EmailDetail';
 import ComposeEmail from '@/components/emails/ComposeEmail';
 
 export default function EmailsPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <EmailsContent />
+        </Suspense>
+    );
+}
+
+function EmailsContent() {
+    const searchParams = useSearchParams();
     const [accounts, setAccounts] = useState<EmailAccount[]>([]);
     const [selectedAccountId, setSelectedAccountId] = useState<string>('');
     const [folder, setFolder] = useState('inbox');
@@ -74,6 +85,14 @@ export default function EmailsPage() {
         body?: string;
         selectedAccountId?: number;
     } | undefined>(undefined);
+
+    useEffect(() => {
+        const to = searchParams.get('to');
+        if (to) {
+            setComposeData({ to });
+            setShowCompose(true);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         fetchAccounts();

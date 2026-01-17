@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { getDealEmails as fetchDealEmails } from '../services/email-linking.service';
+import { NotificationService } from '../services/notification.service';
 
 const dealSchema = z.object({
     title: z.string().min(1),
@@ -11,6 +12,7 @@ const dealSchema = z.object({
     lead_id: z.number().int().optional(),
     pipeline_id: z.number().int().optional(),
     stage_id: z.number().int().optional(),
+    status: z.string().optional(),
 });
 
 export const createDeal = async (req: Request, res: Response) => {
@@ -85,6 +87,27 @@ export const updateDeal = async (req: Request, res: Response) => {
             where: { id },
             data,
         });
+
+        // Notifications for Deal Updates
+        // @ts-ignore
+        const userId = req.userId;
+
+        // If status/stage changed or deal updated by someone else, notify the owner
+        if (deal.user_id && deal.user_id !== userId) {
+            const updater = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+            const updaterName = updater?.name || 'A user';
+
+            let message = `Deal "${deal.title}" was updated by ${updaterName}`;
+            if (data.stage_id && data.stage_id !== deal.stage_id) message = `Deal "${deal.title}" stage changed by ${updaterName}`;
+            if (data.status && data.status !== deal.status) message = `Deal "${deal.title}" status changed to ${data.status} by ${updaterName}`;
+
+            await NotificationService.notify(
+                deal.user_id,
+                message,
+                'deal',
+                deal.id
+            );
+        }
 
         res.json(deal);
     } catch (error) {

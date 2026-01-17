@@ -77,28 +77,26 @@ export default function MyTasksPanel() {
                     <CheckCircleIcon className="h-5 w-5 text-blue-500" />
                     Task Overview
                 </h3>
-                {isAdminOrManager && (
-                    <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
-                        <button
-                            onClick={() => setMode('assigned_to_me')}
-                            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${mode === 'assigned_to_me'
-                                ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                        >
-                            Assigned to Me
-                        </button>
-                        <button
-                            onClick={() => setMode('assigned_by_me')}
-                            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${mode === 'assigned_by_me'
-                                ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                        >
-                            Assigned by Me
-                        </button>
-                    </div>
-                )}
+                <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+                    <button
+                        onClick={() => setMode('assigned_to_me')}
+                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${mode === 'assigned_to_me'
+                            ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        Assigned to Me
+                    </button>
+                    <button
+                        onClick={() => setMode('assigned_by_me')}
+                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${mode === 'assigned_by_me'
+                            ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        Assigned by Me
+                    </button>
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[300px]">

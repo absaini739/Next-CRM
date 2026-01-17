@@ -142,13 +142,17 @@ model Lead {
   primary_email   String?
   secondary_email String?
   website         String?
+  product_interest String?
   assigned_to_id  Int?
+  lead_score      Int?            @default(0)
+  tags            Json?
   activities      Activity[]
   calendarEvents  CalendarEvent[]
   deals           Deal[]
   email_messages  EmailMessage[]  @relation("EmailMessageLead")
   emails          Email[]
   assigned_to     User?           @relation("LeadsAssignedTo", fields: [assigned_to_id], references: [id])
+  notifications   Notification[]
   source          LeadSource?     @relation(fields: [lead_source_id], references: [id])
   type            LeadType?       @relation(fields: [lead_type_id], references: [id])
   organization    Organization?   @relation(fields: [organization_id], references: [id])
@@ -720,10 +724,12 @@ model Notification {
   id         Int      @id @default(autoincrement())
   user_id    Int
   task_id    Int?
+  lead_id    Int?
   message    String
   is_read    Boolean  @default(false)
   created_at DateTime @default(now())
   task       Task?    @relation(fields: [task_id], references: [id])
+  lead       Lead?    @relation(fields: [lead_id], references: [id])
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("notifications")

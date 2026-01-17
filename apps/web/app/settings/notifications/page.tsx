@@ -186,20 +186,22 @@ export default function NotificationsPage() {
                     </div>
 
                     <div className="space-y-6">
-                        <Card className="p-6 bg-blue-600 text-white border-none shadow-lg shadow-blue-200 dark:shadow-none">
-                            <ShieldCheckIcon className="h-8 w-8 mb-4 opacity-80" />
-                            <h3 className="text-xl font-black mb-2 tracking-tight">Stay Connected</h3>
-                            <p className="text-sm text-blue-100 leading-relaxed mb-6">
-                                Keeping your notifications active ensures you stay updated on pipeline movements and team collaborations.
-                            </p>
-                            <Button
-                                variant="secondary"
-                                className="w-full bg-white text-blue-600 hover:bg-blue-50 border-none font-bold py-3"
-                                onClick={handleSave}
-                                disabled={saving}
-                            >
-                                {saving ? 'SAVING...' : 'APPLY SETTINGS'}
-                            </Button>
+                        <Card className="p-0 overflow-hidden border-none shadow-sm bg-white dark:bg-slate-800">
+                            <div className="p-6">
+                                <ShieldCheckIcon className="h-8 w-8 mb-4 text-blue-600" />
+                                <h3 className="text-xl font-black mb-2 tracking-tight text-gray-900 dark:text-white">Stay Connected</h3>
+                                <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed mb-6">
+                                    Keeping your notifications active ensures you stay updated on pipeline movements and team collaborations.
+                                </p>
+                                <Button
+                                    variant="primary"
+                                    className="w-full font-bold py-3"
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                >
+                                    {saving ? 'SAVING...' : 'APPLY SETTINGS'}
+                                </Button>
+                            </div>
                         </Card>
 
                         <Card className="p-6 border-none shadow-sm bg-gray-50 dark:bg-slate-800/50 text-center">
