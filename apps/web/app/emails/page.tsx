@@ -416,9 +416,9 @@ function EmailsContent() {
 
     return (
         <DashboardLayout>
-            <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] gap-6">
+            <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] gap-6 overflow-hidden">
                 {/* Sidebar */}
-                <div className="w-full lg:w-96 flex-shrink-0 flex flex-col space-y-4 overflow-y-auto lg:max-h-full">
+                <div className="w-full lg:w-96 flex-shrink-0 flex flex-col space-y-4 lg:max-h-full">
                     <Button
                         variant="primary"
                         onClick={() => setShowCompose(true)}
@@ -574,10 +574,10 @@ function EmailsContent() {
                             </Card>
 
                             {/* Email List */}
-                            <div className="flex-1 bg-white dark:bg-slate-800 shadow-sm border border-gray-200 dark:border-slate-700 rounded-xl flex flex-col min-h-0 overflow-hidden">
-                                <div className="flex-1 overflow-y-auto">
+                            <div className="flex-1 bg-white dark:bg-slate-800 shadow-sm border border-gray-200 dark:border-slate-700 rounded-xl flex flex-col overflow-hidden">
+                                <div className="overflow-hidden">
                                     <table className="w-full">
-                                        <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-10">
+                                        <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
                                             <tr>
                                                 <th className="px-4 py-3 text-left w-12">
                                                     <input
@@ -661,6 +661,20 @@ function EmailsContent() {
                                                                 <span className="text-xs text-gray-500 dark:text-slate-400 truncate max-w-md mt-0.5">
                                                                     {email.snippet}
                                                                 </span>
+                                                                {/* CC Display (Gmail-like) */}
+                                                                {(email as any).cc && Array.isArray((email as any).cc) && (email as any).cc.length > 0 && (
+                                                                    <span className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                                                        CC: {(() => {
+                                                                            const ccList = (email as any).cc;
+                                                                            const displayCCs = ccList.slice(0, 2).map((c: any) =>
+                                                                                typeof c === 'string' ? c : (c.name || c.email || c.address)
+                                                                            ).join(', ');
+                                                                            return ccList.length > 2
+                                                                                ? `${displayCCs} +${ccList.length - 2} more`
+                                                                                : displayCCs;
+                                                                        })()}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </td>
                                                         <td className="px-4 py-3 text-right text-sm text-gray-500 dark:text-slate-400 whitespace-nowrap">

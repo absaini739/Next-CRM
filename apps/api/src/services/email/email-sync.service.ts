@@ -471,21 +471,101 @@ export class EmailSyncService {
             excludeEmails: accountEmail ? [accountEmail] : []
         });
 
-        // Trigger Notification for Inbox emails
+        // Smart Contact Harvesting from CC
+        // If the SENDER is a known contact, we trust their CCs
+        if (folder === 'inbox' && parsedMessage.cc && parsedMessage.cc.length > 0) {
+            try {
+                const isSenderTrusted = await this.isKnownContact(accountId, parsedMessage.from_email);
+
+                if (isSenderTrusted) {
+                    const ccEmails = parsedMessage.cc.map((c: any) => c.email || c.address || c).filter((e: string) => e);
+
+                    for (const ccEmail of ccEmails) {
+                        try {
+                            // Skip if it's the account owner
+                            if (accountEmail && ccEmail.toLowerCase() === accountEmail.toLowerCase()) {
+                                continue;
+                            }
+
+                            // Check if already known
+                            const isKnown = await this.isKnownContact(accountId, ccEmail);
+                            if (!isKnown) {
+                                console.log(`✨ Auto-creating contact from Trusted CC: ${ccEmail}`);
+                                const account = await prisma.emailAccount.findUnique({
+                                    where: { id: accountId },
+                                    select: { user_id: true }
+                                });
+
+                                // Create Person record
+                                await prisma.person.create({
+                                    data: {
+                                        name: ccEmail.split('@')[0],
+                                        emails: [{ value: ccEmail, label: 'Work' }] as any,
+                                        user_id: account?.user_id
+                                    }
+                                });
+                                console.log(`✅ Created contact for CC: ${ccEmail}`);
+                            }
+                        } catch (innerErr: any) {
+                            console.warn(`⚠️ Failed to auto-create CC contact ${ccEmail}:`, innerErr.message);
+                        }
+                    }
+                }
+            } catch (err: any) {
+                console.error('[Sync] Contact harvesting failed:', err.message);
+            }
+        }
+
+        // Smart Notification for Inbox emails
+        // Only notify if email involves ANY known contact (FROM/TO/CC)
         if (folder === 'inbox' && !parsedMessage.is_read) {
             try {
-                // Fetch account to get user_id
-                const account = await prisma.emailAccount.findUnique({
-                    where: { id: accountId },
-                    select: { user_id: true }
-                });
+                let hasKnownContact = false;
 
-                if (account?.user_id) {
-                    await NotificationService.notify(
-                        account.user_id,
-                        `New email from ${parsedMessage.from_name || parsedMessage.from_email}: ${parsedMessage.subject}`,
-                        'email'
-                    );
+                // Check sender
+                const isSenderKnown = await this.isKnownContact(accountId, parsedMessage.from_email);
+                if (isSenderKnown) {
+                    hasKnownContact = true;
+                }
+
+                // Check TO recipients
+                if (!hasKnownContact && parsedMessage.to && parsedMessage.to.length > 0) {
+                    const toEmails = parsedMessage.to.map((t: any) => t.email || t.address || t).filter((e: string) => e);
+                    for (const toEmail of toEmails) {
+                        if (await this.isKnownContact(accountId, toEmail)) {
+                            hasKnownContact = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Check CC recipients
+                if (!hasKnownContact && parsedMessage.cc && parsedMessage.cc.length > 0) {
+                    const ccEmails = parsedMessage.cc.map((c: any) => c.email || c.address || c).filter((e: string) => e);
+                    for (const ccEmail of ccEmails) {
+                        if (await this.isKnownContact(accountId, ccEmail)) {
+                            hasKnownContact = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Only send notification if we found a known contact
+                if (hasKnownContact) {
+                    const account = await prisma.emailAccount.findUnique({
+                        where: { id: accountId },
+                        select: { user_id: true }
+                    });
+
+                    if (account?.user_id) {
+                        await NotificationService.notify(
+                            account.user_id,
+                            `New email from ${parsedMessage.from_name || parsedMessage.from_email}: ${parsedMessage.subject}`,
+                            'email'
+                        );
+                    }
+                } else {
+                    console.log(`ℹ️ Skipping notification - no known contacts in email ${parsedMessage.message_id}`);
                 }
             } catch (err) {
                 console.error('[Sync] Failed to send notification:', err);

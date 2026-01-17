@@ -38,17 +38,15 @@ export const getEmails = async (req: Request, res: Response) => {
             where.account_id = parseInt(account_id as string);
         }
 
+
+
         // CRM-SPECIFIC FILTERING FOR INBOX
-        // Only show emails where sender OR receiver is a CRM contact
+        // Show emails where sender is a CRM contact or sent from CRM
         if (folder === 'inbox') {
             const { getCRMContactEmails } = await import('../services/crm-contacts.service');
             const crmEmails = await getCRMContactEmails(userId);
 
             if (crmEmails.length > 0) {
-                // Filter: show email if:
-                // 1. Sender is in CRM contacts
-                // 2. Email was sent from CRM
-                // 3. Any recipient (to/cc) is in CRM contacts
                 where.OR = [
                     { from_email: { in: crmEmails, mode: 'insensitive' } },
                     { sent_from_crm: true }
@@ -71,15 +69,15 @@ export const getEmails = async (req: Request, res: Response) => {
                 { snippet: { contains: search as string, mode: 'insensitive' } }
             ];
 
-            if (folder === 'inbox' && where.OR) {
+            if (folder === 'inbox' && where.id) {
                 // For inbox with CRM filter, combine both filters using AND
                 where.AND = [
-                    { OR: where.OR },
+                    { id: where.id },
                     { OR: searchConditions }
                 ];
-                delete where.OR;
+                delete where.id;
             } else {
-                // For other folders or inbox without CRM filter, just apply search
+                // For other folders, just apply search
                 where.OR = searchConditions;
             }
         }
