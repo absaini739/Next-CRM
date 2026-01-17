@@ -12,34 +12,73 @@ Your Next-CRM application is **UP and RUNNING**:
 
 ---
 
-## ⚠️ Database Setup (Optional)
+## ✅ Database Setup - AUTO-STARTS ON BOOT!
 
-PostgreSQL is not currently installed. The app runs without it, but you'll need it for full functionality.
+Your PostgreSQL and Redis containers are **configured to auto-start** on system boot!
 
-### Option 1: Install PostgreSQL with Podman (Recommended - Easiest)
+### Already Running! 🎉
+
+The database containers are set up with systemd and will automatically start:
+- **PostgreSQL**: `localhost:5432` (auto-starts on boot)
+- **Redis**: `localhost:6379` (auto-starts on boot)
+
+**No manual starting needed!** Just run `npm run dev` and everything works.
+
+### Manual Control (If Needed)
 
 ```bash
-# Start PostgreSQL container
+# Quick start (if containers stopped)
+npm run start-db
+
+# Or manually
+podman start laravel-crm-db laravel-crm-redis
+
+# Check status
+podman ps | grep laravel-crm
+
+# View systemd status
+systemctl --user status container-laravel-crm-db.service
+```
+
+### First Time Setup (Already Done!)
+
+If you need to recreate containers:
+
+```bash
+# Remove old containers
+podman rm -f laravel-crm-db laravel-crm-redis
+
+# Create new containers
 podman run -d \
   --name laravel-crm-db \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=laravel_crm_next \
   -p 5432:5432 \
+  -v laravel_crm_postgres_data:/var/lib/postgresql/data \
   postgres:15-alpine
 
-# Start Redis container
 podman run -d \
   --name laravel-crm-redis \
   -p 6379:6379 \
   redis:7-alpine
 
-# Wait 10 seconds for PostgreSQL to start, then run migrations
+# Re-enable auto-start
+cd ~/.config/systemd/user/
+podman generate systemd --new --files --name laravel-crm-db
+podman generate systemd --new --files --name laravel-crm-redis
+systemctl --user daemon-reload
+systemctl --user enable container-laravel-crm-db.service
+systemctl --user enable container-laravel-crm-redis.service
+
+# Wait for DB to be ready, then run migrations
 sleep 10
-cd apps/api
+cd ~/Downloads/laravel-crm-next/apps/api
 npx prisma migrate deploy
 npx tsx prisma/seed.ts
 ```
+
+📚 **See [DATABASE.md](./DATABASE.md) for complete database management guide.**
 
 ### Option 2: Install PostgreSQL System-Wide
 
